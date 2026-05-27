@@ -1,0 +1,34 @@
+<body style="color: white; margin-top: 0px;">
+  <div class="marquee-container">
+    <h2>【说明】</h2>
+    <p style="margin-left: 40px;">① 请正确填写用户注册信息，以便负责人进行确认。</p>
+    <p style="margin-left: 40px;">② 负责人确认并批准后，您将可以登录。</p>
+    <p style="margin-left: 40px;">③ 用户ID和电子邮件地址将用作登录ID，因此不能重复。</p>
+  </div>      
+</body>   
+<style>
+  .marquee-container {
+    background-color: #000;
+    color: #fff;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .marquee-container p {
+    margin: 0;
+    padding: 0 20px;
+    display: inline-block;
+    animation: marquee 20s linear infinite;
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+</style>

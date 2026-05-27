@@ -1,0 +1,1 @@
+import './UploadImage.js';   // 画像取込み設定

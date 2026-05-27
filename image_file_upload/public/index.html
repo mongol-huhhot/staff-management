@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja" class="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <script type="module" src="js/index.js"></script>
+    <style>
+      :root{
+          --el-font-family:'Helvetica Neue','Arial','メイリオ', 'Meiryo', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', sans-serif !important;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div style="display: block;">
+    <!-- we also provide additional properties for this custom web component to set various parameters among diffrent components even they are displyed on a single page  -->
+    <!-- 
+      these properties are optional. you can leverage them freely based on your needs.
+      compressRatio: { type: Number, default: 1 },   // 0.1 ~ 1 (e.g., 0.5 halves width/height)
+      jpegQuality:  { type: Number, default: 0.9 },  // 0.1 ~ 1 (JPEG encode quality)
+      outputFormat: { type: String, default: 'image/jpeg' }, // 'image/jpeg' | 'image/png' | 'image/webp'
+      maxWidth:     { type: Number, default: 0 },    // optional hard cap; 0 = ignore
+      maxHeight:    { type: Number, default: 0 },    // optional hard cap; 0 = ignore
+    -->
+      <image-uplaod
+        category-code="mynumber_card"
+        swap-size-in-landscape="true"
+        identity="2025"
+        id="mynumber_card"
+        compress-ratio=0.5
+        jpeg-quality=0.8
+      ></image-uplaod>
+
+      <image-uplaod
+        category-code="student_card"
+        swap-size-in-landscape="true"
+        identity="2025"
+        id="student_card"
+        compress-ratio=0.5
+        jpeg-quality=0.8
+        ></image-uplaod>
+   </div>          
+  </body>
+</html>
+

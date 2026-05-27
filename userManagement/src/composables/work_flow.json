@@ -1,0 +1,57 @@
+{
+  "workflow_id": "contract_approval_v1",
+  "name": "Contract Approval Workflow",
+  "description": "A 3-step approval process for contracts.",
+  "steps": [
+    {
+      "id": "draft",
+      "label": "Draft Submission",
+      "role": "applicant",
+      "actions": ["submit"],
+      "next": "team_leader_approval"
+    },
+    {
+      "id": "team_leader_approval",
+      "label": "Team Leader Approval",
+      "role": "team_leader",
+      "actions": ["approve", "reject"],
+      "conditions": {
+        "max_amount": 500000
+      },
+      "next": {
+        "approve": "department_manager_approval",
+        "reject": "rejected"
+      }
+    },
+    {
+      "id": "department_manager_approval",
+      "label": "Department Manager Approval",
+      "role": "department_manager",
+      "actions": ["approve", "reject"],
+      "next": {
+        "approve": "hq_final_approval",
+        "reject": "rejected"
+      }
+    },
+    {
+      "id": "hq_final_approval",
+      "label": "HQ Final Approval",
+      "role": "hq_manager",
+      "actions": ["approve", "reject"],
+      "next": {
+        "approve": "approved",
+        "reject": "rejected"
+      }
+    },
+    {
+      "id": "approved",
+      "label": "Approved",
+      "final": true
+    },
+    {
+      "id": "rejected",
+      "label": "Rejected",
+      "final": true
+    }
+  ]
+}

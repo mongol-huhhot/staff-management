@@ -1,0 +1,13 @@
+{
+  "surupasTitle": "Đăng nhập SURUPAs",
+  "loginId": "Tên đăng nhập",
+  "loginPassword": "Mật khẩu",
+  "forgetPassword": "Quên mật khẩu?",
+  "loginBtn": "Đăng nhập",
+  "registerUserBtn": "Đăng ký mới",
+  "envBtn": "Về môi trường hoạt động",
+  "privacyBtn": "Chính sách bảo mật / Bảo vệ thông tin cá nhân",
+  "versionBtn": "Cách kiểm tra phiên bản",
+  "whileForgetPasswordBtn": "Nếu bạn quên mật khẩu",
+  "whileSmartPhoneQR": "Truy cập qua điện thoại thông minh"
+}

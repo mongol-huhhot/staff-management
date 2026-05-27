@@ -1,0 +1,13 @@
+{
+  "workflow_id": "simple_direct_entry",
+  "name": "Direct CRUD Mode",
+  "steps": [
+    {
+      "id": "entry",
+      "label": "Direct Input",
+      "role": "self_manager",
+      "actions": ["create", "update", "delete", "finalize"],
+      "final": true
+    }
+  ]
+}

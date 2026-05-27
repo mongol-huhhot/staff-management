@@ -1,0 +1,13 @@
+{
+  "surupasTitle": "SURUPAs Login",
+  "loginId": "Login ID",
+  "loginPassword": "Password",
+  "forgetPassword": "Forgot Password?",
+  "loginBtn": "Login",
+  "registerUserBtn": "Register New User",
+  "envBtn": "About Operating Environment",
+  "privacyBtn": "Privacy Policy / Personal Information Protection",
+  "versionBtn": "Check Version",
+  "whileForgetPasswordBtn": "If You Forgot Your Password",
+  "whileSmartPhoneQR": "Access via Smartphone"
+}

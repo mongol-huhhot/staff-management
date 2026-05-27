@@ -1,0 +1,13 @@
+{
+  "surupasTitle": "SURUPAs 로그인",
+  "loginId": "로그인 ID",
+  "loginPassword": "비밀번호",
+  "forgetPassword": "비밀번호를 잊으셨나요?",
+  "loginBtn": "로그인",
+  "registerUserBtn": "신규 등록",
+  "envBtn": "운영 환경 안내",
+  "privacyBtn": "개인정보 보호/개인정보 처리방침",
+  "versionBtn": "버전 확인 방법",
+  "whileForgetPasswordBtn": "비밀번호를 잊으셨을 경우",
+  "whileSmartPhoneQR": "스마트폰을 통한 접근"
+}

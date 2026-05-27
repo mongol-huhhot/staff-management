@@ -1,0 +1,14 @@
+{
+  "surupasTitle": "SURUPAs ログイン",
+  "loginId": "ログインID",
+  "loginPassword": "パスワード",
+  "forgetPassword": "パスワード忘れ?",
+  "loginBtn": "login",
+  "registerUserBtn": "新規登録",
+  "envBtn": "動作環境について",
+  "privacyBtn": "個人情報保護/プライバシーポリシー",
+  "versionBtn": "バージョン確認方法",
+  "whileForgetPasswordBtn": "パスワードを忘れた場合",
+  "whileSmartPhoneQR": "スマートフォーンからのアクセス"
+}
+

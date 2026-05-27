@@ -1,0 +1,257 @@
+<style>
+h4 {
+    padding: 0; 
+    margin: 0 0 8px 0; 
+    color: #239179;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0px !important;
+    margin-bottom: 8px !important;
+    padding: 0 0 0 0 ;
+}
+
+.card-header-title {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+    padding: 0px 0px !important;
+}
+
+.waring-info {
+    margin-left: 12px;
+}
+
+.header_col {
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    text-align: center;
+    color: #2f4f4f;
+    font-weight:500;
+    font-size: 0.93em;
+    background-color: rgba(204, 217, 228, 0.45);
+    padding: 4px 12px 4px 6px;
+}
+
+.table_td {
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc; 
+    font-size: small; 
+}
+
+.click-td:hover {
+    background-color: rgba(255, 165, 0, 0.3 );
+    color: red;
+    text-decoration: underline;
+    transform: scale(1.01);
+    cursor: pointer;
+}
+
+.help_table_td {
+    text-align: left;
+    /* word-wrap: break-word; */
+    white-space: normal;
+}
+
+.input_field {
+    background-color: transparent !important;
+    border: none;
+    color: #2f4f4f;
+}
+
+table {
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.thead-fixed {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: rgba(233, 238, 241, 1);
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8fce9; /* 偶数行の背景色 */
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #ffffff; /* 奇数行の背景色 */
+}
+
+.fixed-column {
+    position: -webkit-sticky;
+    position: sticky;
+    left: 0;
+    background-color: rgba(233, 238, 241, 1);
+    z-index: 1000;
+}
+</style>
+    
+<table border="1" width="100%">
+    <tbody>
+        <tr>
+            <td style="padding: 4px;">
+                <div style="margin-right: 12px;">社員情報 </div>
+            </td>
+            <td style="padding: 4px;">
+                <div>
+                    名前: <%staff_name%>
+                </div>
+                <div style="display: flex;">
+                    <div style="width: 15em;">所属部署: <%department%></div>
+                    <div style="width: 15em;">契約形態: <%contract_type%></div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                会社情報
+            </td>
+            <td style="padding: 4px;">
+                <div style="display: flex;">
+                    <div style="width: 15em;">企業名: <%company_name%></div>
+                    <div>郵便番号: <%zip_code%></div>
+                </div>
+                <div>住所: <%address%></div>
+                <div>責任者: <%director%></div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                雇用期間
+            </td>
+            <td style="padding: 4px;">
+                <div>期間: <%period_type%></div>
+                <div style="display: flex;">
+                    <div style="width: 15em;">開始日: <%start_date%></div>
+                    <div style="width: 15em;">終了日: <%end_date%></div>
+                </div>
+                <div>※以下は、「契約期間」について「期間の定めあり」とした場合に記入:</div>
+                <div>契約の更新の有無: <%auto_renewal%></div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                勤務地
+            </td>
+            <td style="padding: 4px;">
+                <div><%work_place%></div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                仕事の内容
+            </td>
+            <td style="padding: 4px;">
+                <div><%job_details%></div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                就業時間
+            </td>
+            <td style="padding: 4px;">
+                <div style="display: flex;"><%work_start%> 時から <%work_end%> 時</div>
+                <div style="display: flex;">休憩時間: <%break_hours%> 時間</div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                就業日
+            </td>
+            <td style="padding: 4px;">
+                <%work_week_days%>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                休日
+            </td>
+            <td style="padding: 4px;">
+                <%leave_week_days%>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                健康保険契約<br>取得の有無
+            </td>
+            <td style="padding: 4px;">
+                <%health_insurance%>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                厚生年金保険契約<br>取得の有無
+            </td>
+            <td style="padding: 4px;">
+                <%pension_insurance%>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                雇用保険契約<br>取得の有無
+            </td>
+            <td style="padding: 4px;">
+                <%employment_insurance%>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                給与形態
+            </td>
+            <td style="padding: 4px;">
+               <%salary_type%>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                賃 金
+            </td>
+            <td style="padding: 4px;">
+               <div style="display: flex;">
+                    <div style="width: 15em;">基本給(円): <%basic_salary%></div>
+                    <div style="width: 15em;">合計(円): <%total_salary%></div>
+                </div>
+                <div style="display: flex;">
+                    <div>残業時間基準: <%over_time_base_value_min%> 時間〜: <%over_time_base_value_max%> 時間</div>
+                </div>
+                <div style="display: flex;">
+                    <div>残業: <%over_time_price_min%> 円/時</div> <div> 控除: <%over_time_deduction_max%> 円/時</div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                手 当
+            </td>
+            <td style="padding: 4px;">
+               <div>
+                <%loop:allowances%>
+                    <div>手当項目名: <%allowance_name%> 手当項目値:<%allowance_value%> 単位: <%allowance_unit%></div>
+                <%endloop:allowances%>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                支払条件 
+            </td>
+            <td style="padding: 4px;">
+                <%payment_terms%>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 4px;">
+                その他の契約内容
+            </td>
+            <td style="padding: 4px;">
+                <%etc_content%>
+            </td>
+        </tr>
+    </tbody>
+</table>

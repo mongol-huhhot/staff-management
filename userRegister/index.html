@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <!-- <link rel="manifest" href="/manifest.webmanifest"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surupas-Common-Interface</title>
+    <script>
+      window.appConfig = {
+        mail_confirm: true,
+        excludes: ['face_image'],
+        linkto: 'https://surupas-dev.native365.net/janga_vue_base_system/entrance/'
+      };
+    </script>
+    <style>
+    html, body, #app {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Prevents unwanted scrolling */
+    }
+    </style>
+
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.0/css/flag-icons.min.css"> -->
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999;">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+          <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </div>
+    </div> -->
+  
+    <div id="snackbar" style="display: none; position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 16px; border-radius: 4px; z-index: 9999;">
+    </div>
+    
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
+

@@ -1,0 +1,73 @@
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import AutoImport from 'unplugin-auto-import/vite'
+import { createHash } from 'crypto';  // Ensure you import createHash from crypto
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  base: "./",
+  plugins: [
+    vue(),
+    AutoImport({
+      imports: [
+        'vue',
+      ],
+    }),
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  },
+  server: {
+    port: 3000,
+    proxy:{
+      "^/(.*)/dataEngine/v3/.*": {
+        target: 'https://surupas-run.native365.net',
+        changeOrigin: true,
+        secure:false
+      },
+      "^/(.*)/common/.*": {
+        target: 'https://surupas-run.native365.net',
+        changeOrigin: true,
+        secure:false
+      },
+      "/tools/": {
+        target: 'https://surupas-run.native365.net',
+        changeOrigin: true,
+        secure:false
+
+      },
+      "/human_resources/": {
+        target: 'https://surupas-run.native365.net',
+        changeOrigin: true,
+        secure:false
+      }
+  }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        chunkFileNames: (chunkInfo) => {
+          const code = chunkInfo.code || '';
+          const hash = createHash('md5').update(code).digest('hex').slice(0, 8);
+          return `assets/[name]-${hash}.js`;
+        },
+        entryFileNames: (chunkInfo) => {
+          const code = chunkInfo.code || '';
+          const hash = createHash('md5').update(code).digest('hex').slice(0, 8);
+          return `assets/[name]-${hash}.js`;
+        },
+        assetFileNames: (assetInfo) => {
+          const source = assetInfo.source || '';
+          const ext = assetInfo.name.split('.').pop();
+          const hash = createHash('md5').update(source).digest('hex').slice(0, 8);
+          return `assets/[name]-${hash}.${ext}`;
+        }
+      }
+    },
+    chunkSizeWarningLimit: 10000 // Adjust as needed
+  }
+})

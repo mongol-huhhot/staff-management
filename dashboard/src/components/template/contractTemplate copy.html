@@ -1,0 +1,516 @@
+<div class="tabTemplate" align="center" id="myModal" style="margin-top:0em;">
+	<div style="text-align: right;margin: -.8em 0 .3em 0;float: right;">
+        <button type="button" id="searchCreateButton" class="btn btn-default" style="display: none;">参照作成</button>
+    </div>
+    <table class="table table-bordered tabTemplate" id="contractDetailTable">
+		
+		<input type="hidden" name="staff_id_list" value="test1" disabled="disabled">
+		<input type="hidden" name="contract_id" value="138" disabled="disabled" title="138">
+		<tbody>
+			<tr>
+				<th>社員情報</th>
+				<td align="left">
+					<div class="row">
+						<div class="form-group col-sm-12">
+							<div class="input-group" style="width: 100%">
+								<span class="input-group-addon label-title-width-100">名前</span>
+								<input type="text" class="form-control" name="staff_name_list" readonly="readonly" disabled="disabled">
+							</div>
+						</div>
+						<div class="form-group col-sm-6">
+							<div class="input-group" style="width: 100%">
+								<span class="input-group-addon label-title-width-100" style="height: 36px;">所属部署</span>
+								<div class="btn-group bootstrap-select input-group-btn disabled form-control">
+                                    <button type="button" class="btn dropdown-toggle disabled btn-default" data-toggle="dropdown" role="button" tabindex="-1" aria-disabled="true" title="テスト会社１">
+                                        <span class="filter-option pull-left">テスト会社１</span>&nbsp;
+                                        <span class="bs-caret">
+                                            <span class="caret"></span>
+                                        </span>
+                                    </button>
+                                    <div class="dropdown-menu open" role="combobox">
+                                        <ul class="dropdown-menu inner" role="listbox" aria-expanded="false">
+                                            <li data-original-index="0" class="selected">
+                                                <a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true">
+                                                    <span class="text">所属部門：</span>
+                                                    <span class="glyphicon glyphicon-ok check-mark"></span>
+                                                </a>
+                                            </li>
+                                            <li data-original-index="1">
+                                                <a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false">
+                                                    <span class="text">テスト本部</span>
+                                                    <span class="glyphicon glyphicon-ok check-mark"></span>
+                                                </a>
+                                            </li>
+                                            <li data-original-index="2">
+                                                <a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false">
+                                                    <span class="text">テスト会社１</span>
+                                                    <span class="glyphicon glyphicon-ok check-mark"></span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <select class="form-control" name="contract_department_id" disabled="disabled" tabindex="-98">
+                                        <option value="">所属部門：</option>
+                                        <option value="1684300154412751">テスト本部</option>
+                                        <option value="1686620754001357">テスト会社１</option>
+                                    </select>
+                                </div>
+							</div>
+						</div>
+						<div class="form-group col-sm-6">
+							<div class="input-group" style="width: 100%">
+								<span class="input-group-addon label-title-width-100" style="height: 36px;">スタッフ形態</span>
+								<div class="btn-group bootstrap-select input-group-btn disabled form-control"><button type="button" class="btn dropdown-toggle disabled btn-default" data-toggle="dropdown" role="button" tabindex="-1" aria-disabled="true" title="正社員"><span class="filter-option pull-left">正社員</span>&nbsp;<span class="bs-caret"><span class="caret"></span></span></button><div class="dropdown-menu open" role="combobox" style="max-height: 721.625px; overflow: hidden; min-height: 92px;"><ul class="dropdown-menu inner" role="listbox" aria-expanded="false" style="max-height: 709.625px; overflow-y: auto; min-height: 80px;"><li data-original-index="0" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">スタッフ形態：</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="1"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">正社員</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="2"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">契約社員</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="3"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">パート</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="4"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">アルバイト</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li></ul></div><select class="form-control" name="contract_staff_type" disabled="disabled" tabindex="-98"><option value="">スタッフ形態：</option><option value="0">正社員</option><option value="1">契約社員</option><option value="3">パート</option><option value="8">アルバイト</option></select></div>
+							</div>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>会社情報</th>
+				<td align="left">
+					<div class="form-group col-sm-6">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-100">企業名</span>
+							<input type="text" class="form-control" name="office_company" readonly="readonly" disabled="disabled" title="株式会社ウッディホーム">
+					  </div>
+					</div>
+					<div class="form-group col-sm-6">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-100">郵便番号</span>
+							<input type="text" class="form-control" name="office_post" rows="1" readonly="readonly" disabled="disabled" title="263-0001">
+					    </div>
+				  </div>
+				  <div class="form-group col-sm-12">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-100">所在地</span>
+							<textarea class="form-control" name="office_address" rows="1" readonly="readonly" disabled="disabled"></textarea>
+					    </div>
+				  </div>
+				    <div class="form-group col-sm-12">
+				    	<div class="input-group">
+							<span class="input-group-addon label-title-width-100">責任者</span>
+							<input type="text" class="form-control" name="responsible_person" readonly="readonly" disabled="disabled" title="細木　正盛">
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>雇用期間</th>
+				<td>
+					<div class="row">
+						<div class="form-group col-sm-6">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-100" style="height:36px;">期間</span>
+								<div class="btn-group bootstrap-select input-group-btn disabled form-control"><button type="button" class="btn dropdown-toggle disabled btn-default" data-toggle="dropdown" role="button" tabindex="-1" aria-disabled="true" title="期間の定めあり"><span class="filter-option pull-left">期間の定めあり</span>&nbsp;<span class="bs-caret"><span class="caret"></span></span></button><div class="dropdown-menu open" role="combobox"><ul class="dropdown-menu inner" role="listbox" aria-expanded="false"><li data-original-index="0" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">期間の定めなし</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="1"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">期間の定めあり</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li></ul></div><select class="form-control" name="period_flag" style="height: 36px;" disabled="disabled" tabindex="-98">
+									<option value="0">期間の定めなし</option>
+									<option value="1">期間の定めあり</option>
+								</select></div>
+							</div>
+						</div>
+
+						<!--期間の定めあり-->
+						<div class="form-group col-sm-12">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-100">開始日<span class="require-col">必須</span></span>
+								<input type="text" class="form-control date" name="period_start" disabled="disabled" title="2023/07/02">
+								<span class="input-group-addon group-addon-border-none period-control" style="display: table-cell;">終了日</span>
+								<input type="text" class="form-control date period-control" name="period_end" disabled="disabled" style="display: block;" title="2023/09/30">
+							</div>
+						</div>
+						<div class="period-control" style="display: block;">
+							<div class="form-group col-sm-12">※以下は、「契約期間」について「期間の定めあり」とした場合に記入：</div>
+							<div class="form-group col-sm-6">
+								<div class="input-group">
+									<span class="input-group-addon" style="height:36px;">契約の更新の有無</span>
+									<div class="btn-group bootstrap-select input-group-btn disabled form-control"><button type="button" class="btn dropdown-toggle disabled btn-default bs-placeholder" data-toggle="dropdown" role="button" tabindex="-1" aria-disabled="true" title=""><span class="filter-option pull-left"></span>&nbsp;<span class="bs-caret"><span class="caret"></span></span></button><div class="dropdown-menu open" role="combobox"><ul class="dropdown-menu inner" role="listbox" aria-expanded="false"><li data-original-index="0" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">自動更新</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="1"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">更新あり得る</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="2"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">更新しない</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li></ul></div><select class="form-control" name="period_update_flag" style="height:36px;" disabled="disabled" tabindex="-98">
+										<option value="0">自動更新</option>
+										<option value="1">更新あり得る</option>
+										<option value="2">更新しない</option>
+									</select></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>勤務地</th>
+				<td>
+					<div class="row">
+						<div class="form-group col-sm-12">
+							<textarea class="form-control year_default" name="work_place" rows="2" disabled="disabled"></textarea>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>仕事の内容</th>
+				<td>
+					<div class="row">
+						<div class="form-group col-sm-12">
+							<textarea class="form-control year_default" name="work_detail" rows="2" disabled="disabled"></textarea>
+						</div>
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<th>就業時間</th>
+				<td>
+					<div class="form-group col-sm-12">
+						<div class="input-group">
+							<input type="text" class="form-control" name="normal_start_time" disabled="disabled" title="">
+							<span class="input-group-addon label-title-width-100">時から</span>
+							<input type="text" class="form-control" name="normal_end_time" disabled="disabled" title="">
+							<span class="input-group-addon label-title-width-100">時</span>
+					  </div>
+					</div>
+					<div class="form-group col-sm-6">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-100">休憩時間</span>
+							<input type="text" class="form-control" name="break_time" disabled="disabled" title="">
+							<span class="input-group-addon label-title-width-100">時間</span>
+						</div>
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<th>就業日</th>
+				<td>
+					<div class="form-group col-sm-12">
+						<div class="input-group">
+							<div class="btn-group bootstrap-select show-tick input-group-btn form-control disabled"><button type="button" class="btn dropdown-toggle disabled btn-default" data-toggle="dropdown" role="button" title="日曜" tabindex="-1" aria-disabled="true"><span class="filter-option pull-left">日曜</span>&nbsp;<span class="bs-caret"><span class="caret"></span></span></button><div class="dropdown-menu open" role="combobox"><ul class="dropdown-menu inner" role="listbox" aria-expanded="false"><li data-original-index="0"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">月曜</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="1"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">火曜</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="2"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">水曜</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="3"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">木曜</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="4"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">金曜</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="5"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">土曜</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="6" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">日曜</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li></ul></div><select style="height: 36px;" class="form-control selectpicker show-tick" name="normal_days" multiple="" tabindex="-98" disabled="disabled">
+								<option value="1">月曜</option>
+								<option value="2">火曜</option>
+								<option value="3">水曜</option>
+								<option value="4">木曜</option>
+								<option value="5">金曜</option>
+								<option value="6">土曜</option>
+								<option value="0">日曜</option>
+							</select></div>
+					  </div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>休日</th>
+				<td>
+					<div class="row">
+						<div class="form-group col-sm-12">
+							<textarea class="form-control year_default" name="holiday_regular" rows="2" disabled="disabled"></textarea>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>健康保険契約取得の有無</th>
+				<td>
+					<div class="row">
+						<div class="form-group col-sm-12">
+							<div class="btn-group bootstrap-select disabled form-control"><button type="button" class="btn dropdown-toggle disabled btn-default" data-toggle="dropdown" role="button" tabindex="-1" aria-disabled="true" title="無（被保険者資格なし）"><span class="filter-option pull-left">無（被保険者資格なし）</span>&nbsp;<span class="bs-caret"><span class="caret"></span></span></button><div class="dropdown-menu open" role="combobox"><ul class="dropdown-menu inner" role="listbox" aria-expanded="false"><li data-original-index="0" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">有</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="1"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">無（被保険者資格なし）</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="2"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">無（加入手続き中）</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li></ul></div><select style="height: 36px;" class="form-control" name="health_flag" disabled="disabled" tabindex="-98">
+								<option value="1">有</option>
+								<option value="0">無（被保険者資格なし）</option>
+								<option value="2">無（加入手続き中）</option>
+							</select></div>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>厚生年金保険契約取得の有無</th>
+				<td>
+					<div class="row">
+						<div class="form-group col-sm-12">
+							<div class="btn-group bootstrap-select disabled form-control"><button type="button" class="btn dropdown-toggle disabled btn-default" data-toggle="dropdown" role="button" tabindex="-1" aria-disabled="true" title="無（被保険者資格なし）"><span class="filter-option pull-left">無（被保険者資格なし）</span>&nbsp;<span class="bs-caret"><span class="caret"></span></span></button><div class="dropdown-menu open" role="combobox"><ul class="dropdown-menu inner" role="listbox" aria-expanded="false"><li data-original-index="0" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">有</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="1"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">無（被保険者資格なし）</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="2"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">無（加入手続き中）</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li></ul></div><select style="height: 36px;" class="form-control" name="pension_flag" disabled="disabled" tabindex="-98">
+								<option value="1">有</option>
+								<option value="0">無（被保険者資格なし）</option>
+								<option value="2">無（加入手続き中）</option>
+							</select></div>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>雇用保険契約取得の有無</th>
+				<td>
+					<div class="row">
+						<div class="form-group col-sm-12">
+							<div class="btn-group bootstrap-select disabled form-control"><button type="button" class="btn dropdown-toggle disabled btn-default" data-toggle="dropdown" role="button" tabindex="-1" aria-disabled="true" title="無（被保険者資格なし）"><span class="filter-option pull-left">無（被保険者資格なし）</span>&nbsp;<span class="bs-caret"><span class="caret"></span></span></button><div class="dropdown-menu open" role="combobox"><ul class="dropdown-menu inner" role="listbox" aria-expanded="false"><li data-original-index="0" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">有</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="1"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">無（被保険者資格なし）</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="2"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">無（加入手続き中）</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li></ul></div><select style="height: 36px;" class="form-control" name="employ_flag" disabled="disabled" tabindex="-98">
+								<option value="1">有</option>
+								<option value="0">無（被保険者資格なし）</option>
+								<option value="2">無（加入手続き中）</option>
+							</select></div>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>計算方法</th>
+				<td>
+					<div class="row">
+						<div class="form-group col-sm-12">
+							<div class="btn-group bootstrap-select disabled form-control"><button type="button" class="btn dropdown-toggle disabled btn-default" data-toggle="dropdown" role="button" tabindex="-1" aria-disabled="true" title="月給"><span class="filter-option pull-left">月給</span>&nbsp;<span class="bs-caret"><span class="caret"></span></span></button><div class="dropdown-menu open" role="combobox"><ul class="dropdown-menu inner" role="listbox" aria-expanded="false"><li data-original-index="0" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">月給</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="1"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">日給</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="2"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">時給</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li></ul></div><select style="height: 36px;" class="form-control" name="salary_type" disabled="disabled" tabindex="-98">
+								<option value="0">月給</option>
+								<option value="1">日給</option>
+								<option value="2">時給</option>
+							</select></div>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr class="month_hide" style="display: table-row;">
+				<th>賃 金</th>
+				<td>
+					<div class="form-group col-sm-6">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120" html="">基本給<span class="cash_unit">(円)</span></span>
+							<input type="text" class="form-control amount-type" name="salary_month" style="height:36px;padding: 5px;" disabled="disabled" title="">
+						</div>
+					</div>
+					<div class="form-group col-sm-6">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">合計<span class="cash_unit">(円)</span></span>
+							<input type="text" class="form-control amount-type" name="salary_total" style="height:36px;padding: 5px;" disabled="disabled" title="0">
+						</div>
+					</div>
+					<div class="form-group col-sm-12">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">残業時間基準</span>
+							<input type="text" class="form-control" name="month_overtime_start" disabled="disabled" title="">
+							<span class="input-group-addon">時間～</span>
+							<input type="text" class="form-control" name="month_overtime_end" disabled="disabled" title="">
+							<span class="input-group-addon">時間</span>
+						</div>
+					</div>
+					<div class="form-group col-sm-6">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">残業</span>
+							<input type="text" class="form-control amount-type" name="month_overtime_salary" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/時</span>
+						</div>
+					</div>
+					<div class="form-group col-sm-6">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">控除</span>
+							<input type="text" class="form-control amount-type" name="month_deduction_salary" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/時</span>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr class="day_hide" style="display: none;">
+				<th>賃 金</th>
+				<td>
+					<div class="form-group col-sm-6">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">基本給</span>
+							<input type="text" class="form-control amount-type" name="salary_day" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/日</span>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr class="time_hide" style="display: none;">
+				<th>賃 金</th>
+				<td>
+					<div class="form-group col-sm-12">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">時間内</span>
+							<input type="text" class="form-control amount-type" name="salary_time" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/H</span>
+							<span class="input-group-addon label-title-width-120">時間外</span>
+							<input type="text" class="form-control amount-type" name="time_overtime" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/H</span>
+						</div>
+					</div>
+					<div class="form-group col-sm-12">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">深夜</span>
+							<input type="text" class="form-control amount-type" name="time_night" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/H</span>
+							<span class="input-group-addon label-title-width-120">休日時間内</span>
+							<input type="text" class="form-control amount-type" name="time_holiday" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/H</span>
+						</div>
+					</div>
+					<div class="form-group col-sm-12">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">休日時間外</span>
+							<input type="text" class="form-control amount-type" name="time_holiday_overtime" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/H</span>
+							<span class="input-group-addon label-title-width-120">休日深夜</span>
+							<input type="text" class="form-control amount-type" name="time_holiday_night" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/H</span>
+						</div>
+					</div>
+					<div class="form-group col-sm-12">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">法休時間内</span>
+							<input type="text" class="form-control amount-type" name="time_legal" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/H</span>
+							<span class="input-group-addon label-title-width-120">法休時間外</span>
+							<input type="text" class="form-control amount-type" name="time_legal_overtime" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/H</span>
+						</div>
+					</div>
+					<div class="form-group col-sm-6">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">法休深夜</span>
+							<input type="text" class="form-control amount-type" name="time_legal_night" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							<span class="input-group-addon">円/H</span>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>手当</th>
+				<td>
+					<div class="row">
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">手当項目名</span>
+								<input type="text" class="form-control" name="add_col_name_1" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">手当項目値</span>
+								<input type="text" class="form-control year_default amount-type" name="add_col_value_1" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">単位</span>
+								<input type="text" class="form-control" name="add_col_unit_1" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">手当項目名</span>
+								<input type="text" class="form-control" name="add_col_name_2" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">手当項目値</span>
+								<input type="text" class="form-control amount-type" name="add_col_value_2" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">単位</span>
+								<input type="text" class="form-control" name="add_col_unit_2" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">手当項目名</span>
+								<input type="text" class="form-control" name="add_col_name_3" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">手当項目値</span>
+								<input type="text" class="form-control amount-type" name="add_col_value_3" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">単位</span>
+								<input type="text" class="form-control" name="add_col_unit_3" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">手当項目名</span>
+								<input type="text" class="form-control" name="add_col_name_4" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">手当項目値</span>
+								<input type="text" class="form-control amount-type" name="add_col_value_4" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">単位</span>
+								<input type="text" class="form-control" name="add_col_unit_4" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">手当項目名</span>
+								<input type="text" class="form-control" name="add_col_name_5" style="height:36px;padding: 5px;" disabled="disabled" title="">
+							</div>
+						</div>
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">手当項目値</span>
+								<input type="text" class="form-control amount-type" name="add_col_value_5" style="height:36px;padding: 5px;" disabled="disabled">
+							</div>
+						</div>
+						<div class="form-group col-sm-4">
+							<div class="input-group">
+								<span class="input-group-addon label-title-width-120">単位</span>
+								<input type="text" class="form-control amount-type" name="add_col_unit_5" style="height:36px;padding: 5px;" disabled="disabled">
+							</div>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th rowspan="2">支払条件</th>
+				<td>
+					<div class="form-group col-sm-4">
+						<div class="btn-group bootstrap-select disabled form-control"><button type="button" class="btn dropdown-toggle disabled btn-default" data-toggle="dropdown" role="button" data-id="salary_method" tabindex="-1" aria-disabled="true" title="銀行振込"><span class="filter-option pull-left">銀行振込</span>&nbsp;<span class="bs-caret"><span class="caret"></span></span></button><div class="dropdown-menu open" role="combobox"><ul class="dropdown-menu inner" role="listbox" aria-expanded="false"><li data-original-index="0" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">銀行振込</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="1"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">手形</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="2"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">その他</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li></ul></div><select style="height: 36px;" class="form-control" id="salary_method" disabled="disabled" tabindex="-98">
+							<option value="1">銀行振込</option>
+							<option value="2">手形</option>
+							<option value="3">その他</option>
+						</select></div>
+					</div>
+					<div class="form-group col-sm-4">	
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">締め日</span>
+							<input type="text" class="form-control amount-type" id="request_day" style="height:36px;padding: 5px;" disabled="disabled">
+							<span class="input-group-addon">日</span>
+						</div>
+					</div>
+					<div class="form-group col-sm-4">
+						<div class="input-group">
+							<span class="input-group-addon label-title-width-120">支払サイト</span>
+							<input type="text" class="form-control amount-type" id="salary_site" style="height:36px;padding: 5px;" disabled="disabled">
+							<span class="input-group-addon">日</span>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				
+				<td>
+					<div class="form-group col-sm-12">
+						<textarea class="form-control" name="payment_remark" rows="10" disabled="disabled"></textarea>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>その他の契約内容</th>
+				<td>
+					<div class="form-group col-sm-12">
+						<textarea class="form-control" name="remark" rows="10" disabled="disabled"></textarea>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

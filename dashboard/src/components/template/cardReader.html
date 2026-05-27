@@ -1,0 +1,128 @@
+<style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #333;
+      color: white;
+    }
+  
+    .container {
+      position: relative;
+      width: 320px; /* Adjust based on your card size */
+      height: 200px;
+    }
+  
+    video {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+  
+    /* Card-like overlay box */
+    .overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 85%;
+      height: 60%;
+      transform: translate(-50%, -50%);
+      border: 3px solid #00ff00;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+  
+    canvas {
+      display: none;
+    }
+  </style>
+  
+  <div class="container">
+    <video id="video" autoplay></video>
+    <div class="overlay"></div> <!-- Card-like box overlay -->
+  </div>
+  
+  <button id="capture">Capture</button>
+  <canvas id="canvas"></canvas>
+  
+  <script>
+    const video = document.getElementById('video');
+    const captureButton = document.getElementById('capture');
+    const canvas = document.getElementById('canvas');
+    const overlay = document.querySelector('.overlay');
+  
+    // Start camera
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      .then(stream => video.srcObject = stream)
+      .catch(err => console.error("Error accessing camera:", err));
+  
+    captureButton.addEventListener("click", () => {
+      const context = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+  
+      // Draw the full frame first
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+      // Calculate cropping coordinates based on overlay position
+      const boxWidth = overlay.clientWidth;
+      const boxHeight = overlay.clientHeight;
+      const boxX = (video.videoWidth * (overlay.offsetLeft / video.clientWidth));
+      const boxY = (video.videoHeight * (overlay.offsetTop / video.clientHeight));
+  
+      // Get the cropped image data
+      const croppedCanvas = document.createElement("canvas");
+      const croppedContext = croppedCanvas.getContext("2d");
+      croppedCanvas.width = boxWidth;
+      croppedCanvas.height = boxHeight;
+      
+      croppedContext.drawImage(
+        canvas, 
+        boxX, boxY, boxWidth, boxHeight, // Source
+        0, 0, boxWidth, boxHeight         // Destination
+      );
+  
+      // Convert to image and display or process further
+      const croppedImage = croppedCanvas.toDataURL("image/png");
+      console.log("Captured Image:", croppedImage);
+  
+      // Display the cropped image (Optional)
+      const img = new Image();
+      img.src = croppedImage;
+      document.body.appendChild(img);
+    });
+
+//     <script src="https://unpkg.com/tesseract.js"></script>
+
+//   Tesseract.recognize(
+//     imageData,  // Pass the image data from canvas
+//     'eng', 
+//     {
+//       logger: m => console.log(m) // Logs progress
+//     }
+//   ).then(({ data: { text } }) => {
+//     console.log('Recognized Text:', text);
+//   });
+
+// <video id="video" autoplay></video>
+// <button id="capture">Capture</button>
+// <canvas id="canvas"></canvas>
+
+
+//   const video = document.getElementById('video');
+//   const canvas = document.getElementById('canvas');
+//   const captureButton = document.getElementById('capture');
+
+//   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+//     .then(stream => video.srcObject = stream);
+
+//   captureButton.addEventListener('click', () => {
+//     canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+//     const imageData = canvas.toDataURL('image/png'); 
+//     // You can now send `imageData` for processing
+//   });
+
+</script>
+  

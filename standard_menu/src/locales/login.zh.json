@@ -1,0 +1,13 @@
+{
+  "surupasTitle": "SURUPAs 登录",
+  "loginId": "登录ID",
+  "loginPassword": "密码",
+  "forgetPassword": "忘记密码？",
+  "loginBtn": "登录",
+  "registerUserBtn": "新用户注册",
+  "envBtn": "关于运行环境",
+  "privacyBtn": "隐私政策/个人信息保护",
+  "versionBtn": "版本确认方法",
+  "whileForgetPasswordBtn": "如果忘记密码",
+  "whileSmartPhoneQR": "通过智能手机访问"
+}

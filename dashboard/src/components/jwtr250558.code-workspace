@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "../../../../../../../run/user/1000/gvfs/sftp:host=dev/var/www/sms_workspace/dataEngine/template/jwtr250558"
+		},
+		{
+			"path": "../../../../../../../run/user/1000/gvfs/sftp:host=dev/var/www/html/sms/dataEngine/v1"
+		},
+		{
+			"path": "../../../../../../../run/user/1000/gvfs/sftp:host=surupas2/var/www/html/sms/batch"
+		},
+		{
+			"path": "../../../../../../../run/user/1000/gvfs/sftp:host=surupas2/var/www/sms_workspace/sql/jkes240553"
+		}
+	],
+	"settings": {}
+}
