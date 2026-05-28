@@ -46,8 +46,8 @@ export const useDataStore = defineStore("dataStore", () => {
         return await baseStore.save(sql_tag, p)
     }
 
-    const saveData = async (p = {}) => {
-        return await runSave('users.save_user_data', p)
+    const saveData = async (sqltag, p = {}) => {
+        return await runSave(sqltag, p)
     }
 
     const get_user_master = async (p = {}) => {

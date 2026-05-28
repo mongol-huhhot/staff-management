@@ -24,7 +24,7 @@
         <DynamicVuetifyForm
           v-model="modelValue[index]"
           :fields="children"
-          :tab-key="props.tabKey"
+          :sqltags="props.sqltags"
         />
       </v-card-text>
     </v-card>
@@ -53,8 +53,8 @@ const props = defineProps({
     default: () => []
   },
   addButtonText: String,
-  tabKey: {
-    type: [String, Object],
+  sqltags: {
+    type: Object,
     default: null,
   },
 

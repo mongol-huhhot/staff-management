@@ -29,13 +29,26 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  tabKey: {
-    type: [String, Object],
+  sqltags: {
+    type: Object,
     default: null,
   },
 })
 
-const emit = defineEmits(['update:modelValue', 'submit'])
+const sqltags = computed(() => {
+  if (!props.sqltags) return null
+
+  if (typeof props.sqltags === 'object') {
+    return props.sqltags
+  }
+
+  // 文字列の場合は、selectタグだけを設定する
+  return {
+    select: props.sqltags.select || null,
+    save: props.sqltags.save || null,
+    delete: props.sqltags.delete || null,
+  }
+})
 
 const dbStore = useDbStore()
 
@@ -132,11 +145,37 @@ function getProps(field) {
   }
 }
 
-function submit() {
-  console.log('Submitting form with data:', formData.value)
-  dbStore.saveData(formData.value) // 例: データ保存の呼び出し
-  emit('submit', formData.value)
+// function submit() {
+//   console.log('Submitting form with data:', formData.value)
+//   dbStore.saveData( props.sqltags.save, formData.value) // 例: データ保存の呼び出し
+//   emit('submit', formData.value)
+// }
+async function submit() {
+  try {
+    console.log('Submitting form with data:', formData.value)
+
+    if (!props.sqltags?.save) {
+      console.warn('sqltags.save が未設定です:', props.sqltags)
+      emit('submit', formData.value)
+      return
+    }
+
+    const result = await dbStore.saveData(
+      props.sqltags.save,
+      formData.value
+    )
+
+    console.log('save result:', result)
+
+    emit('submit', formData.value)
+
+  } catch (error) {
+    console.error('DynamicVuetifyForm submit error:', error)
+  }
 }
+
+
+
 </script>
 
 <template>
@@ -149,13 +188,15 @@ function submit() {
         sm="6"
         md="4"
       >
+
         <!-- {{ props.items }} -->
          <!-- {{ field }}::::{{ field.key }}: {{ formData[field.key] }} デバッグ用 -->
         <component
           :is="getComponent(field)"
           :model-value="formData[field.key]"
           v-bind="getProps(field)"
-          :items="field.items || []"
+          :sqltags="sqltags"
+          :items="field.items || [sqltags]"
           :item-title="field.props?.itemTitle || 'label'"
           :item-value="field.props?.itemValue || 'value'"
           :rules="buildRules(field)"
