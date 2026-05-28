@@ -8,7 +8,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher.vue";
 import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
 import i18n from '@/i18n'
 
-import UserAuth from "@/components/UserAuth.vue";
+// import UserAuth from "@/components/UserAuth.vue";
 
 //UserFormで@changeが動くとここに書いてある項目が全てリセットされるのでコメントアウト
 const selectedRowData = ref({
@@ -113,7 +113,7 @@ const logo = {
 
 <template>
   <v-container fluid class="pa-0 ma-0 fill-height" style="width: 100vw;">
-    <UserAuth />
-    <!-- <Dashboard /> -->
+    <!-- <UserAuth /> -->
+    <Dashboard />
   </v-container>
 </template>

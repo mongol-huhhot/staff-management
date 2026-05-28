@@ -16,6 +16,7 @@ import VerificationCodeSection from "@/components/VerificationCodeSection.vue";
 const configStore = useAppConfigStore()
 configStore.loadFromWindow()
 
+const loading = ref(false);
 // configStore?.depend
 
 const { t } = useI18n();
@@ -180,205 +181,175 @@ const genders = computed(() => [
 ]);
 </script>
 
-
 <template>
     <div>
-      <!-- <DataHandlingSlot
-        :data="props.data"
-        :sqlTags="dataStore.sqlTags"
-        v-slot="{ save, delete: deleteData, loading, data: slotData }"
-        @data-saved="bubbleDataSaved"
-      > -->
-        <v-form ref="userForm" v-model="valid" >
-          <v-row>
-            <v-col cols="12" md="6">
-              <!-- label="お名前" -->
-              <v-text-field
-                v-if="slotData.content"
-                :label="t('common.fullName')"
-                v-model="slotData.content.fullName"
-                :rules="[rules.required]"
-                required
-                dense
-                hide-details
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <!-- label="ユーザID" -->
-              <v-text-field
-                :label="t('common.userId')"
-                v-model="slotData.userid"
-                :rules="[rules.required]"
-                :error="!!userIdError"
-                :error-messages="userIdError"
-                required
-                @change="checkUserId"
-                dense
-                hide-details
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <!-- label="メール" -->
-              <v-text-field
-                :label="t('common.email')"
-                v-model="slotData.email"
-                :rules="[rules.required, rules.email]"
-                required
-                :error="!!mailError"
-                :error-messages="mailError"
-                @change="checkEmail"
-                dense
-                hide-details
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <!-- label="パスワード" -->
-              <v-text-field
-                :label="t('common.password')"
-                v-model="slotData.password"
-                :type="showPassword ? 'text' : 'password'"
-                :rules="[rules.required, rules.minLength(6)]"
-                required
-                append-icon="mdi-eye"
-                @click:append="togglePassword"
-                dense
-                hide-details
-              />
-            </v-col>
+      <v-form ref="userForm" v-model="valid" >
+        <v-row>
+          <v-col cols="12" md="6">
+            <!-- label="お名前" -->
+            <v-text-field
+              v-if="slotData.content"
+              :label="t('common.fullName')"
+              v-model="slotData.content.fullName"
+              :rules="[rules.required]"
+              required
+              dense
+              hide-details
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <!-- label="ユーザID" -->
+            <v-text-field
+              :label="t('common.userId')"
+              v-model="slotData.userid"
+              :rules="[rules.required]"
+              :error="!!userIdError"
+              :error-messages="userIdError"
+              required
+              @change="checkUserId"
+              dense
+              hide-details
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <!-- label="メール" -->
+            <v-text-field
+              :label="t('common.email')"
+              v-model="slotData.email"
+              :rules="[rules.required, rules.email]"
+              required
+              :error="!!mailError"
+              :error-messages="mailError"
+              @change="checkEmail"
+              dense
+              hide-details
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <!-- label="パスワード" -->
+            <v-text-field
+              :label="t('common.password')"
+              v-model="slotData.password"
+              :type="showPassword ? 'text' : 'password'"
+              :rules="[rules.required, rules.minLength(6)]"
+              required
+              append-icon="mdi-eye"
+              @click:append="togglePassword"
+              dense
+              hide-details
+            />
+          </v-col>
 
-            <v-col cols="12" md="6">
-              <!-- label="性別" -->
-              <v-autocomplete
-                v-if="slotData.content"
-                :label="t('common.gender')"
-                v-model="slotData.content.gender"
-                :items="genders"
-                item-title="label"
-                item-value="value"
-                :rules="[rules.required]"
-                dense
-                hide-details
-              />
-            </v-col>
+          <v-col cols="12" md="6">
+            <!-- label="性別" -->
+            <v-autocomplete
+              v-if="slotData.content"
+              :label="t('common.gender')"
+              v-model="slotData.content.gender"
+              :items="genders"
+              item-title="label"
+              item-value="value"
+              :rules="[rules.required]"
+              dense
+              hide-details
+            />
+          </v-col>
 
-            <v-col cols="12" md="6">
-              <!-- select-text="確定"
-              cancel-text="キャンセル"
-              placeholder="生年月日" -->
-              <VueDatePicker v-model="slotData.content.bithday" 
-                class="mt-2"
-                :format-locale="ja"
-                format="yyyy-MM-dd"
-                :select-text="t('common.select-text')"
-                :cancel-text="t('common.cancel-text')"
-                :placeholder="t('common.placeholder')"
-                style="margin: 0; padding: 0; width: 100%;"
-              />
-            </v-col>
+          <v-col cols="12" md="6">
+            <!-- select-text="確定"
+            cancel-text="キャンセル"
+            placeholder="生年月日" -->
+            <VueDatePicker v-model="slotData.content.bithday" 
+              class="mt-2"
+              :format-locale="ja"
+              format="yyyy-MM-dd"
+              :select-text="t('common.select-text')"
+              :cancel-text="t('common.cancel-text')"
+              :placeholder="t('common.placeholder')"
+              style="margin: 0; padding: 0; width: 100%;"
+            />
+          </v-col>
 
-            <v-col cols="12" md="6">
-              <!-- label="住所" -->
-              <v-textarea
-                v-if="slotData.content"
-                :label="t('common.address')"
-                v-model="slotData.content.address"
-                :rules="[rules.required]"
-                dense
-                hide-details
-                :rows="2"
-                auto-grow
-              />
-            </v-col>
+          <v-col cols="12" md="6">
+            <!-- label="住所" -->
+            <v-textarea
+              v-if="slotData.content"
+              :label="t('common.address')"
+              v-model="slotData.content.address"
+              :rules="[rules.required]"
+              dense
+              hide-details
+              :rows="2"
+              auto-grow
+            />
+          </v-col>
 
-            <v-col cols="12" md="6">
-              <!-- width: { type: Number, default: 200 },
-                height: { type: Number, default: 200 },
-                label: { type: String, default: 'Upload or Take Photo' },
-                returnType: { type: String, default: 'blob' }, // 'blob' or 'base64' -->
-              <!-- label="顔写真"  -->
-              <ImageUploaderCropper
-                ref="cropRef" @cropped="handleCropped" 
-                :label="t('common.faceImage')"
-                returnType="base64"
-                style="margin: 0; padding: 0;"
-              />
-            </v-col>
-
-            <!-- <v-col cols="12" md="6">
-              <v-radio-group
-                v-if="data.content"
-                v-model="data.content.gender"
-                class="w-100"
-                row
-              >
-                <v-radio label="男性" value="male" />
-                <v-radio label="女性" value="female" />
-                <v-radio label="その他" value="other" />
-              </v-radio-group>
-            </v-col> -->
-          </v-row>
-          <!-- <v-row>
-            <v-col cols="12" md="6">
-              <img :src="imageBlob" alt="Thumbnail" v-if="imageBlob"/>
-            </v-col>
-          </v-row> -->
-          <v-row class="mb-2" align="center" justify="center">
-             <!-- Button Group -->
-            <v-col
-              cols="12"
-              md="8"
-              class="d-flex flex-nowrap justify-center"
+          <v-col cols="12" md="6">
+            <!-- label="顔写真"  -->
+            <ImageUploaderCropper
+              ref="cropRef" @cropped="handleCropped" 
+              :label="t('common.faceImage')"
+              returnType="base64"
+              style="margin: 0; padding: 0;"
+            />
+          </v-col>
+        </v-row>
+        <v-row class="mb-2" align="center" justify="center">
+            <!-- Button Group -->
+          <v-col
+            cols="12"
+            md="8"
+            class="d-flex flex-nowrap justify-center"
+          >
+            <v-btn
+              :disabled="!valid || loading"
+              size="large"
+              color="primary"
+              class="mx-2"
+              @click="saveAll(slotData)"
             >
-              <v-btn
-                :disabled="!valid || loading"
-                size="large"
-                color="primary"
-                class="mx-2"
-                @click="saveAll(slotData)"
-              >
-                <v-tooltip :disabled="tooltipShow" activator="parent" location="top">
-                  <!-- 写真の範囲を確定されていない状態で申請されます -->
-                  {{ $t('common.croppedImage') }}
-                </v-tooltip>
-                <!-- 登録 -->
-                {{ $t('common.save') }}
-              </v-btn>
+              <v-tooltip :disabled="tooltipShow" activator="parent" location="top">
+                <!-- 写真の範囲を確定されていない状態で申請されます -->
+                {{ $t('common.croppedImage') }}
+              </v-tooltip>
+              <!-- 登録 -->
+              {{ $t('common.save') }}
+            </v-btn>
 
-              <v-btn
-                color="success"
-                size="large"
-                class="mx-2"
-                @click="resetForm(slotData)"
-              >
-                 <!-- リセット -->
-                {{ $t('common.reset') }}
-              </v-btn>
+            <v-btn
+              color="success"
+              size="large"
+              class="mx-2"
+              @click="resetForm(slotData)"
+            >
+                <!-- リセット -->
+              {{ $t('common.reset') }}
+            </v-btn>
 
-              <v-btn
-                v-if="cropRef?.imageData"
-                :disabled="loading"
-                size="large"
-                color="info"
-                class="mx-2"
-                @click="checkInput"
-              >
-                 <!-- 写真の範囲を確定 -->
-                {{ $t('common.checkInput') }}
-              </v-btn>
-            </v-col>
-          </v-row>
-          <VerificationCodeSection
-            v-if="configStore.mail_confirm"
-            :email="slotData.email"
-            :sendCode="() => sendCode(slotData)"
-            :verifyCode="(code) => { verificationCode = code; verifyCode(slotData); }"
-            :codeSent="codeSent"
-            :codeVerified="codeVerified"
-            :errorMessage="errorMessage"
-            :rules="rules"
-        />
-        </v-form>
-      <!-- </DataHandlingSlot> -->
+            <v-btn
+              v-if="cropRef?.imageData"
+              :disabled="loading"
+              size="large"
+              color="info"
+              class="mx-2"
+              @click="checkInput"
+            >
+                <!-- 写真の範囲を確定 -->
+              {{ $t('common.checkInput') }}
+            </v-btn>
+          </v-col>
+        </v-row>
+        <VerificationCodeSection
+          v-if="configStore.mail_confirm"
+          :email="slotData.email"
+          :sendCode="() => sendCode(slotData)"
+          :verifyCode="(code) => { verificationCode = code; verifyCode(slotData); }"
+          :codeSent="codeSent"
+          :codeVerified="codeVerified"
+          :errorMessage="errorMessage"
+          :rules="rules"
+      />
+      </v-form>
       <MessageBox :openBox="messageBox"></MessageBox>
     </div>
 </template>

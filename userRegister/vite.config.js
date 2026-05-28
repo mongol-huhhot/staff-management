@@ -23,29 +23,18 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    proxy:{
-      "^/(.*)/dataEngine/v3/.*": {
+    proxy: {
+      '^/[^/]+/dataEngine/.*': {
         target: 'https://surupas-run.native365.net',
         changeOrigin: true,
-        secure:false
+        secure: false
       },
-      "^/(.*)/common/.*": {
+      '^/[^/]+/common/.*': {
         target: 'https://surupas-run.native365.net',
         changeOrigin: true,
-        secure:false
-      },
-      "/tools/": {
-        target: 'https://surupas-run.native365.net',
-        changeOrigin: true,
-        secure:false
-
-      },
-      "/human_resources/": {
-        target: 'https://surupas-run.native365.net',
-        changeOrigin: true,
-        secure:false
-      }
-  }
+        secure: false
+      }      
+    }
   },
   build: {
     rollupOptions: {

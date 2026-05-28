@@ -1,12 +1,12 @@
 <script setup>
 import { ref, computed, defineExpose, } from "vue";
-import { useBaseStore } from "@/stores/BaseStore";
+import { useDbStore } from "@/stores/useDbStore";
 import { showSnackbar } from "@/components/Snackbar.vue";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import OnboardingGuide from "@/components/OnboardingGuide.vue";
 
-const BaseStore = useBaseStore();
+const DbStore = useDbStore();
 
 const emit = defineEmits(["data-saved", "data-deleted", "update:modelValue"]);
 

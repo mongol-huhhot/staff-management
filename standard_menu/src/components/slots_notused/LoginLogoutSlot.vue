@@ -1,9 +1,9 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { useBaseStore } from "@/stores/BaseStore";
+import { useDbStore } from "@/stores/useDbStore";
 import { showSnackbar } from "@/components/Snackbar.vue";
 
-const dbStore = useBaseStore();
+const dbStore = useDbStore();
 
 const props = defineProps({
     userInfo: {

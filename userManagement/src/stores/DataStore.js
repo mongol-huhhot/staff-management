@@ -1,6 +1,7 @@
 import { defineStore, } from "pinia";
-import { reactive, onMounted, computed  } from 'vue'
+import { reactive, computed  } from 'vue'
 import { useDbStore } from "@/stores/useDbStore";
+import { showSnackbar } from "@/utils/Snackbar.vue"; // Abstracted notification utility
 
 export const useDataStore = defineStore("dataStore", () => {
     const BaseStore = useDbStore()
@@ -15,21 +16,15 @@ export const useDataStore = defineStore("dataStore", () => {
     })
 
     const sqlTags = {
-        select: "load_user_master",
-        insert: "save_user_update",
-        update: "save_user_update",
-        delete: "delete_user",
-        upsert: "save_user_update",
-        multiupsert: "save_user_update",
+        userlist: 'users.get_user_register',
     };
-
 
     const checkExistingOfUserid = async(p={}) => {
         const params = {
-            check_userid_email: {SQL_TAG: 'check_userid_email', ...p },
+            check_userid_email: {SQL_TAG: 'users.check_userid_email', ...p },
         }
 
-        const result = await BaseStore.excecuteMultiQuery(params);
+        const result = await BaseStore.dbAccessWithMultiTags(params);
 
         console.log("result=",result)
 
@@ -47,14 +42,15 @@ export const useDataStore = defineStore("dataStore", () => {
     /** load onMounted end */
     const loadMasters = async(p={}) => {
         const params = {
-            departmentList: {SQL_TAG: 'load_department' },
-            staffInfo: {SQL_TAG: 'load_staff_data' },
-            jobList: {SQL_TAG: 'load_job_type' },
-            employmentList: {SQL_TAG: 'load_employment_status' },
-            get_role_list: {SQL_TAG: 'get_role_list' },
+            departmentList: {SQL_TAG: 'users.load_department' },
+            staffInfo: {SQL_TAG: 'users.load_staff_data' },
+            jobList: {SQL_TAG: 'users.load_job_type' },
+            employmentList: {SQL_TAG: 'users.load_employment_status' },
+            get_role_list: {SQL_TAG: 'users.get_role_list' },
+            // userlist: {SQL_TAG: 'users.load_user_master', ...p },
         }
 
-        const result = await BaseStore.excecuteMultiQuery(params);
+        const result = await BaseStore.dbAccessWithMultiTags(params);
 
         for (let key in result) {
             if( result[key].code === 0 ) {
@@ -66,10 +62,63 @@ export const useDataStore = defineStore("dataStore", () => {
         console.log("loadMasters====", data)
     }
 
+    const userlist = async (param = {}) => {
+        try {
+            const params = {
+                userlist: {
+                    SQL_TAG: sqlTags.userlist,
+                    ...param
+                },
+            };
+
+            const result = await BaseStore.dbAccessWithMultiTags(params);
+
+            console.log("userlist result=", result);
+
+            if (!result || !result.userlist) {
+                showSnackbar("データ取得に失敗しました。", "error");
+                return null;
+            }
+
+            if (result.userlist.code !== 0) {
+                showSnackbar("データ取得に失敗しました。", "error");
+                return null;
+            }
+
+            // JSONB parse
+            const parsedResult = (result.userlist.result || []).map(row => {
+                const newRow = { ...row };
+
+                ['content', 'draft_content'].forEach(key => {
+                    try {
+                        if (
+                            typeof newRow[key] === 'string' &&
+                            newRow[key].trim() !== ''
+                        ) {
+                            newRow[key] = JSON.parse(newRow[key]);
+                        }
+                    } catch (e) {
+                        console.error(`JSON parse failed: ${key}`, e);
+                        newRow[key] = null;
+                    }
+                });
+
+                return newRow;
+            });
+
+            return parsedResult;
+
+        } catch (error) {
+            console.error("Error in userlist:", error);
+            showSnackbar("エラーが発生しました。", "error");
+            return null;
+        }
+    };
+
     /** load master data */
-    onMounted(async () => {
-        await loadMasters()
-    })
+    // onMounted(async () => {
+    //     await loadMasters()
+    // })
 
     // generate a flat data to agGrid use
     const flatData = computed(() => {
@@ -126,13 +175,28 @@ export const useDataStore = defineStore("dataStore", () => {
     // from masters.mtb_user_master
     // where user_id = <%idval%> or email = <%idval%>
     const loadImage = async (idval = 'userid3') => {
-        const ret = await BaseStore.loadImage('loadImage', {idval: idval})
+        const ret = await BaseStore.loadImage('users.loadImage', {idval: idval})
         console.log(ret)
         return ret
     } 
 
-    const login = async (sqltag, params = {}) => BaseStore.login(sqltag, params);
-    const logout = async () => BaseStore.logout();    
+    const login = async (p = {}) =>  await BaseStore.login('users.authenticate.login', p)
+    const logout = async (p = {}) =>  await BaseStore.logout('users.authenticate.logout', p)
+    const verify = async (p = {}) =>  await BaseStore.verify('users.authenticate.verify', p)
+    const multiQuery = async (blocks = {}, options = {}) => BaseStore.multiQuery(blocks, options)
+    const dbAccessWithMultiTags = async (params = {}, options = {}) => {
+        try {
+            return await BaseStore.dbAccessWithMultiTags(params, options)
+        } catch (error) { 
+            console.error('Error in dbAccessWithMultiTags:', error)
+            return {
+                code: -1,
+                message: error.message || 'データ取得に失敗しました。',
+                result: null,
+                raw: null,
+            }
+        }
+    }
 
     return {
         states,
@@ -144,6 +208,11 @@ export const useDataStore = defineStore("dataStore", () => {
         loadImage,
         login,
         logout,
+        verify,
+        multiQuery,
+        dbAccessWithMultiTags,
+        userlist,
         checkExistingOfUserid,
     }
 })
+

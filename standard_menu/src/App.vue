@@ -13,11 +13,15 @@ const loadingError = ref('')
 const dataStore = useDataStore();
 
 const handleLoginSuccess = async (payload) => {
+  console.log('Login successful:', payload)
   isLogged.value = true
+
   user.value = {
-    user_id: payload.user.user.user_id,
-    user_type: payload.user.user.user_type
+    user_id: payload.user.user_id,
+    user_type: payload.user.user_type
   }
+
+  console.log('User set to:', user.value)
 
   isReady.value = false
   loadingError.value = null

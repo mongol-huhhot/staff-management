@@ -1,13 +1,14 @@
 <script setup>
 import { ref, watch, provide, onMounted, onUnmounted, } from "vue";
-import LoginPage from "./UserLogin.vue";
+// import LoginPage from "./UserLogin.vue";
 import IdentityList from "./UserList.vue";
 import IdentityFrom from "./UserForm.vue";
 import { showSnackbar } from "@/utils/Snackbar.vue"; // Abstracted notification utility  
 import ResponsiveSplitFrame from "@/components/ResponsiveSplitFrame.vue";
+import { useDataStore } from "@/stores/DataStore";
 
 const listRef = ref(null)
-const isLogged = ref(false);
+// const isLogged = ref(false);
 
 const LOCAL_STORAGE_KEY = "showGuideStatus";
 
@@ -25,6 +26,7 @@ const checkScreenSize = () => {
 onMounted(() => {
   checkScreenSize(); // Check screen size on mount
   window.addEventListener('resize', checkScreenSize); // Add resize listener
+  login(); // Attempt login on mount
 
   if(window.location.hostname!=='localhost') handleLoginSuccess(true); //iframe内にログインページ表示しないように
 });
@@ -40,10 +42,10 @@ watch(showGuide, (newVal) => {
 
 provide("showGuide", showGuide);
 
-function handleLoginSuccess(status) {
-  console.log("Login successful!", status);
-  isLogged.value = status;
-}
+// function handleLoginSuccess(status) {
+//   console.log("Login successful!", status);
+//   isLogged.value = status;
+// }
 
 // const selectedAction = ref('edit')
 const selectedRowData = ref(null)
@@ -87,14 +89,26 @@ const rowSelected = (row) => {
 // Reference to the HelpSidebar component
 // const helpSidebar = ref(null);
 
+async function login() {
+  const dataStore = useDataStore()
+  const result = await dataStore.login({
+    user: 'its@janga.co.jp',
+    password: 'janga1',
+  },{remember: true})
+
+  console.log('Login result:', result)
+  return result
+}
+
+
 </script>
 
 <template>
   <v-container style="max-width:100% !important;">
     <!-- Login Page -->
-    <LoginPage v-if="!isLogged" @loginStatus="handleLoginSuccess" />
+    <!-- <LoginPage v-if="!isLogged" @loginStatus="handleLoginSuccess" /> -->
 
-    <ResponsiveSplitFrame v-else>
+    <ResponsiveSplitFrame>
       <template #header>
         <div class="text-h5" style="margin: 10px;">『ユーザー一覧』</div>
         <div class="mr-6">件数：{{listRef?.itemCount}}</div>

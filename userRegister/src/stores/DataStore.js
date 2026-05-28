@@ -20,10 +20,10 @@ export const useDataStore = defineStore("dataStore", () => {
     })
 
     const sqlTags = {
-        register_user: "register_user",   // for saving user
-        load_user_register: "load_user_register",   // for loading user list for login user listing
-        check_userid_email: "check_userid_email",   // for checking existing of userid or email when register user
-        delete_user: "delete_user",                 // for deleting user
+        register_user: "users.register_user",   // for saving user
+        load_user_register: "users.load_user_register",   // for loading user list for login user listing
+        check_userid_email: "users.check_userid_email",   // for checking existing of userid or email when register user
+        delete_user: "users.delete_user",                 // for deleting user
     };
 
     async function load_user_register(params) {
@@ -47,7 +47,7 @@ export const useDataStore = defineStore("dataStore", () => {
 
     async function register_user( params = {}, options = {}) {
         console.log("register_user params=", params)
-        const response = await BaseStore.registerUser(sqlTags.register_user, params, {
+        const response = await BaseStore.save(sqlTags.register_user, params, {
           ...options})   
         return response
     }
@@ -169,8 +169,23 @@ export const useDataStore = defineStore("dataStore", () => {
         return ret
     } 
 
-    const login = async (sqltag, params = {}) => BaseStore.login(sqltag, params);
-    const logout = async () => BaseStore.logout();    
+    const login = async (p = {}) =>  await BaseStore.login('authenticate.login', p)
+    const logout = async (p = {}) =>  await BaseStore.logout(p)
+    const verify = async (p = {}) =>  await BaseStore.verify(p)
+    const multiQuery = async (blocks = {}, options = {}) => BaseStore.multiQuery(blocks, options)
+    const dbAccessWithMultiTags = async (params = {}, options = {}) => {
+        try {
+            return await BaseStore.dbAccessWithMultiTags(params, options)
+        } catch (error) { 
+            console.error('Error in dbAccessWithMultiTags:', error)
+            return {
+                code: -1,
+                message: error.message || 'データ取得に失敗しました。',
+                result: null,
+                raw: null,
+            }
+        }
+    }
 
     return {
         states,
@@ -183,6 +198,9 @@ export const useDataStore = defineStore("dataStore", () => {
         loadImage,
         login,
         logout,
+        verify,
+        multiQuery,
+        dbAccessWithMultiTags,
 
         register_user,
         load_user_register,

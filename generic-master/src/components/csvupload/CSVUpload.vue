@@ -2,7 +2,7 @@
 import { ref, computed, reactive } from 'vue'
 import { useStorage } from '@vueuse/core'
 import { useCSVUploadStore } from '@/components/csvupload/stores/CSVUploadStore'
-import AgGridDataBrowser from '@/components/helper/AgGridPro.vue'
+import AgGridDataBrowser from '@/components/helper/grid/AgGridPro.vue'
 import { useAppConfigStore } from '@/stores/AppConfigStore'
 
 // import iconv from 'iconv-lite'

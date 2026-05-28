@@ -40,7 +40,6 @@ const columns = [
     { field: 'address', headerName: '住所' },
     { field: 'created_at', headerName: '作成日' },
     { field: 'updated_at', headerName: '更新日' },
-    
 ];
 
 const emit = defineEmits(["row-selected"]); // Define the event in the parent
@@ -67,7 +66,7 @@ const emit = defineEmits(["row-selected"]); // Define the event in the parent
 
 // const gridApi = ref(null);
 // const gridColumnApi = ref(null);
-const mainSlot = ref(null);     // Reference to the slot component
+// const mainSlot = ref(null);     // Reference to the slot component
 
 const dataStore = useDataStore();
 
@@ -79,10 +78,9 @@ const dataStore = useDataStore();
 
 /** for refresh/reload data */
 const fetchData = async (p={}) => {
-    if (!mainSlot.value?.fetchData) return
-
+    // if (!mainSlot.value?.fetchData) return
     try {
-        const result = await mainSlot.value.fetchData();
+        const result = await dataStore.userlist(p);
         if (!result) return
         // store to global storage to share among components
         dataStore.data.userlist = result
@@ -109,22 +107,6 @@ const changeFilter = async(list) =>{
 onMounted(async () => {
     await fetchData()
 });
-
-// const onRowSelected = (v) => {
-//     if (!gridApi.value) return;
-
-//     const rows = gridApi.value.getSelectedRows()?.[0]; // Get the first selected row or undefined
-//     const selectedRows = dataStore.data?.userlist?.find(el => el.userid === rows.userid);
-//     selectedRows.mode = 'edit'
-//     console.log()
-
-//     if (!selectedRows) return;
-    
-//     if(selectedRows.draft_data)selectedRows.content = JSON.parse(selectedRows.draft_data)
-
-
-//     emit("row-selected", selectedRows)
-// };
 
 function statusColor(data){
     console.log(data.value)

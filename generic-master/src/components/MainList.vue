@@ -12,9 +12,8 @@ import dayjs from 'dayjs'
 
 import { useDataStore } from '@/stores/DataStore'
 import { useAppConfigStore } from '@/stores/AppConfigStore'
-
 import CSVUpload from '@/components/csvupload/CSVUpload.vue'
-import AgGridDataBrowser from '@/components/helper/PagedAgGridCard.vue'
+import AgGridDataBrowser from '@/components/helper/grid/PagedAgGridCard.vue'
 import { parseAndFlattenJsonbFields } from '@/composables/utilFactory'
 import Encoding from 'encoding-japanese'
 

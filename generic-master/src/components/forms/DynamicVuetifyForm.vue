@@ -1,6 +1,8 @@
 <!-- DynamicVuetifyForm.vue -->
 <script setup>
 import { computed } from 'vue'
+import DatePicker from '@/components/helper/date/DatePicker.vue'
+
 
 const props = defineProps({
   modelValue: {
@@ -55,7 +57,7 @@ function getComponent(field) {
   if (field.type === 'select') return 'v-select'
   if (field.type === 'combobox') return 'v-combobox'
   if (field.type === 'textarea') return 'v-textarea'
-  if (field.type === 'boolean') return 'v-checkbox'
+  if (field.type === 'date' || field.type === 'month') return DatePicker
 
   return 'v-text-field'
 }

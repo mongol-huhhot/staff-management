@@ -180,30 +180,6 @@ watch(
   { immediate: true, deep: true }
 )
 
-
-// watch(
-//   () => dataStore.data?.loginuser,
-//   async arr => {
-//     if (!arr || !Array.isArray(arr) || arr.length === 0) {
-//       loading.value = false // ← stop loading if no user data
-//       console.warn('No user data found, stopping loading.')
-//       return
-//     } 
-//     const user = arr?.[0]
-//     if (!user) return
-
-//     await nextTick()
-//     const def = findByUri(topMenus.value, user.default_display)
-//     if (def) {
-//       onTopMenu(def)
-//       leftMenus.value = def.children ?? []
-//     }
-
-//     loading.value = false // ← stop loading once user & menus are set
-//   },
-//   { immediate: true, deep:true }
-// )
-
 const qrString = ref(window.location.href)
 const showDialog = ref(false)
 
@@ -221,6 +197,9 @@ watchEffect(() => {
 
 <template>
   <v-app v-if="!loading">
+    <!-- {{ topMenus }} -->
+     <!-- -- {{ leftMenus }} -- {{ selectedTopUri }} -- {{ activeType }} -- {{ activeComponent }} -- {{ iframeSrc }} -->
+
     <!-- ── Toolbar (two app-bars inside) ────────────────────────────── -->
     <AppToolbar
       v-model="fontSize"

@@ -9,7 +9,7 @@ import ColumnSettingsDialog from './ColumnSettingsDialog.vue'
 import QuickFilterDialog from './QuickFilterDialog.vue'
 import DeleteRowButton from './DeleteRowButton.vue'
 
-import { localeJP } from '@/components/helper/LocaleJP.js'
+import { localeJP } from './LocaleJP.js'
 
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'

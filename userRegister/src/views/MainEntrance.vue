@@ -7,6 +7,8 @@ import LanguageSwitcher from "@/components/LanguageSwitcher.vue";
 import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
 import i18n from '@/i18n'
 
+const dataStore = useDataStore()
+
 //UserFormで@changeが動くとここに書いてある項目が全てリセットされるのでコメントアウト
 const selectedRowData = ref({
   // 'userid': '',
@@ -20,39 +22,19 @@ const selectedRowData = ref({
 // 本番環境では、ユーザー登録は別の方法で行うことを想定している
 // ここでは、デモ用のユーザー登録を行う
 // <%user%>と<%password%>は、実際のユーザー名とパスワードに置き換える必要がある
-// async function login() {
-//   // if (location.href.indexOf('localhost') > 0) {
-//     const baseStore = useDataStore()
-//     const sqltag = 'login'
-//     const params = {'user': 'maruyama', password:'janga1'}
-//     const ret = await baseStore.login(sqltag, params)
+async function login() {
+  const result = await dataStore.login({
+    user: 'its@janga.co.jp',
+    password: 'janga1',
+  },{remember: false})
 
-//   if (ret && ret.status === 'success') {
-//       localStorage.setItem('token', ret.data.token);
-//       return true
-//   }
+  console.log('Login result:', result)
+  return result
+}
 
-//   return false
-// }
-
-// onBeforeMount(async () => {
-//   if(! await login() ) return
-//   // const params = {'user': 'demo3@janga.co.jp', password:'demo3'}
-//   // await store.loadStaffList({draft_status: store.status})
-// })
-
-// <%user%>, <%password%>
-// onMounted(async () => {
-  // const sqltag = 'login'
-  // const params = {'user': 'demo3@janga.co.jp', password:'demo3'}
-  // const ret = await dataStore.login(sqltag, params)
-  // if(!ret) return 
-
-  // if(ret.status === 'success')
-  //   localStorage.setItem('token', ret.data.token);
-
-  // console.log("ret====", ret)
-// })
+onBeforeMount(async () => {
+  if(! await login() ) return
+})
 
 async function handleDataSaved(result) {
   console.log('保存しました。有難うございました。')

@@ -1,8 +1,8 @@
 <script setup>
 import { useDisplay } from 'vuetify'
 const { mdAndDown } = useDisplay()
-import LoginLogoutSlot from '@/components/slots/LoginLogoutSlot.vue'
 import { ref, } from 'vue'
+import { useDbStore } from '@/stores/useDbStore'
 
 const props = defineProps({
   menus:        { type: Array,  default: () => [] },
@@ -23,6 +23,9 @@ const emit = defineEmits([
   'open-qr',
   'update:modelValue'
 ])
+
+const dbStore = useDbStore()
+const logoutLoading = ref(false)
 
 const logo = {
   src   : props.logoSrc   || 'surupas-sms.png',
@@ -52,9 +55,35 @@ const options = [
   { label: '中', value: 'medium' },
   { label: '小', value: 'small' },
 ]
+
 function onChange(value) {
   emit('update:modelValue', value)
 }
+
+async function handleLogout() {
+  logoutLoading.value = true
+
+  try {
+    await dbStore.logout({
+      loading: true,
+      loadingText: 'ログアウト中です...',
+    })
+
+    console.log('Logout successful')
+
+    emit('logout', {
+      isLoggedIn: false,
+    })
+
+    // 必要ならログイン画面へ
+    window.location.href = '/'
+  } catch (err) {
+    console.error('Logout failed:', err)
+  } finally {
+    logoutLoading.value = false
+  }
+}
+
 </script>
 
 <template>
@@ -128,37 +157,20 @@ function onChange(value) {
 
           <slot name="right-action" />
 
+          <div class="mr-8 hover-button" style="color: #E6003E;">
+            <v-tooltip text="ログアウト">
+              <template v-slot:activator="{ props }">
+                <v-icon
+                  v-bind="props"
+                  :disabled="logoutLoading"
+                  @click="handleLogout"
+                >
+                  mdi-power
+                </v-icon>
+              </template>
+            </v-tooltip>
+          </div>
 
-          <LoginLogoutSlot @logout-success="handleLogoutSuccess" :sqlTags="{ logout: '' }">
-            <template #default="{ logout, loading }">
-              <div class="mr-8 hover-button" style="color: #E6003E;">
-                <v-tooltip text="ログアウト">
-                  <template v-slot:activator="{ props }">
-                    <v-icon
-                      v-bind="props"
-                      :disabled="loading"
-                      @click="logout"
-                    >
-                      mdi-power
-                    </v-icon>
-                  </template>
-                </v-tooltip>
-              </div>
-            </template>
-          </LoginLogoutSlot>
-
-
-          <!-- <LoginLogoutSlot
-            :sqlTags="{ login: 'login', logout: 'ADMIN_LOGOUT_SQL_TAG' }"
-            @logout-success="handleLogoutSuccess"
-          >
-            <template #default="{ logout }">
-              <v-btn icon color="#E6003E" @click="logout">
-                <v-tooltip activator="parent" text="ログアウト" />
-                <v-icon>mdi-power</v-icon>
-              </v-btn>
-            </template>
-          </LoginLogoutSlot> -->
         </v-col>
       </v-row>
     </v-container>
