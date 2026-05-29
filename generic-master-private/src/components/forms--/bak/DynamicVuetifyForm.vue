@@ -23,6 +23,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  showSubmit: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const emit = defineEmits(['update:modelValue', 'submit'])
@@ -112,10 +116,7 @@ function getProps(field) {
     placeholder: field.placeholder,
     readonly: field.readonly,
     disabled: props.disabled || field.disabled,
-    // clearable を全項目に強制すると、Vuetify ja locale の
-    // '$vuetify.input.clear' 警告が出る場合があるため、
-    // field.props.clearable または field.clearable が指定された時だけ有効にする
-    clearable: field.clearable ?? false,
+    clearable: true,
     variant: 'outlined',
     density: 'comfortable',
     type: getInputType(field),
@@ -151,7 +152,7 @@ function submit() {
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row v-if="showSubmit">
       <v-col cols="12" class="text-right">
         <v-btn color="primary" type="submit">
           保存

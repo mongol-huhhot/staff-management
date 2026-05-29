@@ -11,6 +11,7 @@ import { createVuetify } from 'vuetify'
 import { ja } from 'vuetify/locale'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import { VDateInput } from 'vuetify/labs/VDateInput'
 
 const customJa = {
   ...ja,
@@ -31,7 +32,7 @@ const customJa = {
 }
 
 const vuetify = createVuetify({
-  components,
+  components: { ...components, VDateInput },
   directives,
 
   locale: {

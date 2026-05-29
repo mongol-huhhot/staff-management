@@ -1,131 +1,100 @@
-<!-- DatePicker.vue -->
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed } from 'vue'
 import dayjs from 'dayjs'
+
+defineOptions({
+  name: 'DatePicker',
+  inheritAttrs: false,
+})
 
 const props = defineProps({
   modelValue: {
     type: [String, Date],
-    default: null
+    default: null,
   },
   label: {
     type: String,
-    default: 'Select Date'
-  },
-  prependIcon: {
-    type: String,
-    default: 'mdi-calendar'
-  },
-  title: {
-    type: String,
-    default: '日付選択'
-  },
-  header: {
-    type: String,
-    default: 'Date Picker'
+    default: '日付',
   },
   mode: {
     type: String,
-    default: 'date', // 'date' or 'month'
-    validator: v => ['date', 'month'].includes(v)
-  }
-});
+    default: 'date',
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+  readonly: {
+    type: Boolean,
+    default: false,
+  },
+  clearable: {
+    type: Boolean,
+    default: true,
+  },
+})
 
-const emit = defineEmits(['update:modelValue']);
-const menu = ref(false);
+const emit = defineEmits(['update:modelValue'])
 
-// Format string based on mode
-const formatString = computed(() => props.mode === 'month' ? 'YYYY-MM' : 'YYYY-MM-DD');
+const menu = ref(false)
+const tempDate = ref(null)
 
-// We use a temporary string to drive the date picker
-const tempDate = ref(
-  props.modelValue
-    ? typeof props.modelValue === 'string'
-      ? props.modelValue
-      : dayjs(props.modelValue).format(formatString.value)
-    : null
-);
+const formatString = computed(() =>
+  props.mode === 'month' ? 'YYYY-MM' : 'YYYY-MM-DD'
+)
 
-// Watch for changes in the parent
-watch(() => props.modelValue, (val) => {
-  if (val) tempDate.value = val
-  else tempDate.value = null;
-});
+const displayValue = computed(() => {
+  if (!props.modelValue) return ''
+  return dayjs(props.modelValue).format(formatString.value)
+})
 
-const allowedDates = (date) => {
-  let year;
-  if (typeof date === 'string') {
-    year = parseInt(date.split('-')[0]);
-  } else if (date instanceof Date) {
-    year = date.getFullYear();
-  } else {
-    return false;
-  }
-  return year >= 2025;
-};
+watch(
+  () => props.modelValue,
+  val => {
+    tempDate.value = val || null
+  },
+  { immediate: true }
+)
 
 function onSelectDate(val) {
-  if (val) {
-    emit('update:modelValue', dayjs(val).format('YYYY-MM-DD'));
-  }
-  menu.value = false;
+  if (!val) return
+
+  const value = dayjs(val).format(formatString.value)
+  emit('update:modelValue', value)
+  menu.value = false
 }
 
-const clearDate = () => {
-  emit('update:modelValue', null);
-  tempDate.value = null;
-};
-
+function clearDate() {
+  tempDate.value = null
+  emit('update:modelValue', null)
+}
 </script>
 
 <template>
-  <v-menu v-model="menu" :close-on-content-click="false">
-    <template v-slot:activator="{ props: activatorProps }">
+  <v-menu
+    v-model="menu"
+    :close-on-content-click="false"
+  >
+    <template #activator="{ props: menuProps }">
       <v-text-field
-        v-bind="activatorProps"
-        :model-value="props.modelValue ? dayjs(String(props.modelValue)).format(formatString) : ''"
+        v-bind="{ ...$attrs, ...menuProps }"
+        :model-value="displayValue"
         :label="label"
-        :prepend-icon="prependIcon"
+        prepend-icon="mdi-calendar"
         readonly
-        clearable
-        density="compact"
-        @click:clear="clearDate"
-        style="min-width: 12em; max-width: 18em;"
-      ></v-text-field>
+        :disabled="disabled"
+        :clearable="clearable"
+        variant="outlined"
+        density="comfortable"
+        @click:clear.stop="clearDate"
+      />
     </template>
 
     <v-date-picker
       v-model="tempDate"
       color="primary"
-      :title="title"
-      :view-mode="props.mode === 'month' ? 'year' : 'month'"
-      :show-adjacent-months="props.mode === 'date'"
-      :hide-header="props.mode === 'month'"
-      :allowed-dates="allowedDates"
-      :hide-day="props.mode === 'month'"
+      :view-mode="mode === 'month' ? 'year' : 'month'"
       @update:model-value="onSelectDate"
-      scrollable
-      elevation="4"
-      density="compact"
     />
   </v-menu>
 </template>
-
-
-<!-- For date (YYYY-MM-DD) -->
-<!---
-<DatePicker 
-  v-model="selectedDate"
-  label="日付を選択"
-  mode="date"
-/>
--->
-<!-- For month (YYYY-MM) -->
-
-<!--
-<DatePicker 
-  v-model="selectedMonth"
-  label="月を選択"
-  mode="month"
-/>
--->

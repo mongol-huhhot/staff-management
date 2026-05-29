@@ -1,181 +1,90 @@
-<!-- DynamicVuetifyForm.vue -->
 <script setup>
-import { computed } from 'vue'
-import DatePicker from '@/components/helper/date/DatePicker.vue'
-import {useDbStore} from "@/stores/useDbStore";
+import { computed, ref } from 'vue'
+import { useDataStore } from '@/stores/DataStore'
+import { buildSaveParams } from '@/composables/formParamBuilder'
+import { buildRules } from '@/composables/useRuleFactory'
 
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    required: true,
-  },
-  fields: {
-    type: Array,
-    required: true,
-  },
-  mode: {
-    type: String,
-    default: 'self', // self / admin
-  },
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
-  items: {
-    type: Array,
-    default: () => [],
-  },
-  showSubmit: {
-    type: Boolean,
-    default: true,
-  },
-  sqltags: {
-    type: Object,
-    default: null,
-  },
+  modelValue: { type: Object, required: true },
+  fields: { type: Array, required: true },
+  mode: { type: String, default: 'self' },
+  disabled: { type: Boolean, default: false },
+  items: { type: Array, default: () => [] },
+  showSubmit: { type: Boolean, default: true },
+  sqltags: { type: Object, default: null },
+  tabConfig: { type: Object, default: () => ({}) },
+  commonParams: { type: Object, default: () => ({}) },
 })
 
-const sqltags = computed(() => {
-  if (!props.sqltags) return null
-
-  if (typeof props.sqltags === 'object') {
-    return props.sqltags
-  }
-
-  // 文字列の場合は、selectタグだけを設定する
-  return {
-    select: props.sqltags.select || null,
-    save: props.sqltags.save || null,
-    delete: props.sqltags.delete || null,
-  }
-})
-
-const dbStore = useDbStore()
+const emit = defineEmits(['update:modelValue', 'submit', 'saved'])
+const dataStore = useDataStore()
+const saving = ref(false)
 
 const formData = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value),
 })
 
-const visibleFields = computed(() => {
-  return props.fields
-    .filter(field => field)
-    .filter(field => field.showable !== 'hide')
-})
+const visibleFields = computed(() =>
+  props.fields.filter(field => field && field.showable !== 'hide')
+)
 
-function updateField(key, value) {
-  formData.value = {
-    ...formData.value,
-    [key]: value,
+// 表示用：Date オブジェクトに変換
+function toDisplayValue(field, value) {
+  if (field.component !== 'v-date-input' && field.type !== 'date') return value
+  if (value == null || value === '') return null
+  if (value instanceof Date) return value
+  if (typeof value === 'string') {
+    const normalized = value.replace(/\//g, '-')
+    const d = new Date(normalized + 'T00:00:00')
+    return isNaN(d.getTime()) ? null : d
   }
+  return null
 }
 
-function getComponent(field) {
-  if (field.component) return field.component
-
-  if (field.type === 'select') return 'v-select'
-  if (field.type === 'combobox') return 'v-combobox'
-  if (field.type === 'textarea') return 'v-textarea'
-  if (field.type === 'date' || field.type === 'month') return DatePicker
-
-  return 'v-text-field'
+// 保存用：YYYY-MM-DD 文字列に変換
+function normalizeDateValue(value) {
+  if (value == null || value === '') return ''
+  if (value instanceof Date) {
+    const yyyy = value.getFullYear()
+    const mm = String(value.getMonth() + 1).padStart(2, '0')
+    const dd = String(value.getDate()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd}`
+  }
+  if (typeof value === 'string') return value.replace(/\//g, '-').slice(0, 10)
+  return ''
 }
 
-function getInputType(field) {
-  if (field.type === 'email') return 'email'
-  if (field.type === 'password') return 'password'
-  if (field.type === 'number') return 'number'
-  if (field.type === 'date') return 'date'
-  if (field.type === 'time') return 'time'
-  return 'text'
+// フィールド更新（field オブジェクトと新しい値を受け取る）
+function updateField(field, value) {
+  let newValue = value
+  if (field.component === 'v-date-input' || field.type === 'date') {
+    newValue = normalizeDateValue(value)
+  }
+  emit('update:modelValue', {
+    ...(props.modelValue || {}),
+    [field.key]: newValue,
+  })
 }
 
-function buildRules(field) {
-  const rules = []
-  const validation = field.validation || {}
-
-  if (field.required || validation.required) {
-    rules.push(v => !!v || `${field.label}は必須です`)
-  }
-
-  if (validation.minLength) {
-    rules.push(v =>
-      !v || String(v).length >= validation.minLength ||
-      `${field.label}は${validation.minLength}文字以上です`
-    )
-  }
-
-  if (validation.maxLength) {
-    rules.push(v =>
-      !v || String(v).length <= validation.maxLength ||
-      `${field.label}は${validation.maxLength}文字以内です`
-    )
-  }
-
-  if (validation.email || field.type === 'email') {
-    rules.push(v =>
-      !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ||
-      'メールアドレス形式が正しくありません'
-    )
-  }
-
-  if (validation.pattern) {
-    const reg = new RegExp(validation.pattern)
-    rules.push(v =>
-      !v || reg.test(v) ||
-      validation.message ||
-      `${field.label}の形式が正しくありません`
-    )
-  }
-
-  return rules
-}
-
-function getProps(field) {
-  return {
-    label: field.label,
-    placeholder: field.placeholder,
-    readonly: field.readonly,
-    disabled: props.disabled || field.disabled,
-    clearable: true,
-    variant: 'outlined',
-    density: 'comfortable',
-    type: getInputType(field),
-    ...field.props,
-  }
-}
-
-// function submit() {
-//   console.log('Submitting form with data:', formData.value)
-//   dbStore.saveData( props.sqltags.save, formData.value) // 例: データ保存の呼び出し
-//   emit('submit', formData.value)
-// }
+// 送信処理
 async function submit() {
-  try {
-    console.log('Submitting form with data:', formData.value)
-
-    if (!props.sqltags?.save) {
-      console.warn('sqltags.save が未設定です:', props.sqltags)
-      emit('submit', formData.value)
-      return
-    }
-
-    const result = await dbStore.saveData(
-      props.sqltags.save,
-      formData.value
-    )
-
-    console.log('save result:', result)
-
+  if (!props.sqltags?.save) {
     emit('submit', formData.value)
-
+    return
+  }
+  saving.value = true
+  try {
+    const params = buildSaveParams(formData.value, props.tabConfig, props.commonParams)
+    const result = await dataStore.saveData(props.sqltags.save, params)
+    emit('saved', result)
+    emit('submit', formData.value)
   } catch (error) {
     console.error('DynamicVuetifyForm submit error:', error)
+  } finally {
+    saving.value = false
   }
 }
-
-
-
 </script>
 
 <template>
@@ -188,26 +97,30 @@ async function submit() {
         sm="6"
         md="4"
       >
-
-        <!-- {{ props.items }} -->
-         <!-- {{ field }}::::{{ field.key }}: {{ formData[field.key] }} デバッグ用 -->
         <component
-          :is="getComponent(field)"
-          :model-value="formData[field.key]"
-          v-bind="getProps(field)"
-          :sqltags="sqltags"
-          :items="field.items || [sqltags]"
-          :item-title="field.props?.itemTitle || 'label'"
-          :item-value="field.props?.itemValue || 'value'"
+          :is="field.component || 'v-text-field'"
+          :model-value="
+            field.component === 'v-date-input' || field.type === 'date'
+              ? toDisplayValue(field, formData[field.key])
+              : formData[field.key]
+          "
+          v-bind="field.props || {}"
+          :label="field.label"
+          :type="field.component === 'v-date-input' ? undefined : field.type"
+          :readonly="field.readonly"
+          :disabled="disabled || field.disabled"
+          :items="field.items || field.props?.items || []"
+          :item-title="field.props?.itemTitle || field.props?.['item-title'] || 'label'"
+          :item-value="field.props?.itemValue || field.props?.['item-value'] || 'value'"
           :rules="buildRules(field)"
-          @update:model-value="value => updateField(field.key, value)"
+          @update:model-value="value => updateField(field, value)"
         />
       </v-col>
     </v-row>
 
     <v-row v-if="showSubmit">
       <v-col cols="12" class="text-right">
-        <v-btn color="primary" type="submit">
+        <v-btn color="primary" type="submit" :loading="saving" :disabled="props.disabled">
           保存
         </v-btn>
       </v-col>

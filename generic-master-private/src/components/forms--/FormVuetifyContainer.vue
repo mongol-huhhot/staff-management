@@ -6,7 +6,6 @@ import DynamicVuetifyForm from '@/components/forms/DynamicVuetifyForm.vue'
 import RepeatableFormWrapper from '@/components/forms/RepeatableFormWrapper.vue'
 import { parseJsonbFields, parseAndFlattenJsonbFields } from '@/composables/utilFactory'
 
-
 const dataStore = useDataStore()
 const configStore = useAppConfigStore()
 
@@ -58,6 +57,7 @@ const editMode = computed(() => {
 })
 
 function normalizeCategoryRows(rows = []) {
+  console.log('normalizeCategoryRows', rows)
   return rows
     .filter(row => row?.enabled !== 'inactive')
     .sort((a, b) => Number(a.show_order || 0) - Number(b.show_order || 0))
@@ -121,26 +121,15 @@ function initializeAllTabContainers() {
 }
 
 function getStaffKey(row) {
-  return row?.staff_id || row?.staff_code || row?.user_id || null
+  return row?.user_id || row?.staff_id || row?.staff_code || null
 }
 
 function getStaffName(row) {
-  return row?.staff_name || row?.user_name || null
+  return row?.user_name || row?.staff_name || null
 }
 
-const currentStaffRow = computed(() => {
-  return dataStore.params?.attributes || dataStore.states?.currentRow || {}
-})
-
-const commonParams = computed(() => {
-  const row = currentStaffRow.value || {}
-
-  return {
-    staff_id: row.staff_id || null,
-    staff_code: row.staff_code || row.user_id || null,
-    user_id: row.user_id || null,
-  }
-})
+const staff_id = computed(() => getStaffKey(dataStore.params.attributes)  || getStaffKey(dataStore.states.currentRow)  || null)
+const staff_name = computed(() => getStaffName(dataStore.params.attributes)  || getStaffName(dataStore.states.currentRow)  || null)
 
 function parseTabRows(tabCode, rows = []) {
   const jsonbFields = tabSqlTags.value[tabCode]?.jsonb_fields || []
@@ -156,8 +145,11 @@ function parseTabRows(tabCode, rows = []) {
 
 // activeになったタブだけスタッフデータをロードする
 const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
-  const row = currentStaffRow.value
-  const staffKey = getStaffKey(row)
+  // dataStore.states.currentRow
+  const staffKey = getStaffKey( dataStore.params.attributes )
+  const staffName = getStaffName( dataStore.params.attributes )
+
+  console.log(`Loading data for tab: ${tabCode}, staffKey: ${staffKey}, staffName: ${staffName}`)
 
   if (!staffKey || !tabCode || !category.value?.length) return
 
@@ -169,28 +161,32 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
     return
   }
 
+  const sqltag = tabSqlTags.value[tabCode]?.sqltags?.select || 'staffs.get_staff_profile'
+  console.log(`Using SQLTAG: ${sqltag} for tab: ${tabCode}`)
+
   const condition = {
     [tabCode]: {
-      SQLTAG:
-        tabSqlTags.value[tabCode]?.sqltags?.select ||
-        tabSqlTags.value[tabCode]?.sqltag ||
-        'staffs.get_staff_data',
+      SQLTAG: sqltag,
       category_code: tabCode,
-      staff_code: row?.staff_code || null,
-      staff_id: row?.staff_id || null,
+      staff_code: staffKey || null,
+      staff_id: staffKey || null,
     }
   }
-
+  
   loadingTabs.value[tabCode] = true
 
   const multiQueryResult = await dataStore.dbAccessWithMultiTags(condition)
 
   loadingTabs.value[tabCode] = false
 
+  console.log(`Multi-query result for tab ${tabCode}:`, multiQueryResult)
+
   if (multiQueryResult.code !== 0) {
     console.error('Failed to load tab data:', multiQueryResult.message)
     return
   }
+
+  console.log(`Raw data for tab ${tabCode}:`, multiQueryResult.data?.[tabCode])
 
   const rows = multiQueryResult.data?.[tabCode] || []
   const parsedData = parseTabRows(tabCode, rows)
@@ -276,11 +272,10 @@ async function confirmDelete() {
   <v-card class="container-card" variant="outlined">
     <v-card-title class="card-header">
       <div class="header-left truncated">
-        <span v-if="currentStaffRow" class="staff-title">
-          {{ commonParams.staff_code }} -
-          {{ getStaffName(currentStaffRow) }}様
+        <span v-if="dataStore.states?.currentRow" class="staff-title">
+          {{ staff_id }} -
+          {{ staff_name }} 様 個人情報
         </span>
-        <!-- debug only -->
         <!-- <div v-html="JSON.stringify(formData)"></div> -->
       </div>
 
@@ -341,7 +336,7 @@ async function confirmDelete() {
             <v-card-title class="text-subtitle-1">
               {{ tab.category_name }}
             </v-card-title>
-
+            <!-- {{ tabSqlTags[tab.sub_category_code]?.sqltags}}  -->
             <v-card-text>
               <RepeatableFormWrapper
                 v-if="tab.data_structure === 'repeatable'"
@@ -351,7 +346,10 @@ async function confirmDelete() {
                 :add-button-text="`${tab.category_name}追加`"
                 :sqltags="tabSqlTags[tab.sub_category_code]?.sqltags"
                 :tab-config="tabSqlTags[tab.sub_category_code] || {}"
-                :common-params="commonParams"
+                :common-params="{
+                  staff_id,
+                  staff_code: staff_id,
+                }"
               />
 
               <DynamicVuetifyForm
@@ -360,7 +358,11 @@ async function confirmDelete() {
                 :fields="getItemsByTab(tab.sub_category_code)"
                 :sqltags="tabSqlTags[tab.sub_category_code]?.sqltags"
                 :tab-config="tabSqlTags[tab.sub_category_code] || {}"
-                :common-params="commonParams"
+                :common-params="{
+                  staff_id,
+                  staff_code: staff_id,
+                }"
+                mode="single"
               />
             </v-card-text>
           </v-card>
@@ -391,7 +393,7 @@ async function confirmDelete() {
 }
 
 .staff-title {
-  font-size: 1.25em;
+  font-size: 1.1em;
   font-weight: bold;
 }
 
