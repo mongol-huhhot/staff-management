@@ -251,25 +251,6 @@ watch(
   }
 )
 
-async function save() {
-  console.log('save data:', formData.value)
-
-  // 例:
-  // await dataStore.save_staff({
-  //   staff_code: dataStore.states.currentRow.staff_code,
-  //   data: formData.value,
-  // })
-}
-
-async function csvDownload() {
-  // CSV出力
-}
-
-async function confirmDelete() {
-  if (confirm('データを削除してもよろしいですか？')) {
-    // 削除処理
-  }
-}
 </script>
 
 <template>
@@ -280,31 +261,6 @@ async function confirmDelete() {
           {{ commonParams.staff_code }} -
           {{ getStaffName(currentStaffRow) }}様
         </span>
-        <!-- debug only -->
-        <!-- <div v-html="JSON.stringify(formData)"></div> -->
-      </div>
-
-      <div class="header-actions">
-        <template v-if="editMode">
-          <v-btn color="primary" @click="save">
-            保存
-          </v-btn>
-
-          <v-btn
-            color="error"
-            prepend-icon="mdi-close-circle"
-            @click="confirmDelete"
-          >
-            データ削除
-          </v-btn>
-        </template>
-
-        <v-btn
-          color="success"
-          size="small"
-          icon="mdi-download"
-          @click="csvDownload"
-        />
       </div>
     </v-card-title>
 
@@ -373,7 +329,7 @@ async function confirmDelete() {
 <style scoped>
 .container-card {
   height: 100%;
-  margin: 12px;
+  margin: 0px;
   background-color: #fff;
   border-radius: 8px;
   border: 0 solid #e0e0e0;
