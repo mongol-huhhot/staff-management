@@ -36,13 +36,16 @@ onMounted(async () => {
     },
   })
 
+  console.log('Loaded multi-query data:', multiQueryResult)
   if (multiQueryResult.code !== 0) {
     console.error('Failed to load data:', multiQueryResult.message)
     return
   }
 
+  console.log('Loaded category data:', multiQueryResult.data?.category)
   category.value = normalizeCategoryRows(multiQueryResult.data?.category || [])
 
+  console.log('Loaded dictionary data:', multiQueryResult.data?.dictionary)
   dictionary.value = parseJsonbFields(
     multiQueryResult.data?.dictionary || [],
     ['field_definition', 'item_description', 'formula']
@@ -58,6 +61,7 @@ const editMode = computed(() => {
 })
 
 function normalizeCategoryRows(rows = []) {
+  console.log('Normalizing category rows:', rows)
   return rows
     .filter(row => row?.enabled !== 'inactive')
     .sort((a, b) => Number(a.show_order || 0) - Number(b.show_order || 0))
@@ -180,6 +184,8 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
       staff_id: row?.staff_id || null,
     }
   }
+
+  console.log(`Loading tab data: ${tabCode} with condition`, condition)
 
   loadingTabs.value[tabCode] = true
 

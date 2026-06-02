@@ -32,7 +32,7 @@ const f_color = (params) => {
  */
 export function buildInitColumns(onRowClicked) {
     return [
-        { field: 'role_code', headerName: 'ロール記号',
+        { field: 'user_id', headerName: 'ユーザーID',
             cellStyle: { textAlign: 'left', padding: '4px',
                 color: '#1976d2',          // blue
                 textDecoration: 'underline',
@@ -42,7 +42,7 @@ export function buildInitColumns(onRowClicked) {
             onCellClicked: onRowClicked || undefined,
             flex:1,
         },
-        { field: 'role_name', headerName: 'ロール名',
+        { field: 'email', headerName: 'メールアドレス',
             cellStyle: { textAlign: 'left', padding: '4px',
                 color: '#1976d2',          // blue
                 textDecoration: 'underline',
@@ -52,8 +52,11 @@ export function buildInitColumns(onRowClicked) {
             onCellClicked: onRowClicked || undefined,
             flex:1,
         },
-        { field: 'remarks', headerName: '説明',},
-        { field: 'enabled', headerName: '有効、無効',},
+        // { field: 'password', headerName: 'パスワード',},
+        { field: 'draft_status', headerName: 'ステータス',},
+        { field: 'draft_effective_date', headerName: '変更適用日',},
     ]
-
 }
+
+
+// id, user_id, email, password, current_data, draft_data, draft_status, draft_effective_date

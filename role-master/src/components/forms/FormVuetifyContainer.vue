@@ -41,7 +41,10 @@ onMounted(async () => {
     return
   }
 
-  category.value = normalizeCategoryRows(multiQueryResult.data?.category || [])
+  console.log('Loaded multi-query data:', multiQueryResult)
+
+  category.value = normalizeCategoryRows(multiQueryResult?.data?.category || [])
+  console.log('Loaded category data:', category.value)
 
   dictionary.value = parseJsonbFields(
     multiQueryResult.data?.dictionary || [],
@@ -50,6 +53,7 @@ onMounted(async () => {
 })
 
 const tabItems = computed(() => {
+  console.log('Computing tabItems with category:', category.value)
   return Array.isArray(category.value) ? category.value : []
 })
 
@@ -191,7 +195,6 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
 watch(
   () => dataStore.states.currentRow,
   async (newVal) => {
-    console.log("watch, newVal====", newVal)
     formData.value = {}
     loadedTabs.value = {}
     loadingTabs.value = {}
@@ -263,6 +266,7 @@ async function confirmDelete() {
         <div v-html="JSON.stringify(formData)"></div>
       </div> -->
 
+      <!-- {{ tabItems }} -->
       <div class="header-actions">
         <template v-if="editMode">
           <v-btn color="primary" @click="save">

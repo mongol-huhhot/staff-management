@@ -2,40 +2,31 @@
 window.appConfig = window.appConfig || {};
 window.appConfig.MAIN_CONFIG = {
   debug_mode: true,
+  default_list: 'user',
   // 各タブのSQLタグを定義
   tab2sqltag_list: {
-    basic: {
-      label: '基本情報',
-      data_key: 'staff_profile',
-      jsonb_fields: ['profile_jsonb'],
+    user: {
+      label: 'ユーザー情報',
+      data_key: 'userdata',
+      jsonb_fields: ['current_data','draft_data'],// jsonb カラムの一覧
       skip_reload: true,
+      sqltags:{ select:'system.get_users', save:'system.save_user_roles', delete:'system.delete_user_role' },
+      separate_items: [ 'id', 'user_id', 'email', "password", 'draft_status', "draft_effective_date" ],// jsonb以外の普通カラム
     },
-
-    traffic: {
-      label: '通勤情報',
-      data_key: 'staff_traffic',
-      jsonb_fields: ['traffic_info'],
+    user_roles: { 
+      label: 'ユーザーロール',
+      data_key: 'user_roles',
+      jsonb_fields: [],// jsonb カラムの一覧
+      sqltags:{ select:'system.get_user_roles', save:'system.save_user_roles', delete:'system.delete_user_role'}, // jsonb以外の普通カラム
+      separate_items: ['user_id','role_code','start_date','end_date','enabled','remarks',],
     },
-
-    bank: {
-      label: '銀行情報',
-      data_key: 'staff_bank',
-      jsonb_fields: [],
-    },
-
-    education: {
-      label: '資格情報',
-      data_key: 'staff_education',
-      jsonb_fields: ['education_info'],
+    role_permissions: {
+      label: 'ロール権限',
+      data_key: 'role_permissions',
+      jsonb_fields: [],// jsonb カラムの一覧
+      sqltags:{ select:'system.get_app_role_permissions', save:'system.save_app_role_permissions', delete:'system.delete_app_role_permissions'}, // jsonb以外の普通カラム
+      separate_items: ['app_code','role_code','start_date','end_date','enabled','remarks','show_order', 'id', 'process_code','view_rule','action_rule','scope_rule'],
     },
   },
-
-  // 上記の”data_key”がキーで、SQLタグと対応するデータキーを定義
-  sqltagMap: {
-    staff_profile: 'staffs.get_staff_profile', // スタッフプロフィール情報の取得
-    staff_traffic: 'masters.get_staff_traffic',// スタッフ通勤情報の取得
-    staff_bank: 'masters.get_staff_bank', // スタッフ銀行口座情報の取得
-    staff_education: 'staffs.get_staff_education',// スタッフ資格情報の取得
-  }
 };
 

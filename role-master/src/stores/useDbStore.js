@@ -224,7 +224,7 @@ export const useDbStore = defineStore('dbStore', () => {
     const data = {}
 
     Object.keys(result).forEach((key) => {
-      data[key] = result[key]?.result?.[0]?.result || []
+      data[key] = result[key]?.result || []
     })
 
     return data

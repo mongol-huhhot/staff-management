@@ -223,8 +223,10 @@ export const useDbStore = defineStore('dbStore', () => {
     const result = resp?.result || {}
     const data = {}
 
+
     Object.keys(result).forEach((key) => {
-      data[key] = result[key]?.result?.[0]?.result || []
+      console.log(`Unwrapping result for tag: ${key}`, result[key])
+      data[key] = result[key]?.result || []
     })
 
     return data

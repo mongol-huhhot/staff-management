@@ -31,6 +31,7 @@ export const useDataStore = defineStore("dataStore", () => {
     const itemDefs = ref([]) // array of DB items (serializable)
 
     const runLoad = async (sql_tag, p = {}, targetKey = null) => {
+        console.log(`Running load for SQL tag: ${sql_tag} with params:`, p)
         if(!targetKey) targetKey=sql_tag
         const ret = await baseStore.load(sql_tag, p)
         if (targetKey) data[targetKey] = ret
@@ -100,6 +101,7 @@ export const useDataStore = defineStore("dataStore", () => {
         data,
 
         rowCliked,
+        runLoad,
         runSave,
 
         get_list,

@@ -14,7 +14,7 @@ import { useDataStore } from '@/stores/DataStore'
 import { useAppConfigStore } from '@/stores/AppConfigStore'
 import CSVUpload from '@/components/csvupload/CSVUpload.vue'
 import AgGridDataBrowser from '@/components/helper/grid/PagedAgGridCard.vue'
-import { parseAndFlattenJsonbFields } from '@/composables/utilFactory'
+// import { parseAndFlattenJsonbFields } from '@/composables/utilFactory'
 import Encoding from 'encoding-japanese'
 
 const agGridHandler = ref(null)
@@ -23,6 +23,29 @@ const dataStore = useDataStore()
 
 const configStore = useAppConfigStore()
 configStore.loadFromWindow()
+
+
+const config = computed(() => configStore.MAIN_CONFIG)
+console.log("config.value===", config.value)
+const sqlconfig = computed(() => config.value.tab2sqltag_list)
+console.log("sqlconfig.value===", sqlconfig.value)
+const default_list = computed(() => config.value.default_list)
+console.log("default_list.value===", default_list.value)
+/**
+user: {
+  label: 'ユーザー情報',
+  data_key: 'userdata',
+  jsonb_fields: ['current_data','draft_data'],// jsonb カラムの一覧
+  skip_reload: true,
+  sqltags:{ select:'system.get_users', save:'system.save_user_roles', delete:'system.delete_user_role' },
+  separate_items: [ 'id', 'user_id', 'email', "password", 'draft_status', "draft_effective_date" ],// jsonb以外の普通カラム
+},
+*/
+const default_list_config = computed(() => sqlconfig.value?.[default_list.value]) 
+const default_sqltag = computed(() => default_list_config.value?.sqltags?.select)
+
+console.log("default_list_config.value===", default_list_config.value)
+console.log("default_sqltag.value===", default_sqltag.value)
 
 const showDeleted = ref(false)
 const selectedVisibleColumnCount = ref(0)
@@ -97,8 +120,9 @@ watch(
 )
 
 const loadData = async () => {
-  let val = await dataStore.get_list({})
-  val = val?.[0]?.result || []
+  let val = await dataStore.runLoad(default_sqltag.value, { }, default_sqltag.value)
+  console.log("raw data===", val)
+  // val = val?.[0]?.result || []
   rows.value = val
   // rows.value = parseAndFlattenJsonbFields(val, ['profile_jsonb'])
   await nextTick()
@@ -322,7 +346,7 @@ async function handleDownload() {
         <h4>
           個人情報管理
         </h4>
-
+        <!-- {{ configStore.MAIN_CONFIG }} -->
         <a
           href="https://surupas.native365.net/jfsg230540/webcomponents/jfsg230540/chart-system/?k=retroactive"
           target="_blank"

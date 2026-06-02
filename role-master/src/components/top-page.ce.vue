@@ -7,9 +7,11 @@ import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 
 import { watch } from 'vue'
-import MainLayout from '@/components/MainLayout.vue'
-import { useDataStore } from '@/stores/DataStore'
+// import MainLayout from '@/components/MainLayout.vue'
 
+import S3FileManager from '@/components/files/S3FileManager.vue'
+
+import { useDataStore } from '@/stores/DataStore'
 
 const props = defineProps({
   j: {
@@ -70,7 +72,7 @@ async function login() {
 <template>
   <v-locale-provider locale="ja">
     <div v-if="props.j">
-      <MainLayout />
+      <S3FileManager />
     </div>
 
     <div v-else>

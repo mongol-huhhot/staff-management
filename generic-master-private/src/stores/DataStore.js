@@ -99,6 +99,7 @@ export const useDataStore = defineStore("dataStore", () => {
     const logout = async (p = {}) =>  await baseStore.logout(p)
     const verify = async (p = {}) =>  await baseStore.verify(p)
     const multiQuery = async (blocks = {}, options = {}) => baseStore.multiQuery(blocks, options)
+    
     const dbAccessWithMultiTags = async (params = {}, options = {}) => {
         try {
             return await baseStore.dbAccessWithMultiTags(params, options)

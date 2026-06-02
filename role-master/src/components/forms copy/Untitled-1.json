@@ -1,7 +1,0 @@
-{
-    "COMMON": {
-        "code": -7,
-        "message": "サーバーエラーが発生しました。Authorization Bearer token is missing.",
-        "result": null
-    }
-}
