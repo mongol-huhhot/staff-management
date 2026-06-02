@@ -100,7 +100,8 @@ const loadData = async () => {
   let val = await dataStore.get_staff_profile({
     category_code: 'staffs'
   })
-  val = val?.[0]?.result || []
+  //val = val?.[0]?.result || []
+  val = val || []
   rows.value = parseAndFlattenJsonbFields(val, ['profile_jsonb'])
   await nextTick()
 }
