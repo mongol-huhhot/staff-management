@@ -46,6 +46,10 @@ export const useDataStore = defineStore("dataStore", () => {
         return await baseStore.save(sql_tag, p)
     }
 
+    const saveData = async (sqltag, p = {}) => {
+        return await runSave(sqltag, p)
+    }
+
     const get_user_master = async (p = {}) => {
         return await runLoad(CONST_DEF.get_user_master, p,  'users.get_user_master')
     }
@@ -95,6 +99,7 @@ export const useDataStore = defineStore("dataStore", () => {
     const logout = async (p = {}) =>  await baseStore.logout(p)
     const verify = async (p = {}) =>  await baseStore.verify(p)
     const multiQuery = async (blocks = {}, options = {}) => baseStore.multiQuery(blocks, options)
+    
     const dbAccessWithMultiTags = async (params = {}, options = {}) => {
         try {
             return await baseStore.dbAccessWithMultiTags(params, options)
@@ -116,7 +121,7 @@ export const useDataStore = defineStore("dataStore", () => {
 
         rowCliked,
         runSave,
-
+        saveData,
         // build AG Grid columns on-demand
         buildColumnsDefine,
 
