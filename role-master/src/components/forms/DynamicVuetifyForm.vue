@@ -116,23 +116,67 @@ async function submit() {
 }
 
 function getFieldItems(field) {
-  // 1. field.items が直接指定されていれば優先
-  if (Array.isArray(field.items)) return field.items
+  // 1. field.items が中身ありなら優先
+  if (Array.isArray(field.items) && field.items.length > 0) {
+    return field.items
+  }
 
-  // 2. props.items から取得したい場合
-  if (field.itemsKey && props.items?.[field.itemsKey]) {
+  // 2. props.items
+  if (
+    field.itemsKey &&
+    Array.isArray(props.items?.[field.itemsKey]) &&
+    props.items[field.itemsKey].length > 0
+  ) {
     return props.items[field.itemsKey]
   }
 
-  // 3. Pinia Store の master から取得
-  if (field.masterKey && dataStore.masters?.[field.masterKey]) {
-    return dataStore.masters[field.masterKey]
+  // 3. Pinia Store master
+  if (
+    field.masterKey &&
+    Array.isArray(dataStore.formMasters?.[field.masterKey])
+  ) {
+    return dataStore.formMasters[field.masterKey]
   }
 
   // 4. field.props.items
-  if (Array.isArray(field.props?.items)) return field.props.items
+  if (Array.isArray(field.props?.items)) {
+    return field.props.items
+  }
 
   return []
+}
+
+// function getItemTitle(field) {
+//   return field.itemTitle
+//     || field.item_title
+//     || field.props?.itemTitle
+//     || field.props?.item_title
+//     || field.props?.['item-title']
+//     || 'label'
+// }
+
+// function getItemValue(field) {
+//   return field.itemValue
+//     || field.item_value
+//     || field.props?.itemValue
+//     || field.props?.item_value
+//     || field.props?.['item-value']
+//     || 'value'
+// }
+
+function cleanProps(field) {
+  const {
+    items,
+    itemTitle,
+    itemValue,
+    item_title,
+    item_value,
+    'item-title': itemTitleKebab,
+    'item-value': itemValueKebab,
+    ...rest
+  } = field.props || {}
+
+  return rest
 }
 
 </script>
@@ -147,6 +191,7 @@ function getFieldItems(field) {
         sm="6"
         md="4"
       >
+        <!-- {{ field.key }}: {{ getFieldItems(field) }} -->
         <component
           :is="field.component || 'v-text-field'"
           :model-value="
@@ -154,37 +199,17 @@ function getFieldItems(field) {
               ? toDisplayValue(field, formData[field.key])
               : formData[field.key]
           "
-          v-bind="field.props || {}"
+          v-bind="cleanProps(field)"
           :label="field.label"
           :type="field.component === 'v-date-input' ? undefined : field.type"
           :readonly="field.readonly"
           :disabled="disabled || field.disabled"
           :items="getFieldItems(field)"
-          :item-title="field.props?.itemTitle || field.props?.['item-title'] || 'label'"
-          :item-value="field.props?.itemValue || field.props?.['item-value'] || 'value'"
+          item-title="label"
+          item-value="value"
           :rules="buildRules(field)"
           @update:model-value="value => updateField(field, value)"
         />
-<!-- 
-        <component
-          :is="field.component || 'v-text-field'"
-          :model-value="
-            field.component === 'v-date-input' || field.type === 'date'
-              ? toDisplayValue(field, formData[field.key])
-              : formData[field.key]
-          "
-          v-bind="field.props || {}"
-          :label="field.label"
-          :type="field.component === 'v-date-input' ? undefined : field.type"
-          :readonly="field.readonly"
-          :disabled="disabled || field.disabled"
-          :items="field.items || field.props?.items || []"
-          :item-title="field.props?.itemTitle || field.props?.['item-title'] || 'label'"
-          :item-value="field.props?.itemValue || field.props?.['item-value'] || 'value'"
-          :rules="buildRules(field)"
-          @update:model-value="value => updateField(field, value)"
-        /> -->
-
       </v-col>
     </v-row>
 

@@ -121,10 +121,6 @@ export const useDataStore = defineStore("dataStore", () => {
                     SQLTAG: 'system.get_apps',
                     enabled: 'active',
                 },
-                apps: {
-                    SQLTAG: 'system.get_apps',
-                    enabled: 'active',
-                },
             })
 
             if (ret.code !== 0) {

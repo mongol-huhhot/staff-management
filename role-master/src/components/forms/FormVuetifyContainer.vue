@@ -95,6 +95,7 @@ function getCategoryByTab(tabCode) {
 }
 
 function isRepeatableCategory(tabCode) {
+  console.log(`Checking if category is repeatable for tab: ${tabCode}`)
   return getCategoryByTab(tabCode)?.data_structure === 'repeatable'
 }
 
@@ -128,13 +129,14 @@ function getItemsByTab(tabCode) {
 
 function ensureTabFormData(tabCode) {
   if (!tabCode) return
-
+  console.log(`Ensuring form data structure for tab: ${tabCode}`)
   if (isRepeatableCategory(tabCode)) {
     if (!Array.isArray(formData.value[tabCode])) {
       formData.value[tabCode] = []
     }
     return
   }
+  console.log(`Ensuring form data structure for non-repeatable tab: ${tabCode}`)
 
   if (!formData.value[tabCode] || Array.isArray(formData.value[tabCode])) {
     formData.value[tabCode] = {}
@@ -193,10 +195,12 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
 
   const cacheKey = `${staffKey}:${tabCode}`
 
+  console.log(`Attempting to load data for tab: ${tabCode} with staffKey: ${staffKey}`)
   if (!options.force && loadedTabs.value[tabCode] === cacheKey) {
     return
   }
 
+  console.log(`Loading data for tab: ${tabCode} with staffKey: ${staffKey} (force: ${options.force})`)
   const condition = {
     [tabCode]: {
       SQLTAG:
@@ -208,7 +212,7 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
       }
   }
 
-  console.log(`Loading tab data: ${tabCode} with condition`, condition)
+  // console.log(`Loading tab data: ${tabCode} with condition`, condition)
 
   loadingTabs.value[tabCode] = true
 
@@ -235,7 +239,7 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
 
   loadedTabs.value[tabCode] = cacheKey
 
-  console.log(`Loaded tab data: ${tabCode}`, formData.value[tabCode])
+  // console.log(`Loaded tab data: ${tabCode}`, formData.value[tabCode])
 }
 
 watch(
@@ -257,6 +261,7 @@ watch(
 watch(
   activeName,
   async (newTab) => {
+    console.log('Active tab changed:', newTab)
     if (newTab) {
       ensureTabFormData(newTab)
       await loadActiveTabData(newTab)

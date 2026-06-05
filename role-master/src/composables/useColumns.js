@@ -42,6 +42,7 @@ export function buildInitColumns(onRowClicked) {
             onCellClicked: onRowClicked || undefined,
             flex:1,
         },
+
         { field: 'email', headerName: 'メールアドレス',
             cellStyle: { textAlign: 'left', padding: '4px',
                 color: '#1976d2',          // blue
@@ -52,15 +53,8 @@ export function buildInitColumns(onRowClicked) {
             onCellClicked: onRowClicked || undefined,
             flex:1,
         },
-        { field: 'auth_type', headerName: '認証方式' },
         { field: 'user_name', headerName: 'ユーザー表示名' },
-        { field: 'status', headerName: 'ステータス' },
-        { field: 'email_verified', headerName: 'メール確認' },
-        { field: 'valid_from', headerName: '有効期限開始' },
-        { field: 'valid_to', headerName: '有効期限終了' },
-        { field: 'request_type', headerName: 'リクエストタイプ' },
-        { field: 'request_status', headerName: 'リクエストステータス' },
-        { field: 'remarks', headerName: '備考' },
+        { field: 'status', headerName: 'ステータス' }
     ]
 }
 
