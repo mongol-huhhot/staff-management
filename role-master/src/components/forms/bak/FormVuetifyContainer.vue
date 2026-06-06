@@ -1,11 +1,12 @@
+<!-- FormVuetifyContainer.vue -->
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, } from 'vue'
 import { useDataStore } from '@/stores/DataStore'
 import { useAppConfigStore } from '@/stores/AppConfigStore'
 import DynamicVuetifyForm from '@/components/forms/DynamicVuetifyForm.vue'
 import RepeatableFormWrapper from '@/components/forms/RepeatableFormWrapper.vue'
 import { parseJsonbFields, parseAndFlattenJsonbFields } from '@/composables/utilFactory'
-import AppRolePermissionForm from '@/components/forms/AppRolePermissionForm.vue'
+// import AppRolePermissionForm from '@/components/forms/AppRolePermissionForm.vue'
 
 const dataStore = useDataStore()
 const configStore = useAppConfigStore()
@@ -275,13 +276,6 @@ watch(
         >
           {{ tab.category_name }}
         </v-tab>
-        <v-tab
-          value="roles_permissions"
-        >
-          ロール権限
-        </v-tab>
-
-
       </v-tabs>
 
       <v-window v-model="activeName" class="mt-2">
@@ -323,9 +317,6 @@ watch(
               />
             </v-card-text>
           </v-card>
-        </v-window-item>
-        <v-window-item>
-          <AppRolePermissionForm/>
         </v-window-item>
       </v-window>
     </v-card-text>

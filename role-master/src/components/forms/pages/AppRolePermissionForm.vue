@@ -145,7 +145,7 @@
 
 <script setup>
 import { computed, reactive, ref, watch } from 'vue'
-import PermissionRuleEditor from './PermissionRuleEditor.vue'
+import PermissionRuleEditor from './fields/PermissionRuleEditor.vue/index.js'
 
 const apps = [
   { label: 'スタッフ情報管理', value: 'staff' },

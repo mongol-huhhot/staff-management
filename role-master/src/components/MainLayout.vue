@@ -1,7 +1,7 @@
 <!-- MainLayout.vue -->
 <script setup>
 import MainList from '@/components/MainList.vue'
-import FormVuetifyContainer from '@/components/forms/FormVuetifyContainer.vue'
+import FormVuetifyContainer from '@/components/forms/FormVuetifyContainerHybrid.vue'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 

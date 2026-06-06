@@ -1,5 +1,5 @@
-// ruleFactory.js
-// src/composables/ruleFactory.js
+// useRuleFactory.js
+// src/composables/useRuleFactory.js
 
 export const useRuleFactory = {
   required: (rule = {}, field = {}) => {
@@ -79,8 +79,9 @@ export const useRuleFactory = {
   },
 }
 
+// rule or validationの場合はこちらに追加
 function normalizeValidationToRules(field = {}) {
-  const validation = field.validation || {}
+  const validation = field.validation || field.rule || {}
   const rules = []
 
   if (field.required || validation.required) {
