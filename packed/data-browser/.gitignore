@@ -1,0 +1,30 @@
+node_modules
+dist
+
+.history/
+
+
+# local env files
+.env.local
+.env.*.local
+.pnp.*
+
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+yarn.lock*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
+
+
+
+

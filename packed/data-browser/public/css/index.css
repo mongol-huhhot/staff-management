@@ -1,0 +1,57 @@
+
+:root {
+  --ql_width: calc(100vw - 30px);
+  --janga_color: #03989e;
+}
+
+html, body {
+  overflow-y: hidden;
+  height: calc(100vh - 60px);
+  margin: 0;
+  padding: 0;
+}
+/* element plus el-card tile bar style */
+
+.el-card {
+  border-radius: 8px !important;
+}
+
+.el-card__header {
+  background: linear-gradient(#f2f8f4c5, #d6f0e954) !important;
+  margin: 0px !important; 
+  padding: 8px 12px !important;
+}
+
+.el-dialog {
+  padding: 0px !important;
+  margin-top: 8px !important;
+
+}
+.el-dialog .el-dialog__header {
+  --el-dialog-padding-primar: 0;
+  background: linear-gradient(#e2f1d89d, #c3f0d0) !important;
+  color:rgb(243, 235, 235);
+  margin-right: 0;
+  padding-top: 16px !important;
+  padding-left: 16px !important;
+}
+
+.el-dialog .el-dialog__header .el-dialog__title {
+  color:rgb(24, 23, 23);
+}
+
+.el-dialog .el-dialog__header .el-dialog__headerbtn {
+  top: 6px;
+  color:rgb(24, 23, 23);
+}
+
+.el-dialog__body {
+  padding-top: 0px !important;
+  padding-left: 8px !important;
+}
+
+.el-tabs__item {
+  padding: 0 12px !important;
+  color: var(--janga_color) !important;
+}
+
