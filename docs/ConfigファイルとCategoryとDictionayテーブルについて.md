@@ -29,6 +29,7 @@ window.appConfig.MAIN_CONFIG = {
     user_roles: { // mtb_categoryテーブルのsub_category_codeの値になります
         label: 'ユーザーのロール', // sub_category_codeのsub_category_nameと同等だが、sub_category_nameを優先適用中でTab名として表示。
         data_key: 'userdata',      // 現在未使用
+        display_items: ['role_code','role_name'], // 左一覧に選択するときフォームのタイトルに表示したい項目（例えば、{"ユーザーID - ユーザー名"}表示したい場合、user_id, user_nameという項目を設定する（実在する項目））
         jsonb_fields: [],          // jsonb カラムの一覧。主に、１）JSON.parse, ２）flat可、３）再度jsonb構築に使う
         skip_reload: true,
         sqltags:{ select:'user_roles.get_user_roles', save:'user_roles.save_user_roles', delete:'user_roles.delete_user_role', }, // sql tags, 必要に応じてTag追加。例えば、承認SQL Tag追加、この場合FormVuetifyContainerHybrid.vueボタンなど対応するアクションの追加が必要です！
@@ -38,6 +39,46 @@ window.appConfig.MAIN_CONFIG = {
 };
 
 ```
+
+## config構造
+
+```text
+MAIN_CONFIG
+├─ app_name
+├─ app_key
+├─ grid
+│   ├─ sql_tag
+│   └─ condition
+└─ tab2sqltag_list
+    └─ role_master
+        ├─ display_items
+        ├─ sqltags
+        ├─ condition
+        ├─ separate_items
+        └─ jsonb_fields
+
+```
+
+
+## アプリの条件。 
+
+検索時にこの４条件を揃える  
+
+```text
+/****
+ * 1) config init conditoon values
+ *   (1) MAIN_CONFIG.grid.condition
+ *   (2) MAIN_CONFIG.tab2sqltag_list.[sub_category_code].condition
+ * 2) properties from custom web component
+ *      dataStore.params.attributes
+ * 3) アプリケーションの条件の値
+ * 　{start_date: '2026-06-11', ....}
+ * 4) データ選択などでダイナミック値、
+ * 　例えば、selectedRow
+ */
+```
+
+
 -------------------------------------------------------------
 
 ## 外部Config JS、mtb_item_category、mtb_item_dictionary の関係

@@ -48,42 +48,17 @@ export const useDataStore = defineStore("dataStore", () => {
      *   const cols = salaryData.buildColumnsDefine((p)=>salaryData.rowCliked(p))
      *   <AgGridPro :columns="cols" ... />
      */
-    // function buildColumnsDefine(onRowClicked) {
-    //     const cols = buildInitColumns(onRowClicked)
-
-    //     const items = Array.isArray(itemDefs.value) ? itemDefs.value : []
-    //     for (let i = 0; i < items.length; i++) {
-    //     cols.push({
-    //         headerName: items[i].item_label,
-    //         field: items[i].item_name,
-    //         cellStyle: { textAlign: 'right', padding: '4px' },
-    //     })
-    //     }
-    //     return cols
-    // }
-
-    function buildColumnsDefine({ gridConfig, onRowClicked } = {}) {
-        let cols = []
-
-        // 外部 index.js の buildInitColumns を優先
-        if (typeof gridConfig?.buildInitColumns === 'function') {
-            // ✅ 外部config側も同じ構造にするならこれ
-            cols = gridConfig.buildInitColumns(onRowClicked)
-        } else {
-            // ✅ 既存 useColumns.js
-            cols = buildInitColumns(onRowClicked)
-        }
+    function buildColumnsDefine(onRowClicked) {
+        const cols = buildInitColumns(onRowClicked)
 
         const items = Array.isArray(itemDefs.value) ? itemDefs.value : []
-
         for (let i = 0; i < items.length; i++) {
-            cols.push({
+        cols.push({
             headerName: items[i].item_label,
             field: items[i].item_name,
             cellStyle: { textAlign: 'right', padding: '4px' },
-            })
+        })
         }
-
         return cols
     }
 
@@ -134,6 +109,18 @@ export const useDataStore = defineStore("dataStore", () => {
                 },
                 roles: {
                     SQLTAG: 'roles.get_roles',
+                    enabled: 'active',
+                },
+                apps: {
+                    SQLTAG: 'system.get_apps',
+                    enabled: 'active',
+                },
+                key_words: {
+                    SQLTAG: 'system.get_permission_scope_words',
+                    enabled: 'active',
+                },
+                flow_status: {
+                    SQLTAG: 'system.get_work_flow_status',
                     enabled: 'active',
                 },
             })

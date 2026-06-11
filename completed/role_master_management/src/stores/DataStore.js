@@ -48,20 +48,6 @@ export const useDataStore = defineStore("dataStore", () => {
      *   const cols = salaryData.buildColumnsDefine((p)=>salaryData.rowCliked(p))
      *   <AgGridPro :columns="cols" ... />
      */
-    // function buildColumnsDefine(onRowClicked) {
-    //     const cols = buildInitColumns(onRowClicked)
-
-    //     const items = Array.isArray(itemDefs.value) ? itemDefs.value : []
-    //     for (let i = 0; i < items.length; i++) {
-    //     cols.push({
-    //         headerName: items[i].item_label,
-    //         field: items[i].item_name,
-    //         cellStyle: { textAlign: 'right', padding: '4px' },
-    //     })
-    //     }
-    //     return cols
-    // }
-
     function buildColumnsDefine({ gridConfig, onRowClicked } = {}) {
         let cols = []
 
@@ -132,15 +118,15 @@ export const useDataStore = defineStore("dataStore", () => {
                     category_code: categoryCode,
                     enabled: 'active',
                 },
-                roles: {
-                    SQLTAG: 'roles.get_roles',
-                    enabled: 'active',
-                },
+                // roles: {
+                //     SQLTAG: 'roles.get_roles',
+                //     enabled: 'active',
+                // },
             })
 
             if (ret.code !== 0) {
-            console.error('loadFormMasters failed:', ret.message)
-            return ret
+                console.error('loadFormMasters failed:', ret.message)
+                return ret
             }
 
             formMasters.category = ret.data?.category || ret.result?.category?.result || []
