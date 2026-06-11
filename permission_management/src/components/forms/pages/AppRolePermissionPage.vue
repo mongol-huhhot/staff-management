@@ -360,7 +360,6 @@ watch(
   }
 )
 
-
 const saveSqltag = computed(() => {
   return (
     props.tabConfig?.sqltags?.save ||
@@ -394,11 +393,45 @@ async function save() {
       props.commonParams
     )
 
+    dataStore.states.forceFresh = ""+Math.random()
+
     emit('saved', result)
   } finally {
     saving.value = false
   }
 }
+
+async function handleDelete() {
+  console.log("props.sqltags===", props.sqltags)
+
+  if (!props.sqltags?.delete) {
+    alert('削除SQLタグが設定されていません。')
+    return
+  }
+    
+  if (!confirm('このデータを削除しますか？')) return
+
+  const params = mergeConditionParams({
+    condition: props.tabConfig?.condition || {},
+    propertyParams: props.propertyParams || {},
+    uiCondition: props.uiCondition || {},
+    runTimeParams: props.runTimeParams || {},
+    optionParams: props.optionParams || {},
+  })
+
+  const result = await dataStore.runSave(props.sqltags.delete, params)
+
+  if (result.code !== 0) {
+    alert('削除に失敗しました。')
+    return
+  }
+
+  dataStore.states.forceFresh = ""+Math.random()
+
+  emit('saved', result)
+}
+
+
 </script>
 
 <template>
@@ -410,6 +443,7 @@ async function save() {
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="3">
+          <!-- {{ canSave }} -->
           <v-select
             :model-value="model.app_code"
             label="アプリ"
@@ -645,7 +679,15 @@ async function save() {
     >
       保存
     </v-btn>
+      <v-btn
+        color="error"
+        variant="outlined"
+        prepend-icon="mdi-delete"
+        :disabled="props.runTimeParams?.__mode === 'new'"
+        @click="handleDelete"
+      >
+        削除
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>
-

@@ -10,9 +10,10 @@ export const useDataStore = defineStore("dataStore", () => {
 
     const states = reactive({
         currentRow: {},
-        approved_status: null,
-        current_month: '',
-        staff_code: null,
+        
+        // approved_status: null,
+        // current_month: '',
+        // staff_code: null,
     })
 
     const data = reactive({
@@ -48,17 +49,42 @@ export const useDataStore = defineStore("dataStore", () => {
      *   const cols = salaryData.buildColumnsDefine((p)=>salaryData.rowCliked(p))
      *   <AgGridPro :columns="cols" ... />
      */
-    function buildColumnsDefine(onRowClicked) {
-        const cols = buildInitColumns(onRowClicked)
+    // function buildColumnsDefine(onRowClicked) {
+    //     const cols = buildInitColumns(onRowClicked)
+
+    //     const items = Array.isArray(itemDefs.value) ? itemDefs.value : []
+    //     for (let i = 0; i < items.length; i++) {
+    //     cols.push({
+    //         headerName: items[i].item_label,
+    //         field: items[i].item_name,
+    //         cellStyle: { textAlign: 'right', padding: '4px' },
+    //     })
+    //     }
+    //     return cols
+    // }
+
+    function buildColumnsDefine({ gridConfig, onRowClicked } = {}) {
+        let cols = []
+
+        // 外部 index.js の buildInitColumns を優先
+        if (typeof gridConfig?.buildInitColumns === 'function') {
+            // ✅ 外部config側も同じ構造にするならこれ
+            cols = gridConfig.buildInitColumns(onRowClicked)
+        } else {
+            // ✅ 既存 useColumns.js
+            cols = buildInitColumns(onRowClicked)
+        }
 
         const items = Array.isArray(itemDefs.value) ? itemDefs.value : []
+
         for (let i = 0; i < items.length; i++) {
-        cols.push({
+            cols.push({
             headerName: items[i].item_label,
             field: items[i].item_name,
             cellStyle: { textAlign: 'right', padding: '4px' },
-        })
+            })
         }
+
         return cols
     }
 
@@ -96,6 +122,7 @@ export const useDataStore = defineStore("dataStore", () => {
         formMasters.loading = true
 
         try {
+            // Object key を masterKey 選択項目のmasterKeyに設定します。例："masterKey":"apps"とか
             const ret = await dbAccessWithMultiTags({
                 category: {
                     SQLTAG: 'masters.get_item_category',
@@ -112,31 +139,36 @@ export const useDataStore = defineStore("dataStore", () => {
                     enabled: 'active',
                 },
                 apps: {
-                    SQLTAG: 'system.get_apps',
+                    SQLTAG: 'masters.get_apps',
                     enabled: 'active',
                 },
                 key_words: {
-                    SQLTAG: 'system.get_permission_scope_words',
+                    SQLTAG: 'masters.get_permission_scope_words',
                     enabled: 'active',
                 },
                 flow_status: {
-                    SQLTAG: 'system.get_work_flow_status',
+                    SQLTAG: 'masters.get_work_flow_status',
                     enabled: 'active',
                 },
             })
 
             if (ret.code !== 0) {
-            console.error('loadFormMasters failed:', ret.message)
-            return ret
+                console.error('loadFormMasters failed:', ret.message)
+                return ret
             }
 
+            // console.log("ret===", ret)
+
+            // GPA (Global Parameter Area)
             formMasters.category = ret.data?.category || ret.result?.category?.result || []
             formMasters.dictionary = ret.data?.dictionary || ret.result?.dictionary?.result || []
             formMasters.roles = ret.data?.roles || ret.result?.roles?.result || []
-            // formMasters.apps = ret.data?.apps || ret.result?.apps?.result || []
-            // formMasters.key_words = ret.data?.key_words || ret.result?.key_words?.result || []
-            // formMasters.flow_status = ret.data?.flow_status || ret.result?.flow_status?.result || []
-            // formMasters.loadedCategoryCode = categoryCode
+            formMasters.apps = ret.data?.apps || ret.result?.apps?.result || []
+            formMasters.key_words = ret.data?.key_words || ret.result?.key_words?.result || []
+            formMasters.flow_status = ret.data?.flow_status || ret.result?.flow_status?.result || []
+            formMasters.loadedCategoryCode = categoryCode
+
+            // console.log("formMasters===", formMasters)
 
             return ret
         } finally {

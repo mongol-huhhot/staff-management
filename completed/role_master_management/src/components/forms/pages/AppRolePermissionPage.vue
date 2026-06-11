@@ -395,10 +395,20 @@ async function save() {
     )
 
     emit('saved', result)
+
+    dataStore.states.forceFresh = "" + Math.random()
+
   } finally {
     saving.value = false
   }
 }
+
+const handleDelete = async (field) => {
+  console.log("fileConfig.field====", field)
+  const response = await dbStore.deleteImage(field_key(field))
+  console.log("response====", response)
+}
+
 </script>
 
 <template>

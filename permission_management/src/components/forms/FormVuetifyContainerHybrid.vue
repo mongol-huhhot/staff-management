@@ -76,6 +76,8 @@ const selectedUserText = computed(() => {
     tabConfig.display_items ||
     ['user_id', 'user_name']
 
+  console.log("displayItems=====", displayItems, tabConfig)
+
   const displayData = {
     ...propertyParams.value,
     ...runTimeParams.value,
@@ -266,13 +268,6 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
   const tabConfig = myConfig.value?.[tabCode] || {}
   const selectTag = tabConfig?.sqltags?.select
 
-  // 新規追加時は role_code が無いので、selectしない、または空フォーム表示にします。
-  // if (runTimeParams.value?.__mode === 'new') {
-  //   formData.value[tabCode] = {}
-  //   loadedTabs.value[tabCode] = `new:${tabCode}`
-  //   return
-  // }
-
   if (!selectTag) {
     loadedTabs.value[tabCode] = `no-select:${tabCode}`
     return
@@ -340,9 +335,11 @@ watch(
 
     initializeAllTabContainers()
     
-    if (newVal && activeName.value) {
-      await loadActiveTabData(activeName.value, { force: true })
-    }
+    // if (newVal && activeName.value) {
+    //   await loadActiveTabData(activeName.value, { force: true })
+    // }
+
+    formData.value[activeName.value] = {...newVal}
   },
   { immediate: true }
 )
@@ -377,7 +374,6 @@ watch(
 <template>
   <v-card class="container-card" variant="outlined">
     <v-card-title class="card-header">
-      {{ dataStore.states.forceFresh }}
       <div class="header-left truncated">
         <span class="staff-title">
           {{ selectedUserText }}
@@ -485,6 +481,7 @@ watch(
                 :selected-user-ids="props.selectedUserIds"
               />
             </v-card-text>
+
           </v-card>
         </v-window-item>
       </v-window>

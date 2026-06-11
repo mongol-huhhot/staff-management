@@ -19,7 +19,7 @@ import ScopeRuleEditor from '@/components/forms/fields/ScopeRuleEditor.vue'
 import AppProcessSelector from '@/components/forms/fields/AppProcessSelector.vue'
 import AppRolePermissionPage from '@/components/forms/pages/AppRolePermissionPage.vue'
 
-import ImageUploader from '@/components/forms/fields/ImageUploader.vue'
+// import ImageUploader from '@/components/forms/fields/ImageUploader.vue'
 
 
 const customJa = {
@@ -43,7 +43,7 @@ const customJa = {
 // ２．マニュアル追加コンポネントはこちらにimportする
 const vuetify = createVuetify({
   components: { ...components, 
-      VDateInput,  ScopeRuleEditor, AppProcessSelector, AppRolePermissionPage, ImageUploader, },
+      VDateInput, ScopeRuleEditor, AppProcessSelector, AppRolePermissionPage, },
   directives,
 
   locale: {

@@ -84,13 +84,14 @@ const handleRowClick = (event) => {
 }
 
 const gridColumns = computed(() => {
-  return dataStore.buildColumnsDefine(
-    (p) => dataStore.rowCliked(p)
-  )
+  return dataStore.buildColumnsDefine({
+    gridConfig: config.value?.grid,
+    onRowClicked: (p) => dataStore.rowCliked(p),
+  })
 })
 
-async function handleDownload() {
-}
+// async function handleDownload() {
+// }
 
 function handleNew() {
   dataStore.states.currentRow = {
