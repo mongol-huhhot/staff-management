@@ -1,9 +1,10 @@
 <!-- UploadImageWrapper.vue -->
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick, onUpdated } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch, onUpdated } from 'vue'
 import UploadFile from './UploadImageAdvanced.vue'
 import { useAppConfigStore } from '@/stores/AppConfigStore'
 import { useFileStore } from '@/stores/useFileStore'
+//import { any } from 'core-js/fn/promise'
 
 const configStore = useAppConfigStore()
 configStore.loadFromWindow()
@@ -12,24 +13,16 @@ configStore.loadFromWindow()
 const isInitialized = ref(false)
 
 const props = defineProps({
-  // 1つにまとめたメタ情報オブジェクト
-  meta: {
-    type: Object,
-    default: () => ({
-      categoryCode: '',        // ex) basic, bank, ...
-      documentType: '',   // ex) mynumber_card, ...
-      ownerType: 'staff', // ex) staff, ...
-      ownerId: '',        // ex) 11111, 22222, ...
-    })
-  },
-  
-  // // その他の画質・サイズ等の設定値は個別で維持
-  // swapSizeInLandscape: { type: Boolean, default: true },
-  // compressRatio:       { type: Number, default: 1 },    // 0.1 ~ 1
-  // jpegQuality:         { type: Number, default: 0.9 },  // 0.1 ~ 1
-  // outputFormat:        { type: String, default: 'image/jpeg' },
-  // maxWidth:            { type: Number, default: 0 },    // 0 = ignore
-  // maxHeight:           { type: Number, default: 0 },    // 0 = ignore
+  tabCode:             { type: String, default: '' }, // ex) basic,bank,...
+  categoryCode:        { type: String, default: '' }, // ex) mynumber_card,...
+  ownerType:           { type: String, default: 'staff' }, // ex) staff,... 
+  ownerId:             { type: String, default: '' }, // ex) 11111,22222,...
+  swapSizeInLandscape: { type: Boolean, default: true }, // ex) 
+  compressRatio:       { type: Number, default: 1 },   // 0.1 ~ 1 (e.g., 0.5 halves width/height)
+  jpegQuality:         { type: Number, default: 0.9 },  // 0.1 ~ 1 (JPEG encode quality)
+  outputFormat:        { type: String, default: 'image/jpeg' }, // 'image/jpeg' | 'image/png' | 'image/webp'
+  maxWidth:            { type: Number, default: 0 },    // optional hard cap; 0 = ignore
+  maxHeight:           { type: Number, default: 0 },    // optional hard cap; 0 = ignore
 })
 
 console.log("UploadImageWrapper.props================",props)
@@ -37,7 +30,7 @@ console.log("UploadImageWrapper.props================",props)
 // ★ 1. propsからユニークなストアIDを組み立てる
 // 例: "fileStore_staff_22222_mynumber_card"
 const uniqueStoreId = computed(() => {
-  return `fileStore_${props.meta.ownerType}_${props.meta.ownerId}_${props.meta.documentType}`
+  return `fileStore_${props.ownerType}_${props.ownerId}_${props.categoryCode}`
 })
 
 // ★ 2. 動的IDを渡して、このコンポーネント専用のストアインスタンスを取得する
@@ -45,18 +38,12 @@ const uniqueStoreId = computed(() => {
 const fileStore = useFileStore(uniqueStoreId.value)()
 
 // --- Config ---
-const cfg = computed(() => (configStore.UploadFiles?.[props.meta.documentType]) || {})
+const cfg = computed(() => (configStore.UploadFiles?.[props.categoryCode]) || {})
 const files = computed(() => cfg.value.files || [])
 const baseWidth = computed(() => cfg.value.width)
 const baseHeight = computed(() => cfg.value.height)
 const returnType = computed(() => cfg.value.returnType)
 const editable = computed(() => (typeof cfg.value.editable === 'boolean' ? cfg.value.editable : true))
-const swapSizeInLandscape = computed(() => cfg.value.swapSizeInLandscape)
-const compressRatio       = computed(() => cfg.value.compressRatio)
-const jpegQuality         = computed(() => cfg.value.jpegQuality)
-const outputFormat        = computed(() => cfg.value.outputFormat)
-const maxWidth            = computed(() => cfg.value.maxWidth)
-const maxHeight           = computed(() => cfg.value.maxHeight)
 
 console.log("cfg.value.files======================",files.value)
 console.log("baseHeight, baseWidth",baseHeight.value, baseWidth.value)
@@ -68,7 +55,7 @@ console.log("baseHeight, baseWidth",baseHeight.value, baseWidth.value)
  */
 const imgUrl = (field) => {
   // 探したい完全な file_kind 文字列を組み立てる (例: "mynumber_card_front")
-  const targetKind = `${props.meta.documentType}_${field}`
+  const targetKind = `${props.categoryCode}_${field}`
   
   // ストアの配列から合致するデータを見つける
   const matchedFile = (fileStore.files || []).find(file => file.file_kind === targetKind)
@@ -80,7 +67,7 @@ const imgUrl = (field) => {
 
 const imguuid = (field) => {
   // 探したい完全な file_kind 文字列を組み立てる (例: "mynumber_card_front")
-  const targetKind = `${props.meta.documentType}_${field}`
+  const targetKind = `${props.categoryCode}_${field}`
   
   // ストアの配列から合致するデータを見つける
   const matchedFile = (fileStore.files || []).find(file => file.file_kind === targetKind)
@@ -97,16 +84,16 @@ const imguuid = (field) => {
  */
 const makeFileParams = (field) => {
   // owner_id を 'staff_11111' の形式に組み立て
-  const formattedOwnerId = `${props.meta.ownerType}_${props.meta.ownerId}`
+  const formattedOwnerId = `${props.ownerType}_${props.ownerId}`
 
-  // categoryCode を 'staff/profile' の形式に組み立て
-  const formattedCategory = `${props.meta.ownerType}/${props.meta.categoryCode}`
+  // tabCode を 'staff/profile' の形式に組み立て
+  const formattedCategory = `${props.ownerType}/${props.tabCode}`
 
   return {
     category:   formattedCategory,                         // 例: "staff/profile"
-    owner_type: props.meta.ownerType,                           // 例: "staff"
+    owner_type: props.ownerType,                           // 例: "staff"
     owner_id:   formattedOwnerId,                          // 例: "staff_11111"
-    file_kind:  `${props.meta.documentType}_${field}`           // 例: "mynumber_card_front"
+    file_kind:  `${props.categoryCode}_${field}`           // 例: "mynumber_card_front"
   }
 }
 
@@ -114,19 +101,19 @@ const makeFileParams = (field) => {
 //uploadfilesのパラメーターにはmakeFileParamsメソッドを使用（要改善）
 const filePayloadList = computed(() => {
   // owner_id を 'staff_11111' の形式に組み立て
-  const formattedOwnerId = `${props.meta.ownerType}_${props.meta.ownerId}`
+  const formattedOwnerId = `${props.ownerType}_${props.ownerId}`
 
-  // categoryCode を 'staff/profile' の形式に組み立て
+  // tabCode を 'staff/profile' の形式に組み立て
   //Categoryという名前はtbx.filesテーブルのcategoryカラムから
-  const formattedCategory = `${props.meta.ownerType}/${props.meta.categoryCode}`
+  const formattedCategory = `${props.ownerType}/${props.tabCode}`
 
   // files 配列を map 処理して、指定のオブジェクト構造に変換
   return files.value.map(file => {
     return {
       category: formattedCategory,
-      owner_type: props.meta.ownerType,                         // "staff"
+      owner_type: props.ownerType,                         // "staff"
       owner_id:   formattedOwnerId,                        // "staff_11111"
-      file_kind:  `${props.meta.documentType}_${file.field}`     // "mynumber_card_front" 形式
+      file_kind:  `${props.categoryCode}_${file.field}`     // "mynumber_card_front" 形式
     }
   })
 })
@@ -321,7 +308,7 @@ const saveAllImages = async () => {
       // 今回編集されたフィールド（例: 'front' や 'back'）に対応する既存の画像データを検索
       // ※紐付け条件がfile_kindとfieldの結合（例: category_front）の場合は適宜調整してください
       const existingFile = fileStore.files.find(
-        f => f.file_kind === `${props.meta.documentType}_${fileConfig.field}`
+        f => f.file_kind === `${props.categoryCode}_${fileConfig.field}`
       )
 
       if (existingFile && existingFile.file_uuid) {
@@ -364,6 +351,10 @@ const saveAllImages = async () => {
       const { comp, fileConfig } = validComponents[i]
       
       try {
+        if (typeof comp.getCropped === 'function') {
+          comp.getCropped()
+          await new Promise(resolve => setTimeout(resolve, 500))
+        }
         
         const blob = await fetchImageBlob(comp.croppedImage)
         
@@ -431,6 +422,20 @@ const saveAllImages = async () => {
     totalImages.value = 0
   }
 }
+
+//identityは現在使用していないため以下コメントアウト
+// // Auto-refresh images when identity changes
+// watch(() => props.identity, () => {
+//   const timestamp = Date.now()
+//   for (let i = 0; i < childComponents.value.length; i++) {
+//     const comp = childComponents.value[i]
+//     if (comp && files.value[i]) {
+//       const fd = field_key(files.value[i].field)
+//       comp.src = `${readBlobURL}?field_key=${fd}&t=${timestamp}`
+//       comp.croppedImage = null
+//     }
+//   }
+// })
 
 // Handle cropped event
 const handleCropped = (field, cropped) => {
@@ -506,11 +511,11 @@ if (ok) {
           :src="imgUrl(fileConfig.field)"
           @cropped="(cropped) => handleCropped(fileConfig.field, cropped)"
           @deleted="handleDeleted"
-          :compressRatio="compressRatio"
-          :jpegQuality="jpegQuality"
-          :outputFormat="outputFormat"
-          :maxWidth="maxWidth"
-          :maxHeight="maxHeight"
+          :compressRatio="props.compressRatio"
+          :jpegQuality="props.jpegQuality"
+          :outputFormat="props.outputFormat"
+          :maxWidth="props.maxWidth"
+          :maxHeight="props.maxHeight"
         />
       </div>
     </div>

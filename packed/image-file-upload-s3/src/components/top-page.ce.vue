@@ -91,34 +91,26 @@ async function devLogin() {
 <template>
   <v-locale-provider locale="ja">
     <!-- <S3FileManager /> -->
-    <!-- tab-codeの"profile"部分にはtabの名前が入る
-         owner-idにはstaff_codeが入る
-         file_kind（thumbnail,mynumber_card_front,mynumber_card_back等）はpublic/js/UploadImage.jsを使用
+    <!-- categoryCodeの"profile"部分にはtabの名前が入る
+         owner-idにはstaff_code(社員番号)が入る
+         file_kind（thumbnail,mynumber_card_front,mynumber_card_back等）はdocumentTypeとpublic/js/UploadImage.jsを使用
          -->
     <UploadImageWrapper
-     tab-code="profile"
-     category-code="mynumber_card"
-     owner-type="staff"
-     owner-id="11111"
-     :swap-size-in-landscape="true"
-     :compress-ratio="1"
-     :jpeg-quality="0.9"
-     output-format="image/jpeg"
-     :max-width="0"
-     :max-height="0"
+     :meta="{
+       categoryCode: 'profile',
+       documentType: 'mynumber_card',
+       ownerType: 'staff',
+       ownerId: '11111'
+     }"
    />
 
    <UploadImageWrapper
-     tab-code="profile"
-     category-code="student_card"
-     owner-type="staff"
-     owner-id="11111"
-     :swap-size-in-landscape="true"
-     :compress-ratio="1"
-     :jpeg-quality="0.9"
-     output-format="image/jpeg"
-     :max-width="0"
-     :max-height="0"
+   :meta="{
+       categoryCode: 'profile',
+       documentType: 'student_card',
+       ownerType: 'staff',
+       ownerId: '11111'
+     }"
    />
     
   </v-locale-provider>

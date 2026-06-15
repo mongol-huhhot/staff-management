@@ -15,6 +15,12 @@ window.appConfig.UploadFiles = {
         width:  360,    // number of Pixels
         returnType: 'blob', // 'base64' or 'blob'
         direction: 'row', // 'row' or 'column'
+        swapSizeInLandscape: true,
+        compressRatio: 1,    // 0.1 ~ 1
+        jpegQuality:   0.9,  // 0.1 ~ 1
+        outputFormat:  'image/jpeg',
+        maxWidth:      0,    // 0 = ignore
+        maxHeight:     0,    // 0 = ignore
         files : [// you can define many files to be uloaded
             { field: 'front', headerName: '学生証表'},
             { field: 'back', headerName: '学生証裏'},
@@ -28,6 +34,12 @@ window.appConfig.UploadFiles = {
         width:  360,    // number of Pixels
         returnType: 'blob', // 'base64' or 'blob'
         direction: 'row', // 'row' or 'column'
+        swapSizeInLandscape: true,
+        compressRatio: 1,    // 0.1 ~ 1
+        jpegQuality:   0.9,  // 0.1 ~ 1
+        outputFormat:  'image/jpeg',
+        maxWidth:      0,    // 0 = ignore
+        maxHeight:     0,    // 0 = ignore
         files :[ // you can define many files to be uloaded
             { field: 'front', headerName: 'マイナンバーカード表'},
             { field: 'back', headerName: 'マイナンバーカード裏'},
