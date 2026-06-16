@@ -399,6 +399,7 @@ async function confirmDelete() {
                 v-else
                 v-model="formData[tab.sub_category_code]"
                 :fields="getItemsByTab(tab.sub_category_code)"
+                :staff-code="dataStore.states.currentRow?.staff_code"
                 @submit="data => handleFormSubmit(tab.sub_category_code, data)"
               />
                 

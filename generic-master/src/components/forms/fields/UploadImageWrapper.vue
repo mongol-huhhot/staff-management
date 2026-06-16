@@ -1,120 +1,163 @@
 <!-- UploadImageWrapper.vue -->
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch, onUpdated } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, onUpdated,watch } from 'vue'
 import UploadFile from './UploadImageAdvanced.vue'
 import { useAppConfigStore } from '@/stores/AppConfigStore'
-//import { useDBConnectionStore } from '@/stores/DBConnectionStore'
 import { useFileStore } from '@/stores/useFileStore'
-
-const fileStore = useFileStore()
-const fileurl = ref([])
-
-//selectedFile は、パソコンから選択したアップロード前のファイル本体を一時的に保存する場所
-const category = ref('staff/profile')
-const ownerType = ref('staff')
-const ownerId = ref('staff_11111')
-const fileKind = ref('')
-const selectedFile = ref(null)
-
-
-//入力されたテキストボックスの値をひとまとめにして、APIに送るためのオブジェクトを作る関数
-const makeFileParams = () => ({
-  category: category.value,
-  owner_type: ownerType.value,
-  owner_id: ownerId.value,
-  file_kind: fileKind.value,
-})
-
-const loadFiles = async () => {
-  // マイナンバーカードの表・裏をまとめて1回で取得する呼び出し例（サンプルデータ）
-  // await fileStore.loadFiles([
-  //   {
-  //       "owner_type": "staff",
-  //       "owner_id": "staff_11111",
-  //       "file_kind": "mynumber_card_front"
-  //   },
-  //   {
-  //       "owner_type": "staff",
-  //       "owner_id": "staff_11111",
-  //       "file_kind": "mynumber_card_back"
-  //   }
-  // ])
-     console.log("props.initialFiles=============================",props.initialFiles)
-     await fileStore.loadFiles(props.initialFiles)
-
-  for (const file of fileStore.files) {
-    if (file.mime_type?.startsWith('image/')) {
-
-      const preview = await fileStore.getPreviewUrl(file.file_uuid, {
-        loading: false,
-      })
-
-      console.log("file==", file)
-      console.log("preview==", preview)
-      file.thumbnailUrl = preview?.url || null
-
-      fileurl.value = file.thumbnailUrl
-      
-      console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq=", fileurl.value)
-      console.log(typeof thumbnailUrl)
-    }
-  }
-
-  console.log("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴",fileurl.value)
-}
-
-
-
 
 const configStore = useAppConfigStore()
 configStore.loadFromWindow()
 
-//const dbStore = useDBConnectionStore()
+// 1. 初期状態は「未完了（false）」にしておく
+const isInitialized = ref(false)
 
 const props = defineProps({
-  initialFiles: {
-    type: Array,
-    default: () => [] // 配列やオブジェクトのデフォルト値はファクトリ関数で記述します
+  // 1つにまとめたメタ情報オブジェクト
+  meta: {
+    type: Object,
+    default: () => ({
+      categoryCode: '',        // ex) basic, bank, ...
+      documentType: '',   // ex) mynumber_card, ...
+      ownerType: 'staff', // ex) staff, ...
+      ownerId: '',        // ex) 11111, 22222, ...
+    })
   },
-  category_code: { type: String, default: 'student_card' },
-  swapSizeInLandscape: { type: Boolean, default: true },
-  identity: { type: String, default: '' },
-  compressRatio: { type: Number, default: 1 },   // 0.1 ~ 1 (e.g., 0.5 halves width/height)
-  jpegQuality:  { type: Number, default: 0.9 },  // 0.1 ~ 1 (JPEG encode quality)
-  outputFormat: { type: String, default: 'image/jpeg' }, // 'image/jpeg' | 'image/png' | 'image/webp'
-  maxWidth:     { type: Number, default: 0 },    // optional hard cap; 0 = ignore
-  maxHeight:    { type: Number, default: 0 },    // optional hard cap; 0 = ignore
+  
+  // // その他の画質・サイズ等の設定値は個別で維持
+  // swapSizeInLandscape: { type: Boolean, default: true },
+  // compressRatio:       { type: Number, default: 1 },    // 0.1 ~ 1
+  // jpegQuality:         { type: Number, default: 0.9 },  // 0.1 ~ 1
+  // outputFormat:        { type: String, default: 'image/jpeg' },
+  // maxWidth:            { type: Number, default: 0 },    // 0 = ignore
+  // maxHeight:           { type: Number, default: 0 },    // 0 = ignore
 })
 
-//テスト用propデータ
-//これをDBから受け取る予定
-//const props = {
-//        category_code: 'mynumber_card',
-//  swapSizeInLandscape: true,
-//             identity: '',
-//        compressRatio: 1,
-//         jpegQuality:  0.9,
-//         outputFormat: 'image/jpeg',
-//         maxWidth: 0,
-//         maxHeight:  0  
-//}
+console.log("UploadImageWrapper.props================",props)
 
-// --- 重要な設定: 明示的なtidパスを保持 ---
-//const tid = 'janga_vue_base_system'
-//const readBlobURL = `/${tid}/dataEngine/v1/handleRequest/readImage.php`;
+// ★ 1. propsからユニークなストアIDを組み立てる
+// 例: "fileStore_staff_22222_mynumber_card"
+const uniqueStoreId = computed(() => {
+  return `fileStore_${props.meta.ownerType}_${props.meta.ownerId}_${props.meta.documentType}`
+})
+
+// ★ 2. 動的IDを渡して、このコンポーネント専用のストアインスタンスを取得する
+// 引数にIDを渡し、戻ってきた関数をさらに実行 () します
+const fileStore = useFileStore(uniqueStoreId.value)()
 
 // --- Config ---
-const cfg = computed(() => (configStore.UploadFiles?.[props.category_code]) || {})
+const cfg = computed(() => (configStore.UploadFiles?.[props.meta.documentType]) || {})
 const files = computed(() => cfg.value.files || [])
 const baseWidth = computed(() => cfg.value.width)
 const baseHeight = computed(() => cfg.value.height)
 const returnType = computed(() => cfg.value.returnType)
 const editable = computed(() => (typeof cfg.value.editable === 'boolean' ? cfg.value.editable : true))
+const swapSizeInLandscape = computed(() => cfg.value.swapSizeInLandscape)
+const compressRatio       = computed(() => cfg.value.compressRatio)
+const jpegQuality         = computed(() => cfg.value.jpegQuality)
+const outputFormat        = computed(() => cfg.value.outputFormat)
+const maxWidth            = computed(() => cfg.value.maxWidth)
+const maxHeight           = computed(() => cfg.value.maxHeight)
 
-//useFileStoreのfilesref参照
-const filesref = computed(() => fileStore.files)
-
+console.log("cfg.value.files======================",files.value)
 console.log("baseHeight, baseWidth",baseHeight.value, baseWidth.value)
+
+
+/**
+ * テンプレートの field ('front' / 'back') から
+ * ストア内の対応する file_kind を検索して thumbnailUrl を返す
+ */
+const imgUrl = (field) => {
+  // 探したい完全な file_kind 文字列を組み立てる (例: "mynumber_card_front")
+  const targetKind = `${props.meta.documentType}_${field}`
+  
+  // ストアの配列から合致するデータを見つける
+  const matchedFile = (fileStore.files || []).find(file => file.file_kind === targetKind)
+  
+  console.log("matchedFile ? matchedFile.thumbnailUrl==========", matchedFile ? matchedFile.thumbnailUrl: "")
+  // 見つかればそのサムネイルURL、なければ個別で指定の値を返す
+  return matchedFile ? matchedFile.thumbnailUrl : null
+}
+
+const imguuid = (field) => {
+  // 探したい完全な file_kind 文字列を組み立てる (例: "mynumber_card_front")
+  const targetKind = `${props.meta.documentType}_${field}`
+  
+  // ストアの配列から合致するデータを見つける
+  const matchedFile = (fileStore.files || []).find(file => file.file_kind === targetKind)
+  
+  console.log("matchedFile ? matchedFile.thumbnailUrl==========", matchedFile ? matchedFile.thumbnailUrl: "")
+  // 見つかればそのサムネイルURL、なければ個別で指定の値を返す
+  return matchedFile ? matchedFile.file_uuid : null
+}
+
+
+/**
+ * 引数で受け取った field（'mynumber_card_front' や 'mynumber_card_back' など）をもとに、
+ * ファイル操作に必要なパラメーターオブジェクトを生成する
+ */
+const makeFileParams = (field) => {
+  // owner_id を 'staff_11111' の形式に組み立て
+  const formattedOwnerId = `${props.meta.ownerType}_${props.meta.ownerId}`
+
+  // categoryCode を 'staff/profile' の形式に組み立て
+  const formattedCategory = `${props.meta.ownerType}/${props.meta.categoryCode}`
+
+  return {
+    category:   formattedCategory,                         // 例: "staff/profile"
+    owner_type: props.meta.ownerType,                           // 例: "staff"
+    owner_id:   formattedOwnerId,                          // 例: "staff_11111"
+    file_kind:  `${props.meta.documentType}_${field}`           // 例: "mynumber_card_front"
+  }
+}
+
+//makeFileParamsをloadfiles用に改良したもの
+//uploadfilesのパラメーターにはmakeFileParamsメソッドを使用（要改善）
+const filePayloadList = computed(() => {
+  // owner_id を 'staff_11111' の形式に組み立て
+  const formattedOwnerId = `${props.meta.ownerType}_${props.meta.ownerId}`
+
+  // categoryCode を 'staff/profile' の形式に組み立て
+  //Categoryという名前はtbx.filesテーブルのcategoryカラムから
+  const formattedCategory = `${props.meta.ownerType}/${props.meta.categoryCode}`
+
+  // files 配列を map 処理して、指定のオブジェクト構造に変換
+  return files.value.map(file => {
+    return {
+      category: formattedCategory,
+      owner_type: props.meta.ownerType,                         // "staff"
+      owner_id:   formattedOwnerId,                        // "staff_11111"
+      file_kind:  `${props.meta.documentType}_${file.field}`     // "mynumber_card_front" 形式
+    }
+  })
+})
+// --- デバッグ・確認用 ---
+ console.log("filePayloadList==================",JSON.stringify(filePayloadList.value, null, 2))
+
+const loadFiles = async () => {
+
+  try {
+  // マイナンバーカードの表・裏をまとめて1回で取得する呼び出し例（サンプルデータ）
+  await fileStore.loadFiles(filePayloadList.value)
+
+    for (const file of fileStore.files) {
+      if (file.mime_type?.startsWith('image/')) {
+  
+        const preview = await fileStore.getPreviewUrl(file.file_uuid, {
+          loading: false,
+        })
+  
+        //console.log("file==", file)
+        //console.log("preview==", preview)
+        file.thumbnailUrl = preview?.url || null
+      }
+    }
+  }catch (error) {
+    console.error("初期化エラー:", error)
+  } finally {
+    // 2. データの取得、およびURLのセット（一連の処理）が「すべて終わったら」trueにする
+    isInitialized.value = true
+  }
+}
 
 // --- Mobile detection ---
 //画面サイズ（レスポンシブ）の判定
@@ -203,24 +246,6 @@ const fetchImageBlob = async (base64) => {
   }
 }
 
-/**
- * Generate field key in the correct format
- * @param {string} key - Base key
- * @returns {string} - Formatted field key
- */
-const field_key = (key) => `${props.category_code}_${key}_${props.identity}`
-
-/**
- * Get image URL for display with cache busting
- * @param {string} key - Image key
- * @returns {string} - Image URL with cache busting
- */
-const imgUrl = (key) => {
-  const fd = field_key(key)
-  console.log("field_key===================",fd)
-  //return `${readBlobURL}?field_key=${fd}&t=${Date.now()}`
-  return ''
-}
 
 // --- Save All Images ---
 const saving = ref(false)
@@ -251,168 +276,6 @@ const hasValidCroppedImage = (comp, fileConfig) => {
   return isValidDataUrl
 }
 
-// /**
-//  * Save all images one by one
-//  */
-// //画像の一括保存処理（saveAllImages）
-// const saveAllImages = async () => {
-//   saving.value = true
-//   saveResult.value = null
-//   saveProgress.value = 0
-  
-//   await nextTick() // Ensure DOM is updated
-  
-//   try {
-//     // Collect valid images to upload
-//     const validComponents = []
-    
-//     for (let i = 0; i < files.value.length; i++) {
-//       const comp = childComponents.value[i]
-//       const fileConfig = files.value[i]
-      
-//       if (!comp) {
-//         console.warn(`⚠️ Component not found for ${fileConfig.field} at index ${i}`)
-//         continue
-//       }
-      
-//       // Check if there's a valid cropped image - with detailed logging
-//       const isValid = hasValidCroppedImage(comp, fileConfig)
-      
-//       if (isValid) {
-//         validComponents.push({ comp, fileConfig })
-//         console.log(`✅ Found valid cropped image for ${fileConfig.field}`)
-//         console.log(`   - Cropped image: ${comp.croppedImage.substring(0, 50)}...`)
-//       } else {
-//         console.log(`⏭️ Skipping ${fileConfig.field} (no valid cropped image)`)
-//       }
-//     }
-    
-//     if (validComponents.length === 0) {
-//       // Show user-friendly message
-//       saveResult.value = {
-//         type: 'info',
-//         message: '編集された画像がありません。変更を加えてから保存してください。'
-//       }
-//       console.log('ℹ️ No images to save - none were edited')
-      
-//       // Log detailed component status
-//       console.log('🔍 Detailed component status:')
-//       for (let i = 0; i < childComponents.value.length; i++) {
-//         const comp = childComponents.value[i]
-//         const fileConfig = files.value[i]
-//         if (comp) {
-//           console.log(`   - ${fileConfig.field}:`, {
-//             hasCroppedImage: !!comp.croppedImage,
-//             croppedImagePreview: comp.croppedImage ? comp.croppedImage.substring(0, 30) + '...' : 'N/A'
-//           })
-//         }
-//       }
-      
-//       return
-//     }
-    
-//     totalImages.value = validComponents.length
-//     console.log(`📸 Preparing to upload ${totalImages.value} images`)
-    
-//     const results = []
-    
-//     // Process each image individually
-//     for (let i = 0; i < validComponents.length; i++) {
-//       const { comp, fileConfig } = validComponents[i]
-      
-//       try {
-//         // Trigger manual crop if needed
-//         if (typeof comp.getCropped === 'function') {
-//           console.log(`🔄 Triggered getCropped for ${fileConfig.field}`)
-//           comp.getCropped()
-          
-//           // Wait for canvas to be ready - increased from 300ms to 500ms
-//           await new Promise(resolve => setTimeout(resolve, 500))
-//         } else {
-//           console.warn(`⚠️ getCropped method not available for ${fileConfig.field}`)
-//         }
-        
-//         // Convert base64 to Blob// 
-//         // 2. テキスト（Base64形式）になっている画像を、通信に適した「Blob（バイナリ）形式」に変換
-//         const blob = await fetchImageBlob(comp.croppedImage)
-        
-//         // Generate field key
-//         const fd = field_key(fileConfig.field)
-        
-//         // Upload the image using the uploadImage method
-//         const result = await dbStore.uploadImage(fd, blob)
-        
-//         results.push({
-//           success: true,
-//           field: fileConfig.field,
-//           result: result
-//         })
-        
-//         // Update progress
-//         saveProgress.value = Math.round((i + 1) / totalImages.value * 100)
-        
-//         console.log(`✅ Successfully uploaded image for ${fileConfig.field}`)
-//       } catch (err) {
-//         console.error(`🖼️ 画像アップロードに失敗しました ${fileConfig.field}:`, err)
-//         results.push({
-//           success: false,
-//           field: fileConfig.field,
-//           error: err.message
-//         })
-        
-//         // Update progress
-//         saveProgress.value = Math.round((i + 1) / totalImages.value * 100)
-//       }
-//     }
-    
-//     // Process results
-//     const successCount = results.filter(r => r.success).length
-//     const errorCount = results.filter(r => !r.success).length
-    
-//     if (successCount > 0) {
-//       saveResult.value = {
-//         type: 'success',
-//         message: `✅ ${successCount} 件の画像を保存しました！`,
-//         details: results
-//       }
-      
-//       // Force refresh ALL images with new timestamp
-//       const timestamp = Date.now()
-//       for (let i = 0; i < childComponents.value.length; i++) {
-//         const comp = childComponents.value[i]
-//         if (comp && files.value[i]) {
-//           const fd = field_key(files.value[i].field)
-//           comp.src = `${readBlobURL}?field_key=${fd}&t=${timestamp}`
-//           comp.croppedImage = null
-//           console.log(`🔄 Force refreshed image for ${files.value[i].field}`)
-//         }
-//       }
-//     }
-    
-//     if (errorCount > 0) {
-//       const errorMsg = saveResult.value 
-//         ? saveResult.value.message + ` (${errorCount} 件失敗)`
-//         : `❌ ${errorCount} 件の画像保存に失敗しました`
-      
-//       saveResult.value = {
-//         type: 'error',
-//         message: errorMsg,
-//         details: results.filter(r => !r.success)
-//       }
-//     }
-    
-//   } catch (err) {
-//     saveResult.value = {
-//       type: 'error',
-//       message: `❌ 保存処理中にエラーが発生しました: ${err.message}`,
-//     }
-//     console.error('💾 Save error:', err)
-//   } finally {
-//     saving.value = false
-//     totalImages.value = 0
-//   }
-// }
-
 // 画像の一括保存処理（saveAllImages）
 const saveAllImages = async () => {
   saving.value = true
@@ -422,30 +285,23 @@ const saveAllImages = async () => {
   await nextTick() // DOMの更新を確実にする
   
   try {
+    // -------------------------------------------------------------
     // 1. アップロード対象（編集された画像）の抽出
+    // -------------------------------------------------------------
     const validComponents = []
     
     for (let i = 0; i < files.value.length; i++) {
       const comp = childComponents.value[i]
       const fileConfig = files.value[i]
       
-      if (!comp) {
-        console.warn(`⚠️ Component not found for ${fileConfig.field} at index ${i}`)
-        continue
-      }
+      if (!comp) continue
       
-      // 有効な切り抜き画像があるか確認
       const isValid = hasValidCroppedImage(comp, fileConfig)
-      
       if (isValid) {
         validComponents.push({ comp, fileConfig })
-        console.log(`✅ Found valid cropped image for ${fileConfig.field}`)
-      } else {
-        console.log(`⏭️ Skipping ${fileConfig.field} (no valid cropped image)`)
       }
     }
     
-    // 変更された画像が1枚もない場合は案内を出して終了
     if (validComponents.length === 0) {
       saveResult.value = {
         type: 'info',
@@ -453,80 +309,87 @@ const saveAllImages = async () => {
       }
       return
     }
-    
+
+    // -------------------------------------------------------------
+    // 【新規追加】2. 編集前の元画像（古い画像）を特定し、一括で物理削除
+    // -------------------------------------------------------------
+    console.log('🧹 編集された枠の古い元画像を特定しています...')
+    const deleteTargets = []
+
+    for (const { fileConfig } of validComponents) {
+      // 現在ストアに保持されている最新ファイル群 (fileStore.files) から、
+      // 今回編集されたフィールド（例: 'front' や 'back'）に対応する既存の画像データを検索
+      // ※紐付け条件がfile_kindとfieldの結合（例: category_front）の場合は適宜調整してください
+      const existingFile = fileStore.files.find(
+        f => f.file_kind === `${props.meta.documentType}_${fileConfig.field}`
+      )
+
+      if (existingFile && existingFile.file_uuid) {
+        deleteTargets.push({
+          uuid: existingFile.file_uuid,
+          field: existingFile.file_kind
+        })
+      }
+    }
+
+    // 古い画像が存在する場合のみ削除フェーズを実行
+    if (deleteTargets.length > 0) {
+      console.log(`🗑️ ${deleteTargets.length} 件の古い元画像を物理削除します...`)
+      
+      for (const target of deleteTargets) {
+        // deleteFileのローディングが全体と衝突しないよう options で伝播UIを制御
+        const isDeleted = await fileStore.deleteFile(target.uuid, { 
+          loading: true, 
+          loadingText: `${target.field} の古い画像を削除中...`,
+          showSuccessMessage: false // 一括処理なので個別の「成功しました」トーストは消す
+        })
+
+        // トランザクション制御：1件でも削除に失敗したら、新しい画像のアップロードに進まずエラー中断する
+        if (!isDeleted) {
+          throw new Error(`${target.field} の古い画像の削除に失敗したため、処理を中断しました。`)
+        }
+      }
+      console.log('✅ すべての古い元画像の削除が完了しました。')
+    }
+
+    // -------------------------------------------------------------
+    // 3. 各新しい画像をループ処理で順番にアップロード（後半戦）
+    // -------------------------------------------------------------
     totalImages.value = validComponents.length
     console.log(`📸 Preparing to upload ${totalImages.value} images`)
     
     const results = []
     
-    // 2. 各画像をループ処理で順番にアップロード
     for (let i = 0; i < validComponents.length; i++) {
       const { comp, fileConfig } = validComponents[i]
       
       try {
-        // 必要に応じて切り抜き（トリミング）を確定させる
-        if (typeof comp.getCropped === 'function') {
-          console.log(`🔄 Triggered getCropped for ${fileConfig.field}`)
-          comp.getCropped()
-          // Canvasの生成・描画を待つ（0.5秒）
-          await new Promise(resolve => setTimeout(resolve, 500))
-        } else {
-          console.warn(`⚠️ getCropped method not available for ${fileConfig.field}`)
-        }
         
-        // Base64テキスト形式の画像を、通信に適したBlob（バイナリ）形式に変換
         const blob = await fetchImageBlob(comp.croppedImage)
         
-        // -------------------------------------------------------------
-        // 新しい共通関数 `uploadFile` を呼び出すパラメータの作成
-        // ※ 既存の category_code や identity などの変数、
-        //   または props から適切な値を設定してください。
-        // -------------------------------------------------------------
-        //const uploadParams = {
-        //  category: category_code?.value || props?.category_code || 'default',
-        //  owner_type: 'common',
-        //  owner_id: identity?.value || props?.identity || 'none',
-        //  file_kind: fileConfig.field, // 各画像の識別（main_image等）に割り当て
-        //}
-//
-        // uploadFile内部で独自のトースト通知とローディングが出るため、
-        // ループ中の全画面ロックの競合を防ぐオプションを指定（必要に応じて調整）
-        //const uploadOptions = {
-          //loading: false, // saveAllImages 側で saving 管理をしているため false 推奨
-          //showSuccessMessage: false // 最後に一括でメッセージを出すため、個別通知はオフ
-        //}
-        
-        // 新しい共通関数でアップロードを実行
+        // アップロード実行
         const result = await fileStore.uploadFile(
           blob,
-          makeFileParams(),
+          makeFileParams(fileConfig.field), // 画像の種類を特定できるように引数を調整
         )
         
         if (result) {
-          results.push({
-            success: true,
-            field: fileConfig.field,
-            result: result
-          })
-          console.log(`✅ Successfully uploaded image for ${fileConfig.field}`)
+          results.push({ success: true, field: fileConfig.field, result: result })
         } else {
           throw new Error('アップロード結果が空、または処理に失敗しました。')
         }
         
       } catch (err) {
         console.error(`🖼️ 画像アップロードに失敗しました ${fileConfig.field}:`, err)
-        results.push({
-          success: false,
-          field: fileConfig.field,
-          error: err.message
-        })
+        results.push({ success: false, field: fileConfig.field, error: err.message })
       } finally {
-        // 進捗度（%）の計算と画面更新
         saveProgress.value = Math.round((i + 1) / totalImages.value * 100)
       }
     }
     
-    // 3. アップロード結果の集計と画面リフレッシュ
+    // -------------------------------------------------------------
+    // 4. アップロード結果の集計と画面リフレッシュ
+    // -------------------------------------------------------------
     const successCount = results.filter(r => r.success).length
     const errorCount = results.filter(r => !r.success).length
     
@@ -537,61 +400,37 @@ const saveAllImages = async () => {
         details: results
       }
       
-      // 子コンポーネントの編集状態（Base64の一時データ）をクリア
+      // 子コンポーネントの編集状態をクリア
       for (let i = 0; i < childComponents.value.length; i++) {
         if (childComponents.value[i]) {
           childComponents.value[i].croppedImage = null
         }
       }
       
-      // 【重要】新しい共通関数 `loadFiles` を用いて、サーバーの最新の画像状態を再取得（リフレッシュ）
-      console.log('🔄 Reloading files via loadFiles...')
-      const reloadParams = {
-        category: category_code?.value || props?.category_code || 'default',
-        owner_type: 'common',
-        owner_id: identity?.value || props?.identity || 'none'
-      }
-      await loadFiles(reloadParams, { loading: false })
+      // サーバーの最新状態を再取得（物理削除＋新規アップロードの最終結果を反映）
+      await loadFiles(filePayloadList.value, { loading: false })
     }
     
-    // 一部、または全部失敗した場合のエラーハンドリング
     if (errorCount > 0) {
       const errorMsg = saveResult.value 
         ? saveResult.value.message + ` (${errorCount} 件失敗)`
         : `❌ ${errorCount} 件の画像保存に失敗しました`
       
-      saveResult.value = {
-        type: 'error',
-        message: errorMsg,
-        details: results.filter(r => !r.success)
-      }
+      saveResult.value = { type: 'error', message: errorMsg, details: results.filter(r => !r.success) }
     }
     
   } catch (err) {
+    // 削除失敗、または致命的エラー時のハンドリング
     saveResult.value = {
       type: 'error',
       message: `❌ 保存処理中にエラーが発生しました: ${err.message}`,
     }
     console.error('💾 Save error:', err)
   } finally {
-    // 成功・失敗に関わらず、最後にローディング状態と進捗をリセット
     saving.value = false
     totalImages.value = 0
   }
 }
-
-// Auto-refresh images when identity changes
-watch(() => props.identity, () => {
-  const timestamp = Date.now()
-  for (let i = 0; i < childComponents.value.length; i++) {
-    const comp = childComponents.value[i]
-    if (comp && files.value[i]) {
-      const fd = field_key(files.value[i].field)
-      comp.src = `${readBlobURL}?field_key=${fd}&t=${timestamp}`
-      comp.croppedImage = null
-    }
-  }
-})
 
 // Handle cropped event
 const handleCropped = (field, cropped) => {
@@ -614,213 +453,342 @@ const handleCropped = (field, cropped) => {
 const handleDeleted = async (event) => {
   //console.log("fileConfig.field====", field)
 
-const ok = await fileStore.softDeleteFile(event.identity)
+  //論理削除か物理削除かは任意で変更してください
+const ok = await fileStore.softDeleteFile(event.uuid, { 
+          loading: true, 
+          loadingText: `選択画像を削除中...`,
+          showSuccessMessage: true
+        })
 
-  if (ok) {
+if (ok) {
     await loadFiles()
   }
-
-  //const response = await dbStore.deleteImage(field_key(field))
-  //console.log("response====", response)
 }
+
+//デバッグ用
+watch(
+  () => props.meta,
+  (val) => {
+    console.log('meta changed', val)
+  },
+  { deep: true, immediate: true }
+)
+
+//デバッグ用
+watch(
+  () => uniqueStoreId.value,
+  (val) => {
+    console.log('uniqueStoreId changed', val)
+  },
+  { immediate: true }
+)
 
 
 </script>
 
 <template>
-
-
   <section class="wrapper">
-    <!-- Toolbar -->
     <div class="toolbar" v-if="!isMobile">
       <div class="toolbar__group">
-        <button type="button" class="btn" :class="{ 'btn--active': desktopMode === 'portrait' }" @click="desktopMode = 'portrait'">Portrait</button>
-        <button type="button" class="btn" :class="{ 'btn--active': desktopMode === 'landscape' }" @click="desktopMode = 'landscape'">Landscape</button>
+        <button 
+          type="button" 
+          class="btn-toggle" 
+          :class="{ 'btn-toggle--active': desktopMode === 'portrait' }" 
+          @click="desktopMode = 'portrait'"
+        >
+          📱 Portrait
+        </button>
+        <button 
+          type="button" 
+          class="btn-toggle" 
+          :class="{ 'btn-toggle--active': desktopMode === 'landscape' }" 
+          @click="desktopMode = 'landscape'"
+        >
+          💻 Landscape
+        </button>
       </div>
       <div class="toolbar__hint">
-        <span v-if="swapSizeInLandscape">Size swap: <b>ON</b></span>
-        <span v-else>Size swap: <b>OFF</b></span>
+        <span class="badge" :class="swapSizeInLandscape ? 'badge--success' : 'badge--neutral'">
+          Size swap: <b>{{ swapSizeInLandscape ? 'ON' : 'OFF' }}</b>
+        </span>
       </div>
     </div>
 
-    <!-- Image Grid -->
     <div class="image-wrapper-container" :style="{ flexDirection }">
       <div
-        v-for="(fileConfig, index) in filesref"
+        v-for="(fileConfig, index) in files"
         :key="fileConfig.field"
         class="image-side"
         :style="{ width: tileWidthPercent }"
       >
-        <UploadFile v-if="fileConfig.thumbnailUrl" 
+        <UploadFile
           :ref="(el) => setChildRef(el, index)"
           :label="fileConfig.headerName"
           labelPosition="top"
-          :identity="props.identity"
+          :uuId="imguuid(fileConfig.field)"
           :width="visualWidth"
           :height="visualHeight"
           :returnType="returnType"
           :editable="editable"
-          
-          :src="fileConfig.thumbnailUrl"
-          :uuid="fileConfig.file_uuid"
+          :src="imgUrl(fileConfig.field)"
           @cropped="(cropped) => handleCropped(fileConfig.field, cropped)"
           @deleted="handleDeleted"
-          :compressRatio="props.compressRatio"
-          :jpegQuality="props.jpegQuality"
-          :outputFormat="props.outputFormat"
-          :maxWidth="props.maxWidth"
-          :maxHeight="props.maxHeight"
+          :compressRatio="compressRatio"
+          :jpegQuality="jpegQuality"
+          :outputFormat="outputFormat"
+          :maxWidth="maxWidth"
+          :maxHeight="maxHeight"
         />
       </div>
     </div>
 
-    <!-- Save Button -->
     <div class="action-bar mt-4" v-if="editable">
       <button
         type="button"
-        class="btn btn-primary save-btn"
+        class="btn-save"
         :disabled="saving"
         @click="saveAllImages"
       >
-        <span v-if="saving">
-          <span v-if="totalImages > 0">{{ saveProgress }}%</span>
-          <span v-else>Saving...</span>
+        <span v-if="saving" class="saving-content">
+          <v-progress-circular v-if="totalImages > 0" color="white" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
+          <span v-if="totalImages > 0">{{ saveProgress }}% 保存中...</span>
+          <span v-else>データを保存中...</span>
         </span>
-        <span v-else>
-          💾 保存
+        <span v-else class="d-flex align-center gap-2">
+          💾 すべて保存する
         </span>
       </button>
 
-      <!-- Feedback -->
-      <div v-if="saveResult" class="alert" 
-           :class="{
-             'alert-success': saveResult.type === 'success',
-             'alert-error': saveResult.type === 'error',
-             'alert-info': saveResult.type === 'info'
-           }">
-        {{ saveResult.message }}
+      <div v-if="saveResult" class="alert-wrapper">
+        <div class="alert" 
+             :class="{
+               'alert-success': saveResult.type === 'success',
+               'alert-error': saveResult.type === 'error',
+               'alert-info': saveResult.type === 'info'
+             }">
+          <span class="alert-icon">
+            <template v-if="saveResult.type === 'success'">✅</template>
+            <template v-else-if="saveResult.type === 'error'">❌</template>
+            <template v-else>ℹ️</template>
+          </span>
+          <div class="alert-message">{{ saveResult.message }}</div>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <style scoped>
+/* 全体のベース設定 */
 .wrapper {
   width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* ---- Toolbar (desktop only) ---- */
+/* ---- ツールバー（セグメントコントロール風に刷新） ---- */
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0 14px;
+  gap: 16px;
+  padding: 8px 4px 16px;
 }
 
 .toolbar__group {
   display: inline-flex;
-  border: 1px solid var(--c-border, #3a3a3a33);
+  background: #f1f3f5;
+  padding: 4px;
   border-radius: 10px;
-  overflow: hidden;
+  border: 1px solid #e9ecef;
 }
 
-.btn {
+.btn-toggle {
   appearance: none;
   background: transparent;
   border: 0;
-  padding: 8px 14px;
-  font-size: 14px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #495057;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
-.btn:hover { background: #00000010; }
-.btn--active {
-  background: #00000018;
+.btn-toggle:hover {
+  color: #212529;
+}
+.btn-toggle--active {
+  background: #ffffff;
+  color: #1a73e8;
   font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
+/* ツールバーヒント・バッジ */
 .toolbar__hint {
-  font-size: 12px;
-  opacity: 0.75;
+  display: flex;
+  align-items: center;
+}
+.badge {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.badge--success {
+  background: #e6fffa;
+  color: #008767;
+  border: 1px solid #b2f5ea;
+}
+.badge--neutral {
+  background: #f7fafc;
+  color: #718096;
+  border: 1px solid #e2e8f0;
 }
 
-/* ---- Images container ---- */
+/* ---- 画像グリッドコンテナ ---- */
 .image-wrapper-container {
   display: flex;
-  gap: 12px;
+  gap: 20px;
   align-items: flex-start;
-  flex-wrap: wrap; /* allow wrap on smaller desktops */
+  flex-wrap: wrap;
+  width: 100%;
 }
 
-/* Each tile */
+/* 各タイル */
 .image-side {
-  /* Default width is controlled inline via :style="width: tileWidthPercent" */
-  min-width: 220px;
+  min-width: 240px;
+  transition: all 0.3s ease;
 }
 
-/* ---- Force vertical on mobile ---- */
+/* ---- 保存ボタン（モダンプレミアム） ---- */
+.action-bar {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.btn-save {
+  padding: 12px 32px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(49, 130, 206, 0.25);
+  transition: all 0.2s ease-in-out;
+}
+.btn-save:hover:not(:disabled) {
+  background: #2b6cb0;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(49, 130, 206, 0.35);
+}
+.btn-save:active:not(:disabled) {
+  transform: translateY(0);
+}
+.btn-save:disabled {
+  background: #a0aec0;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.saving-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* Vuetifyのヘルパーが無い場合用のマージン補正 */
+.mr-2 { margin-right: 8px; }
+.d-flex { display: flex; }
+.align-center { align-items: center; }
+.gap-2 { gap: 8px; }
+
+/* ---- フィードバックアラート（モダンパステル） ---- */
+.alert-wrapper {
+  width: 100%;
+  max-width: 480px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.alert-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.alert-message {
+  font-weight: 500;
+}
+
+.alert-success {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+.alert-error {
+  background: #fff5f5;
+  color: #9b2c2c;
+  border: 1px solid #fed7d7;
+}
+.alert-info {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+/* アニメーション */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- レスポンシブ・スマホ最適化（強制縦並び） ---- */
 @media (max-width: 768px) {
-  .toolbar { display: none; }           /* no controls on mobile */
+  .toolbar { display: none; }
   .image-wrapper-container {
-    flex-direction: column !important;  /* safety: always stack */
-    align-items: stretch;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 24px;
   }
   .image-side {
     width: 100% !important;
     min-width: 0;
   }
+  .btn-save {
+    width: 100%;
+    max-width: 320px;
+  }
 }
 
-/* Optional: nicer dark-mode border */
+/* ダークモード対応の微調整 */
 :where(html.dark) .toolbar__group {
-  border-color: #ffffff22;
+  background: #2d3748;
+  border-color: #4a5568;
 }
-
-.action-bar {
-  margin-top: 20px;
-  text-align: center;
+:where(html.dark) .btn-toggle {
+  color: #a0aec0;
 }
-
-.save-btn {
-  padding: 10px 20px;
-  font-size: 1rem;
-  background: #3182ce;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.save-btn:hover:not(:disabled) {
-  background: #2c5aa0;
-}
-.save-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.alert {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-}
-.alert-success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-.alert-error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-.alert-info {
-  background: #d1ecf1;
-  color: #0c5460;
-  border: 1px solid #bee5eb;
+:where(html.dark) .btn-toggle--active {
+  background: #4a5568;
+  color: #fff;
 }
 </style>

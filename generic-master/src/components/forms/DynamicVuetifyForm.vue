@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { useDataStore } from '@/stores/DataStore'
-import { buildSaveParams } from '@/composables/formParamBuilder'
+//import { useDataStore } from '@/stores/DataStore'
+//import { buildSaveParams } from '@/composables/formParamBuilder'
 import { buildRules } from '@/composables/useRuleFactory'
 
 const props = defineProps({
@@ -14,10 +14,15 @@ const props = defineProps({
   sqltags: { type: Object, default: null },
   tabConfig: { type: Object, default: () => ({}) },
   commonParams: { type: Object, default: () => ({}) },
+  staffCode: { type: String, default: '' },
 })
 
+const staffCode = computed(() =>props.staffCode)
+
+console.log("DynamicVuetifyForm.vue.props===========",props)
+
 const emit = defineEmits(['update:modelValue', 'submit', 'saved'])
-const dataStore = useDataStore()
+//const dataStore = useDataStore()
 const saving = ref(false)
 
 const formData = computed({
@@ -42,16 +47,17 @@ function toDisplayValue(field, value) {
   return null
 }
 
-function getComponent(field) {
-  if (field.component) return field.component
+// function getComponent(field) {
+//   if (field.component) return field.component
 
-  if (field.type === 'select') return 'v-select'
-  if (field.type === 'combobox') return 'v-combobox'
-  if (field.type === 'textarea') return 'v-textarea'
-  if (field.type === 'date' || field.type === 'month') return DatePicker
+//   if (field.type === 'select') return 'v-select'
+//   if (field.type === 'combobox') return 'v-combobox'
+//   if (field.type === 'textarea') return 'v-textarea'
+//   if (field.type === 'date' || field.type === 'month') return DatePicker
 
-  return 'v-text-field'
-}
+//   return 'v-text-field'
+// }
+
 // 保存用：YYYY-MM-DD 文字列に変換
 function normalizeDateValue(value) {
   if (value == null || value === '') return ''
@@ -78,23 +84,23 @@ function updateField(field, value) {
 }
 
 // 送信処理
-async function submit() {
-  if (!props.sqltags?.save) {
-    emit('submit', formData.value)
-    return
-  }
-  saving.value = true
-  try {
-    const params = buildSaveParams(formData.value, props.tabConfig, props.commonParams)
-    const result = await dataStore.saveData(props.sqltags.save, params)
-    emit('saved', result)
-    emit('submit', formData.value)
-  } catch (error) {
-    console.error('DynamicVuetifyForm submit error:', error)
-  } finally {
-    saving.value = false
-  }
-}
+// async function submit() {
+//   if (!props.sqltags?.save) {
+//     emit('submit', formData.value)
+//     return
+//   }
+//   saving.value = true
+//   try {
+//     const params = buildSaveParams(formData.value, props.tabConfig, props.commonParams)
+//     const result = await dataStore.saveData(props.sqltags.save, params)
+//     emit('saved', result)
+//     emit('submit', formData.value)
+//   } catch (error) {
+//     console.error('DynamicVuetifyForm submit error:', error)
+//   } finally {
+//     saving.value = false
+//   }
+// }
 </script>
 
 <template>
@@ -124,6 +130,7 @@ async function submit() {
           :item-value="field.props?.itemValue || field.props?.['item-value'] || 'value'"
           :rules="buildRules(field)"
           @update:model-value="value => updateField(field, value)"
+          :staffCode="staffCode"
         />
       </v-col>
     </v-row>

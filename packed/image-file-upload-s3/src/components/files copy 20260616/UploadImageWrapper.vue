@@ -471,33 +471,22 @@ if (ok) {
 </script>
 
 <template>
-  <section class="wrapper">
+
+
+  <section class="wrapper" >
+    <!-- Toolbar -->
     <div class="toolbar" v-if="!isMobile">
       <div class="toolbar__group">
-        <button 
-          type="button" 
-          class="btn-toggle" 
-          :class="{ 'btn-toggle--active': desktopMode === 'portrait' }" 
-          @click="desktopMode = 'portrait'"
-        >
-          📱 Portrait
-        </button>
-        <button 
-          type="button" 
-          class="btn-toggle" 
-          :class="{ 'btn-toggle--active': desktopMode === 'landscape' }" 
-          @click="desktopMode = 'landscape'"
-        >
-          💻 Landscape
-        </button>
+        <button type="button" class="btn" :class="{ 'btn--active': desktopMode === 'portrait' }" @click="desktopMode = 'portrait'">Portrait</button>
+        <button type="button" class="btn" :class="{ 'btn--active': desktopMode === 'landscape' }" @click="desktopMode = 'landscape'">Landscape</button>
       </div>
       <div class="toolbar__hint">
-        <span class="badge" :class="swapSizeInLandscape ? 'badge--success' : 'badge--neutral'">
-          Size swap: <b>{{ swapSizeInLandscape ? 'ON' : 'OFF' }}</b>
-        </span>
+        <span v-if="swapSizeInLandscape">Size swap: <b>ON</b></span>
+        <span v-else>Size swap: <b>OFF</b></span>
       </div>
     </div>
 
+    <!-- Image Grid -->
     <div class="image-wrapper-container" :style="{ flexDirection }">
       <div
         v-for="(fileConfig, index) in files"
@@ -526,253 +515,153 @@ if (ok) {
       </div>
     </div>
 
+    <!-- Save Button -->
     <div class="action-bar mt-4" v-if="editable">
       <button
         type="button"
-        class="btn-save"
+        class="btn btn-primary save-btn"
         :disabled="saving"
         @click="saveAllImages"
       >
-        <span v-if="saving" class="saving-content">
-          <v-progress-circular v-if="totalImages > 0" color="white" indeterminate size="18" width="2" class="mr-2"></v-progress-circular>
-          <span v-if="totalImages > 0">{{ saveProgress }}% 保存中...</span>
-          <span v-else>データを保存中...</span>
+        <span v-if="saving">
+          <span v-if="totalImages > 0">{{ saveProgress }}%</span>
+          <span v-else>Saving...</span>
         </span>
-        <span v-else class="d-flex align-center gap-2">
-          💾 すべて保存する
+        <span v-else>
+          💾 保存
         </span>
       </button>
 
-      <div v-if="saveResult" class="alert-wrapper">
-        <div class="alert" 
-             :class="{
-               'alert-success': saveResult.type === 'success',
-               'alert-error': saveResult.type === 'error',
-               'alert-info': saveResult.type === 'info'
-             }">
-          <span class="alert-icon">
-            <template v-if="saveResult.type === 'success'">✅</template>
-            <template v-else-if="saveResult.type === 'error'">❌</template>
-            <template v-else>ℹ️</template>
-          </span>
-          <div class="alert-message">{{ saveResult.message }}</div>
-        </div>
+      <!-- Feedback -->
+      <div v-if="saveResult" class="alert" 
+           :class="{
+             'alert-success': saveResult.type === 'success',
+             'alert-error': saveResult.type === 'error',
+             'alert-info': saveResult.type === 'info'
+           }">
+        {{ saveResult.message }}
       </div>
     </div>
   </section>
 </template>
 
 <style scoped>
-/* 全体のベース設定 */
 .wrapper {
   width: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* ---- ツールバー（セグメントコントロール風に刷新） ---- */
+/* ---- Toolbar (desktop only) ---- */
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 8px 4px 16px;
+  gap: 12px;
+  padding: 10px 0 14px;
 }
 
 .toolbar__group {
   display: inline-flex;
-  background: #f1f3f5;
-  padding: 4px;
+  border: 1px solid var(--c-border, #3a3a3a33);
   border-radius: 10px;
-  border: 1px solid #e9ecef;
+  overflow: hidden;
 }
 
-.btn-toggle {
+.btn {
   appearance: none;
   background: transparent;
   border: 0;
-  padding: 8px 16px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #495057;
+  padding: 8px 14px;
+  font-size: 14px;
   cursor: pointer;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.btn-toggle:hover {
-  color: #212529;
-}
-.btn-toggle--active {
-  background: #ffffff;
-  color: #1a73e8;
+.btn:hover { background: #00000010; }
+.btn--active {
+  background: #00000018;
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-/* ツールバーヒント・バッジ */
 .toolbar__hint {
-  display: flex;
-  align-items: center;
-}
-.badge {
-  font-size: 0.75rem;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-.badge--success {
-  background: #e6fffa;
-  color: #008767;
-  border: 1px solid #b2f5ea;
-}
-.badge--neutral {
-  background: #f7fafc;
-  color: #718096;
-  border: 1px solid #e2e8f0;
+  font-size: 12px;
+  opacity: 0.75;
 }
 
-/* ---- 画像グリッドコンテナ ---- */
+/* ---- Images container ---- */
 .image-wrapper-container {
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-/* 各タイル */
-.image-side {
-  min-width: 240px;
-  transition: all 0.3s ease;
-}
-
-/* ---- 保存ボタン（モダンプレミアム） ---- */
-.action-bar {
-  margin-top: 28px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-}
-
-.btn-save {
-  padding: 12px 32px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  background: #3182ce;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(49, 130, 206, 0.25);
-  transition: all 0.2s ease-in-out;
-}
-.btn-save:hover:not(:disabled) {
-  background: #2b6cb0;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(49, 130, 206, 0.35);
-}
-.btn-save:active:not(:disabled) {
-  transform: translateY(0);
-}
-.btn-save:disabled {
-  background: #a0aec0;
-  box-shadow: none;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.saving-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-/* Vuetifyのヘルパーが無い場合用のマージン補正 */
-.mr-2 { margin-right: 8px; }
-.d-flex { display: flex; }
-.align-center { align-items: center; }
-.gap-2 { gap: 8px; }
-
-/* ---- フィードバックアラート（モダンパステル） ---- */
-.alert-wrapper {
-  width: 100%;
-  max-width: 480px;
-  animation: fadeIn 0.3s ease-out;
-}
-
-.alert {
-  display: flex;
-  align-items: flex-start;
   gap: 12px;
-  padding: 14px 18px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  text-align: left;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.alert-icon {
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-.alert-message {
-  font-weight: 500;
+  align-items: flex-start;
+  flex-wrap: wrap; /* allow wrap on smaller desktops */
 }
 
-.alert-success {
-  background: #f0fdf4;
-  color: #166534;
-  border: 1px solid #bbf7d0;
-}
-.alert-error {
-  background: #fff5f5;
-  color: #9b2c2c;
-  border: 1px solid #fed7d7;
-}
-.alert-info {
-  background: #f0f9ff;
-  color: #0369a1;
-  border: 1px solid #bae6fd;
+/* Each tile */
+.image-side {
+  /* Default width is controlled inline via :style="width: tileWidthPercent" */
+  min-width: 220px;
 }
 
-/* アニメーション */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ---- レスポンシブ・スマホ最適化（強制縦並び） ---- */
+/* ---- Force vertical on mobile ---- */
 @media (max-width: 768px) {
-  .toolbar { display: none; }
+  .toolbar { display: none; }           /* no controls on mobile */
   .image-wrapper-container {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 24px;
+    flex-direction: column !important;  /* safety: always stack */
+    align-items: stretch;
   }
   .image-side {
     width: 100% !important;
     min-width: 0;
   }
-  .btn-save {
-    width: 100%;
-    max-width: 320px;
-  }
 }
 
-/* ダークモード対応の微調整 */
+/* Optional: nicer dark-mode border */
 :where(html.dark) .toolbar__group {
-  background: #2d3748;
-  border-color: #4a5568;
+  border-color: #ffffff22;
 }
-:where(html.dark) .btn-toggle {
-  color: #a0aec0;
+
+.action-bar {
+  margin-top: 20px;
+  text-align: center;
 }
-:where(html.dark) .btn-toggle--active {
-  background: #4a5568;
-  color: #fff;
+
+.save-btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.save-btn:hover:not(:disabled) {
+  background: #2c5aa0;
+}
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alert {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+.alert-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+.alert-info {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
 }
 </style>

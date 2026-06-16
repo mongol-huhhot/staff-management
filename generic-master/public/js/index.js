@@ -9,7 +9,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_profile',
       jsonb_fields: ['profile_jsonb'],// jsonb カラムの一覧
       skip_reload: true,
-      sqltags:{ select:'staffs.get_staff_profile', save:'staffs.upsert_staff_profile', delete:'staffs.delete_staff_profile' },
+      sqltags:{ select:'get_current_staff_info', save:'staffs.upsert_staff_profile', delete:'staffs.delete_staff_profile' },
       separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
     },
     bank: {

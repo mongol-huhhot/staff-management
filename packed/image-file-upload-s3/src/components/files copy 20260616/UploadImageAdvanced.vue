@@ -311,62 +311,83 @@ defineExpose({ getCropped, resetCropper, deleteImage, cancelUpload, croppedImage
 
 
 <template>
-  <div class="upload-image-container">
-    
+
+ <div class="upload-image-container">
+    <!-- Read-only mode -->
     <div v-if="!editable && (image || existingImage)" class="image-preview">
       <label v-if="label && labelPosition === 'top'" class="upload-label">{{ label }}</label>
-      
-      <v-img
-        :src="image"
-        class="mt-3 image-zoom rounded-lg shadow-sm"
-        width="100%" :max-width="width"
+      <img
+        :src=image
+        class="mt-4 image-zoom"
+        :style="{ width: `${width}px`, border: '1px dashed #ccc' }"
         @click="openDialog"
         alt="preview"
-        style="cursor: zoom-in;"
-      >
-        <template v-slot:placeholder>
-          <div class="d-flex align-center justify-center fill-height loading-bg">
-            <v-progress-circular color="primary" indeterminate size="24"></v-progress-circular>
-          </div>
-        </template>
-      </v-img>
-      
+      />
       <label v-if="label && labelPosition === 'bottom'" class="upload-label">{{ label }}</label>
     </div>
 
-    <div v-if="editable && !imageUploaded" class="file-input-wrapper">
-      <label v-if="label && labelPosition === 'top'" class="upload-label">{{ label }}</label>
+    <!-- Upload Input -->
+    <div v-if="editable && !imageUploaded" class="file-input">
+      <label v-if="label && labelPosition === 'top'" class="upload-label" :for="`file-${identity}`">{{ label }}</label>
 
-      <div class="controls py-2">
-        <button
+      <!-- Visible action buttons -->
+      <div class="controls">
+        <!-- <button type="button" class="btn btn-primary" @click="openCamera">📷 カメラで撮影</button>
+        <button type="button" class="btn" @click="openGallery">🖼 ギャラリーから</button> -->
+
+        <!-- Visible action buttons -->
+        <div class="controls">
+          <button
+            v-if="showCameraButton"
+            type="button"
+            class="btn btn-primary"
+            @click="openCamera"
+          >
+            📷 カメラで撮影
+          </button>
+
+          <button
+            v-if="showGalleryButton"
+            type="button"
+            class="btn"
+            @click="openGallery"
+          >
+            🖼 ギャラリーから
+          </button>
+        </div>
+
+        <!-- Hidden inputs -->
+        <input
           v-if="showCameraButton"
-          type="button"
-          class="btn btn-primary"
-          @click="openCamera"
-        >
-          📷 カメラで撮影
-        </button>
+          ref="fileCamera"
+          type="file"
+          accept="image/*"
+          :capture="showCameraButton ? 'environment' : null"
+          class="visually-hidden"
+          @change="onCameraChange"
+        />
 
-        <button
-          v-if="showGalleryButton"
-          type="button"
-          class="btn btn-secondary"
-          @click="openGallery"
-        >
-          🖼 ギャラリーから選択
-        </button>
+        <input
+          ref="fileGallery"
+          type="file"
+          accept="image/*"
+          class="visually-hidden"
+          @change="onFileChange"
+        />
+
       </div>
 
+      <!-- Hidden inputs -->
+      <!-- Camera: some browsers require capture + accept -->
       <input
-        v-if="showCameraButton"
         ref="fileCamera"
         type="file"
         accept="image/*"
-        :capture="showCameraButton ? 'environment' : null"
+        capture="environment"
         class="visually-hidden"
         @change="onCameraChange"
       />
-
+      <!-- Gallery: no capture -->
       <input
         ref="fileGallery"
         type="file"
@@ -375,286 +396,97 @@ defineExpose({ getCropped, resetCropper, deleteImage, cancelUpload, croppedImage
         @change="onFileChange"
       />
 
-      <label v-if="label && labelPosition === 'bottom'" class="upload-label">{{ label }}</label>
+      <label v-if="label && labelPosition === 'bottom'" class="upload-label" :for="`file-${identity}`">{{ label }}</label>
     </div>
 
+    <!-- Cropper -->
     <div v-if="editable && visible && image" class="cropper-wrapper">
       <div v-if="labelPosition === 'top'" class="cropper-label">{{ label }}</div>
 
       <Cropper
         ref="cropper"
         :src="image"
-        class="cropper rounded-lg"
+        class="cropper"
       />
 
       <div v-if="labelPosition === 'bottom'" class="cropper-label">{{ label }}</div>
 
-      <div class="controls mt-3">
+      <div class="controls mt-2">
         <button type="button" class="btn btn-secondary" @click="rotateImage">🔄 回転</button>
-        <button type="button" class="btn btn-primary crop-btn" @click="getCropped">✂️ 切り取る</button>
+        <button type="button" class="btn btn-primary crop-btn" @click="getCropped">切取る</button>
+        <!-- ✅ キャンセル -->
         <button type="button" class="btn btn-warning" @click="cancelUpload">キャンセル</button>
       </div>
     </div>
 
+    <!-- Preview after crop -->
     <div v-if="editable && !visible && (croppedImage || image || existingImage)" class="image-preview">
       <div v-if="labelPosition === 'top'" class="preview-label">{{ label }}</div>
-      
-      <v-img
-        width="200"
-        aspect-ratio="4/3"
+      <img
         :src="croppedImage || image || existingImage"
-        class="mt-3 image-zoom rounded-lg shadow-sm"
-        :max-width="width"
+        class="mt-4 image-zoom"
+        :style="{ maxWidth: `${width}px` }"
         @click="openDialog"
         alt="cropped"
-        style="cursor: zoom-in;"
-      >
-        <template v-slot:placeholder>
-          <div class="d-flex align-center justify-center fill-height loading-bg">
-            <v-progress-circular color="primary" indeterminate size="24"></v-progress-circular>
-          </div>
-        </template>
-      </v-img>
-
+      />
       <div v-if="labelPosition === 'bottom'" class="preview-label">{{ label }}</div>
-      
-      <div class="controls mt-3">
+      <div class="controls mt-2">
         <button class="btn btn-danger" type="button" @click="resetCropper">✖ リセット</button>
-        <button class="btn btn-outline-danger" type="button" @click="requestDelete">🗑 削除</button>
+        <!-- ✅ 削除 -->
+        <button class="btn btn-secondary" type="button" @click="requestDelete">🗑 削除</button>
       </div>
     </div>
 
+    <!-- Dialog -->
     <div v-if="showDialog" class="overlay" @click.self="closeDialog">
-      <div class="overlay-content rounded-xl shadow-lg">
+      <div class="overlay-content">
         <img
           :src="croppedImage || image || existingImage"
-          class="dialog-img rounded-lg"
+          style="max-height: 70vh; max-width: 90vw; object-fit: contain"
           alt="dialog"
         />
         <div class="dialog-actions">
-          <button class="btn btn-light" @click="closeDialog">閉じる</button>
+          <button class="btn btn-primary" @click="closeDialog">閉じる</button>
         </div>
       </div>
     </div>
-
+    <!-- ✅ Delete Confirm Dialog -->
     <div v-if="showDeleteConfirm" class="overlay" @click.self="cancelDelete" aria-modal="true" role="dialog">
-      <div class="overlay-content confirm-modal rounded-xl shadow-lg">
-        <div class="confirm-icon">⚠️</div>
+      <div class="overlay-content">
         <div class="confirm-title">画像を削除しますか？</div>
         <div class="confirm-text">この操作は元に戻せません。</div>
-        <div class="dialog-actions vertical-actions">
-          <button class="btn btn-danger btn-block" @click="confirmDelete">はい、削除する</button>
-          <button class="btn btn-light btn-block" @click="cancelDelete">いいえ、やめる</button>
+        <div class="dialog-actions">
+          <button class="btn btn-danger" @click="confirmDelete">はい、削除</button>
+          <button class="btn btn-secondary" @click="cancelDelete">いいえ、やめる</button>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <style scoped>
-/* 全体のコンテナ設定 */
-.upload-image-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-/* ラベルの装飾 */
-.upload-label, .preview-label, .cropper-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #4a5568;
-  letter-spacing: 0.05em;
-}
-
-/* ラッパー類 */
-.file-input-wrapper, .image-preview, .cropper-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  text-align: center;
-  width: 100%;
-}
-
-/* ユーティリティマージン */
-.mt-3 { margin-top: 12px; }
-.py-2 { padding-top: 8px; padding-bottom: 8px; }
-
-/* 共通ボタン（モダンフラットデザイン） */
-.btn {
-  padding: 10px 20px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-.btn:hover {
-  opacity: 0.95;
-  transform: translateY(-1px);
-}
-.btn:active {
-  transform: translateY(0);
-}
-
-/* カラーバリエーション */
-.btn-primary {
-  background: #3182ce;
-  color: white;
-}
-.btn-primary:hover { background: #2b6cb0; box-shadow: 0 4px 12px rgba(49, 130, 206, 0.2); }
-
-.btn-secondary {
-  background: #edf2f7;
-  color: #2d3748;
-}
-.btn-secondary:hover { background: #e2e8f0; }
-
-.btn-warning {
-  background: #feebc8;
-  color: #dd6b20;
-}
-.btn-warning:hover { background: #fbd38d; }
-
-.btn-danger {
-  background: #e53e3e;
-  color: white;
-}
-.btn-danger:hover { background: #c53030; box-shadow: 0 4px 12px rgba(229, 62, 62, 0.2); }
-
-.btn-outline-danger {
-  background: transparent;
-  border-color: #feb2b2;
-  color: #e53e3e;
-}
-.btn-outline-danger:hover { background: #fff5f5; border-color: #e53e3e; }
-
-.btn-light {
-  background: #ffffff;
-  color: #4a5568;
-  border-color: #e2e8f0;
-}
-.btn-light:hover { background: #f7fafc; }
-
-.btn-block { width: 100%; }
-
-/* コントロール配置 */
-.controls {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-  width: 100%;
-}
-
-/* 切り抜き器（Cropper） */
-.cropper {
-  width: 100%;
-  max-width: 320px;
-  height: 220px;
-  background: #f7fafc;
-  border: 1px solid #e2e8f0;
-  overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-}
-
-/* 画像プレビュー＆ホバーズーム */
-.image-zoom {
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
-  max-width: 220px;
-  height: auto;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-}
-.image-zoom:hover {
-  transform: scale(1.1); /* 1.8倍から1.1倍に調整して、画面外にはみ出すバグを防ぎ、上品なズームへ変更 */
-  box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important;
-}
-
-/* ローディング時の背景調和 */
-.loading-bg {
-  background-color: #f7fafc;
-}
-
-/* 共通モーダル（オーバーレイ） */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px); /* 背景をボカして中央に視線を集める */
-  display: grid;
-  place-items: center;
-  z-index: 9999;
-  padding: 16px;
-}
-
-.overlay-content {
-  background: #1e1e1e; /* 純粋な黒から、リッチなダークグレーに変更 */
-  padding: 24px;
-  text-align: center;
-  max-width: 90vw;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-}
-
-.dialog-img {
-  max-height: 65vh;
-  max-width: 100%;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto;
-}
-
-.dialog-actions {
-  margin-top: 16px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-
-/* 削除確認用モーダル固有 */
-.confirm-modal {
-  background: #ffffff; /* 確認ダイアログは警告が目立つよう白ベースに変更 */
-  max-width: 340px;
-  width: 100%;
-}
-.confirm-icon {
-  font-size: 2rem;
-  margin-bottom: 8px;
-}
-.confirm-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1a202c;
-  margin-bottom: 6px;
-}
-.confirm-text {
-  font-size: 0.85rem;
-  color: #718096;
-  margin-bottom: 20px;
-}
-.vertical-actions {
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* 境界線の角丸・影用補助クラス */
-.rounded-lg { border-radius: 12px !important; }
-.rounded-xl { border-radius: 16px !important; }
-.shadow-sm { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03) !important; }
-.shadow-lg { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04) !important; }
-
-/* アクセシビリティ隠しインプット */
+/* Same as before */
+.upload-image-container { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 10px; }
+.upload-label, .preview-label, .cropper-label { font-size: 0.95rem; margin-bottom: 6px; display: block; color: #333; font-weight: 500; }
+.file-input, .image-preview, .cropper-wrapper { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; width: 100%; }
+.file-input input[type="file"] { padding: 8px; border: 1px dashed #ccc; border-radius: 6px; background: #fafafa; width: 100%; max-width: 300px; }
+.mt-2 { margin-top: 8px; }
+.mt-4 { margin-top: 16px; }
+.btn { padding: 6px 12px; border: 1px solid #ccc; background: #f7f7f7; border-radius: 6px; cursor: pointer; font-size: 0.9rem; min-width: 36px; text-align: center; }
+.btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-primary { background: #3182ce; border-color: #2b6cb0; color: white; }
+.btn-secondary { background: #e2e8f0; border-color: #718096; color: #2d3748; }
+.btn-danger { background: #e53e3e; border-color: #c53030; color: white; font-weight: bold; }
+.controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.cropper { width: 100%; max-width: 300px; height: 200px; background: #f4f4f4; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.image-zoom { transition: transform 0.3s ease; width: 100%; max-width: 200px; height: auto; border: 1px dashed #ccc; border-radius: 6px; }
+.image-zoom:hover { transform: scale(1.8); filter: brightness(1.1); cursor: zoom-in; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: grid; place-items: center; z-index: 9999; }
+.overlay-content { background: #111; padding: 16px; border-radius: 12px; text-align: center; }
+.dialog-actions { margin-top: 12px; }
+.btn-warning { background: #f6ad55; border-color: #dd6b20; color: #1a202c; }
+.confirm-title { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.confirm-text { font-size: 0.9rem; color: #ddd; margin-bottom: 12px; }
 .visually-hidden {
   position: absolute !important;
   width: 1px; height: 1px;
