@@ -77,4 +77,14 @@ window.appConfig.UploadFiles = {
             { field: 'back', headerName: 'マイナンバーカード裏'},
         ]
     },
+    bank_book: {
+        editable: true, // if editable: false then the own has viewable permission only. if editable:  true then has editing permission
+        height: 360,    // number of Pixels
+        width:  360,    // number of Pixels
+        returnType: 'blob', // 'base64' or 'blob'
+        direction: 'row', // 'row' or 'column'
+        files :[ // you can define many files to be uloaded
+            { field: 'front', headerName: '通帳見開き'},
+        ]
+    },
 };

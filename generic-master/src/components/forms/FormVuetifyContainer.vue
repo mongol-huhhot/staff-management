@@ -5,10 +5,12 @@ import { useAppConfigStore } from '@/stores/AppConfigStore'
 import DynamicVuetifyForm from '@/components/forms/DynamicVuetifyForm.vue'
 import RepeatableFormWrapper from '@/components/forms/RepeatableFormWrapper.vue'
 import { parseJsonbFields, parseAndFlattenJsonbFields } from '@/composables/utilFactory'
+import { useFileStore } from '@/stores/useFileStore'
 
 
 const dataStore = useDataStore()
 const configStore = useAppConfigStore()
+const fileStore = useFileStore()
 
 // --- 追加: フォームのref管理 ---
 const formRefs = ref({});
@@ -244,6 +246,7 @@ watch(
     loadingTabs.value = {}
 
     initializeAllTabContainers()
+    fileStore.clearFiles()
 
     // --- ここから追加 ---
      // 2. 新しいスタッフの基本情報を全タブの土台としてコピーする

@@ -36,13 +36,13 @@ console.log("UploadImageWrapper.props================",props)
 
 // ★ 1. propsからユニークなストアIDを組み立てる
 // 例: "fileStore_staff_22222_mynumber_card"
-const uniqueStoreId = computed(() => {
-  return `fileStore_${props.meta.ownerType}_${props.meta.ownerId}_${props.meta.documentType}`
-})
+// const uniqueStoreId = computed(() => {
+//   return `fileStore_${props.meta.ownerType}_${props.meta.ownerId}_${props.meta.documentType}`
+// })
 
 // ★ 2. 動的IDを渡して、このコンポーネント専用のストアインスタンスを取得する
 // 引数にIDを渡し、戻ってきた関数をさらに実行 () します
-const fileStore = useFileStore(uniqueStoreId.value)()
+const fileStore = useFileStore()
 
 // --- Config ---
 const cfg = computed(() => (configStore.UploadFiles?.[props.meta.documentType]) || {})
@@ -71,9 +71,9 @@ const imgUrl = (field) => {
   const targetKind = `${props.meta.documentType}_${field}`
   
   // ストアの配列から合致するデータを見つける
-  const matchedFile = (fileStore.files || []).find(file => file.file_kind === targetKind)
+  const matchedFile = (fileStore.files[props.meta.documentType] || []).find(file => file.file_kind === targetKind)
   
-  console.log("matchedFile ? matchedFile.thumbnailUrl==========", matchedFile ? matchedFile.thumbnailUrl: "")
+  //console.log("matchedFile ? matchedFile.thumbnailUrl==========", matchedFile ? matchedFile.thumbnailUrl: "")
   // 見つかればそのサムネイルURL、なければ個別で指定の値を返す
   return matchedFile ? matchedFile.thumbnailUrl : null
 }
@@ -83,9 +83,9 @@ const imguuid = (field) => {
   const targetKind = `${props.meta.documentType}_${field}`
   
   // ストアの配列から合致するデータを見つける
-  const matchedFile = (fileStore.files || []).find(file => file.file_kind === targetKind)
+  const matchedFile = (fileStore.files[props.meta.documentType] || []).find(file => file.file_kind === targetKind)
   
-  console.log("matchedFile ? matchedFile.thumbnailUrl==========", matchedFile ? matchedFile.thumbnailUrl: "")
+  //console.log("matchedFile ? matchedFile.thumbnailUrl==========", matchedFile ? matchedFile.thumbnailUrl: "")
   // 見つかればそのサムネイルURL、なければ個別で指定の値を返す
   return matchedFile ? matchedFile.file_uuid : null
 }
@@ -126,20 +126,36 @@ const filePayloadList = computed(() => {
       category: formattedCategory,
       owner_type: props.meta.ownerType,                         // "staff"
       owner_id:   formattedOwnerId,                        // "staff_11111"
-      file_kind:  `${props.meta.documentType}_${file.field}`     // "mynumber_card_front" 形式
+      file_kind:  `${props.meta.documentType}_${file.field}`,     // "mynumber_card_front" 形式
+      //document_type: props.meta.documentType,
     }
   })
 })
 // --- デバッグ・確認用 ---
  console.log("filePayloadList==================",JSON.stringify(filePayloadList.value, null, 2))
 
+ //デバッグ用
+watch(
+  () => filePayloadList,
+  (val) => {
+    console.log('filePayloadList changed', val)
+  },
+  { deep: true, immediate: true }
+)
+
 const loadFiles = async () => {
 
   try {
   // マイナンバーカードの表・裏をまとめて1回で取得する呼び出し例（サンプルデータ）
-  await fileStore.loadFiles(filePayloadList.value)
 
-    for (const file of fileStore.files) {
+    await fileStore.loadFiles(
+      {
+        document_type: props.meta.documentType,
+        filters: filePayloadList.value,
+      }
+    )
+
+    for (const file of fileStore.files[props.meta.documentType]) {
       if (file.mime_type?.startsWith('image/')) {
   
         const preview = await fileStore.getPreviewUrl(file.file_uuid, {
@@ -317,10 +333,13 @@ const saveAllImages = async () => {
     const deleteTargets = []
 
     for (const { fileConfig } of validComponents) {
-      // 現在ストアに保持されている最新ファイル群 (fileStore.files) から、
-      // 今回編集されたフィールド（例: 'front' や 'back'）に対応する既存の画像データを検索
-      // ※紐付け条件がfile_kindとfieldの結合（例: category_front）の場合は適宜調整してください
-      const existingFile = fileStore.files.find(
+      // 現在ストアに保持されている最新ファイル群 (fileStore.files[props.meta.documentType]) から、
+      // 今回編集されたフィールド（例: 'front' や 'back'）に対応する既存の画像データを検索      
+      //filestore.fileの構造変更に合わせて修正
+      const currentFiles =
+        fileStore.files?.[props.meta.documentType] || []
+      
+      const existingFile = currentFiles.find(
         f => f.file_kind === `${props.meta.documentType}_${fileConfig.field}`
       )
 
@@ -474,14 +493,14 @@ watch(
   { deep: true, immediate: true }
 )
 
-//デバッグ用
-watch(
-  () => uniqueStoreId.value,
-  (val) => {
-    console.log('uniqueStoreId changed', val)
-  },
-  { immediate: true }
-)
+// //デバッグ用
+// watch(
+//   () => uniqueStoreId.value,
+//   (val) => {
+//     console.log('uniqueStoreId changed', val)
+//   },
+//   { immediate: true }
+// )
 
 
 </script>

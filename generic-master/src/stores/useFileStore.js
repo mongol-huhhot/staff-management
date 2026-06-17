@@ -4,16 +4,27 @@ import { reactive, ref } from 'vue'
 import { showSnackbar } from '@/utils/SnackBar.vue'
 import { showLoading, hideLoading } from '@/utils/loadingService'
 
-// ★ 1. 直接 defineStore を export せず、動的IDを受け取れるラッパー関数にする
-export const useFileStore = (storeId = 'fileStore') => {
-  return defineStore(storeId, () => {
+export const useFileStore = defineStore('fileStore', () => {
+
     const DEFAULT_TID = 'premier'
   
     //サーバーから取得した「ファイル一覧のデータ」を格納しておくための、画面と連動する配列
-    const files = ref([])
+    const files = ref({})
+
+    // ========================================
+    // documentTypeごとのファイル一覧を管理
+    // ========================================
+    
+    const ownerId = ref(null)
+    
+    const filesByDocumentType = ref({})
+    
+    // 取得済み管理（任意）
+    const loadedDocumentTypes = ref(new Set())
+    
+    // ローディング管理（任意）
+    const loadingByDocumentType = ref({})
   
-    //現在選択されている単一のファイル情報を保持するための場所
-    const currentFile = ref(null)
   
     const commonConstants = reactive({
       FILE_API_URL: '/dataEngine/v5/file_api.php',
@@ -222,16 +233,16 @@ export const useFileStore = (storeId = 'fileStore') => {
         searchParams.category = params
       } 
       // 2. 配列（複数の検索条件セット）が渡された場合 【ここを追加！】
-      else if (Array.isArray(params)) {
+      else if (Array.isArray(params.filters)) {
         // PHP側が get_param('filters') で受け取れるように、JSON文字列に変換してセットする
-        searchParams.filters = JSON.stringify(params)
+        searchParams.filters = JSON.stringify(params.filters)
       } 
       // 3. 通常のオブジェクト（1つの検索条件セット）が渡された場合
       else {
-        if (params.category) searchParams.category = params.category
-        if (params.owner_type) searchParams.owner_type = params.owner_type
-        if (params.owner_id) searchParams.owner_id = params.owner_id
-        if (params.file_kind) searchParams.file_kind = params.file_kind
+        if (params.filters.category) searchParams.category = params.filters.category
+        if (params.filters.owner_type) searchParams.owner_type = params.filters.owner_type
+        if (params.filters.owner_id) searchParams.owner_id = params.filters.owner_id
+        if (params.filters.file_kind) searchParams.file_kind = params.filters.file_kind
       }
   
       // 共通のAPI通信処理（action: 'list' を指定してGETリクエスト）
@@ -244,7 +255,10 @@ export const useFileStore = (storeId = 'fileStore') => {
       })
   
       const result = unwrap(json)
-      files.value = Array.isArray(result) ? result : []
+
+     const documentType = params.document_type
+
+      files.value[documentType] = Array.isArray(result) ? result : []
   
       console.log("files.value=============", files.value)
   
@@ -360,10 +374,29 @@ export const useFileStore = (storeId = 'fileStore') => {
         return null
       }
     }
+
+    // ========================================
+    // スタッフ切替時初期化
+    // ========================================
+    
+    const initialize = (newOwnerId) => {
+    
+      ownerId.value = newOwnerId
+    
+      filesByDocumentType.value = {}
+    
+      loadedDocumentTypes.value = new Set()
+    
+      loadingByDocumentType.value = {}
+    
+    }
+
+    const clearFiles = () => {
+      files.value = {}
+    }
   
     return {
       files,
-      currentFile,
   
       commonConstants,
       commonParams,
@@ -380,10 +413,9 @@ export const useFileStore = (storeId = 'fileStore') => {
       downloadFile,
       softDeleteFile,
       deleteFile,
+      clearFiles,
     }
-  })
-}
-
+})
 /**
  * File Store
  * 
