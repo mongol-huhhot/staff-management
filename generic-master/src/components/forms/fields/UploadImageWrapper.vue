@@ -113,7 +113,8 @@ const makeFileParams = (field) => {
     category:   formattedCategory,                         // 例: "staff/profile"
     owner_type: props.meta.ownerType,                           // 例: "staff"
     owner_id:   formattedOwnerId,                          // 例: "staff_11111"
-    file_kind:  `${props.meta.documentType}_${field}`           // 例: "mynumber_card_front"
+    file_kind:  `${props.meta.documentType}_${field}`,           // 例: "mynumber_card_front"
+    record_id:   props.meta.recordId,
   }
 }
 
@@ -357,7 +358,7 @@ const saveAllImages = async () => {
       // 今回編集されたフィールド（例: 'front' や 'back'）に対応する既存の画像データを検索      
       //filestore.fileの構造変更に合わせて修正
       const currentFiles =
-        fileStore.files?.[props.meta.documentType] || []
+        fileStore.files?.[fileKey.value] || []
       
       const existingFile = currentFiles.find(
         f => f.file_kind === `${props.meta.documentType}_${fileConfig.field}`

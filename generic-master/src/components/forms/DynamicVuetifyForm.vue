@@ -19,6 +19,8 @@ const props = defineProps({
 
 const staffCode = computed(() =>props.staffCode)
 
+const recordId = computed(() => props.modelValue?.record_id)
+
 console.log("DynamicVuetifyForm.vue.props===========",props)
 
 const emit = defineEmits(['update:modelValue', 'submit', 'saved'])
@@ -83,24 +85,10 @@ function updateField(field, value) {
   })
 }
 
-// 送信処理
-// async function submit() {
-//   if (!props.sqltags?.save) {
-//     emit('submit', formData.value)
-//     return
-//   }
-//   saving.value = true
-//   try {
-//     const params = buildSaveParams(formData.value, props.tabConfig, props.commonParams)
-//     const result = await dataStore.saveData(props.sqltags.save, params)
-//     emit('saved', result)
-//     emit('submit', formData.value)
-//   } catch (error) {
-//     console.error('DynamicVuetifyForm submit error:', error)
-//   } finally {
-//     saving.value = false
-//   }
-// }
+//送信処理
+async function submit() {
+  emit('submit', formData.value)
+}
 </script>
 
 <template>
@@ -131,6 +119,7 @@ function updateField(field, value) {
           :rules="buildRules(field)"
           @update:model-value="value => updateField(field, value)"
           :staffCode="staffCode"
+          :recordId="recordId"
         />
       </v-col>
     </v-row>

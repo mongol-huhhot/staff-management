@@ -26,20 +26,28 @@ const props = defineProps({
     type: String,
     default: 'staff'
   },
+  recordId: {
+    type: String,
+    default: ''
+  }
 })
 
 const staffCode = computed(() => props.staffCode)
 const categoryCode = computed(() => props.categoryCode)
 const documentType = computed(() => props.documentType)
 const ownerType = computed(() => props.ownerType)
+const recordId = computed(() => props.recordId)
 
 // metaオブジェクト生成
 const meta = computed(() => ({
   categoryCode: categoryCode.value,
   documentType: documentType.value,
   ownerType: ownerType.value,
-  ownerId: staffCode.value
+  ownerId: staffCode.value,
+  recordId: recordId.value
 }))
+
+console.log("imageuploader.props=====",meta)
 
 </script>
 

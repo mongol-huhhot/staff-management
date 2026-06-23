@@ -84,6 +84,7 @@ window.appConfig.UploadFiles = {
         returnType: 'blob', // 'base64' or 'blob'
         direction: 'row', // 'row' or 'column'
         files :[ // you can define many files to be uloaded
+            { field: 'cover', headerName: '通帳表紙'},
             { field: 'front', headerName: '通帳見開き'},
         ]
     },

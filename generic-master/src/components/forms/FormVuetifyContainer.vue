@@ -6,6 +6,7 @@ import DynamicVuetifyForm from '@/components/forms/DynamicVuetifyForm.vue'
 import RepeatableFormWrapper from '@/components/forms/RepeatableFormWrapper.vue'
 import { parseJsonbFields, parseAndFlattenJsonbFields } from '@/composables/utilFactory'
 import { useFileStore } from '@/stores/useFileStore'
+import { buildSaveParams } from '@/composables/formParamBuilder'
 
 
 const dataStore = useDataStore()
@@ -68,13 +69,28 @@ async function handleFormSubmit(tabCode, submittedData) {
   if (!row?.staff_code) return
 
   const tabConfig = tabSqlTags.value[tabCode]
+
+  const commonParams = {
+    updated_by: 'admin'
+  }
+
+  const saveSqlTag = tabConfig?.sqltags?.save
   if (!tabConfig) {
     console.error('tabConfig not found:', tabCode)
     return
   }
-
+  
   const data = submittedData ?? formData.value[tabCode]
-  const ok = await dataStore.saveStaffTab(tabCode, data, tabConfig)
+
+  const params = buildSaveParams(
+  data,
+  tabConfig,
+  commonParams
+)
+
+  
+  //console.log("data==============",data)
+  const ok = await dataStore.saveData(saveSqlTag, params)
 
   if (ok) {
     const cat = getCategoryByTab(tabCode)
@@ -395,6 +411,7 @@ async function confirmDelete() {
                 :label="tab.category_name"
                 :children="getItemsByTab(tab.sub_category_code)"
                 :add-button-text="`${tab.category_name}追加`"
+                :staff-code="dataStore.states.currentRow?.staff_code"
                 @submit="data => handleFormSubmit(tab.sub_category_code, data)"
               />
 
