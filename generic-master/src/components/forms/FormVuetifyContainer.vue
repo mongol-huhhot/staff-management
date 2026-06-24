@@ -383,7 +383,7 @@ async function confirmDelete() {
           :key="tab.sub_category_code"
           :value="tab.sub_category_code"
         >
-          {{ tab.category_name }}
+          {{ tab.remarks }}
         </v-tab>
       </v-tabs>
 
@@ -401,14 +401,14 @@ async function confirmDelete() {
 
           <v-card variant="outlined">
             <v-card-title class="text-subtitle-1">
-              {{ tab.category_name }}
+              {{ tab.remarks }}
             </v-card-title>
 
             <v-card-text>
               <RepeatableFormWrapper
                 v-if="tab.data_structure === 'repeatable'"
                 v-model="formData[tab.sub_category_code]"
-                :label="tab.category_name"
+                :label="tab.remarks"
                 :children="getItemsByTab(tab.sub_category_code)"
                 :add-button-text="`${tab.category_name}追加`"
                 :staff-code="dataStore.states.currentRow?.staff_code"
