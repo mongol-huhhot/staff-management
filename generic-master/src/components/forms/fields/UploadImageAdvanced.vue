@@ -293,17 +293,20 @@ const confirmDelete = () => {
 }
 const cancelDelete = () => { showDeleteConfirm.value = false }
 
-watch(() => props.src, (newSrc) => {
-  if (newSrc) {
-    image.value = newSrc
-    committedSrc.value = newSrc
-    imageUploaded.value = true
-    // クロップ中の画面を開いていなければ、表示フラグを調整
-    if (!croppedImage.value) {
-      visible.value = false 
-    }
-  }
-}, { immediate: true })
+watch(
+    () => props.src,
+    (newSrc) => {
+
+        image.value = newSrc || null
+        committedSrc.value = newSrc || null
+        croppedImage.value = null
+
+        imageUploaded.value = !!newSrc
+        visible.value = false
+
+    },
+    { immediate:true }
+)
 
 /* expose for parent if needed */
 defineExpose({ getCropped, resetCropper, deleteImage, cancelUpload, croppedImage, src: image })
@@ -422,8 +425,8 @@ defineExpose({ getCropped, resetCropper, deleteImage, cancelUpload, croppedImage
       <div v-if="labelPosition === 'bottom'" class="preview-label">{{ label }}</div>
       
       <div class="controls mt-3">
-        <!-- <button class="btn btn-danger" type="button" @click="resetCropper">✖ リセット</button> -->
-        <v-btn class="btn btn-outline-danger" type="button" prepend-icon="mdi-delete" @click="requestDelete">削除</v-btn>
+        <v-btn v-if="croppedImage" class="btn btn-danger" type="button" prepend-icon="mdi-restore" color="warning" @click="resetCropper">リセット</v-btn>
+        <v-btn v-else class="btn btn-outline-danger" type="button" prepend-icon="mdi-delete" color="error" @click="requestDelete">削除</v-btn>
       </div>
     </div>
 

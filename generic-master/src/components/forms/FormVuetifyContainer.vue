@@ -13,8 +13,7 @@ const dataStore = useDataStore()
 const configStore = useAppConfigStore()
 const fileStore = useFileStore()
 
-// --- 追加: フォームのref管理 ---
-const formRefs = ref({});
+const formRef = ref()
 
 configStore.loadFromWindow()
 
@@ -68,10 +67,18 @@ async function handleFormSubmit(tabCode, submittedData) {
   const row = dataStore.states.currentRow
   if (!row?.staff_code) return
 
+  const valid = await formRef.value.validate()
+
+  if (!valid) {
+    return
+  }
+
   const tabConfig = tabSqlTags.value[tabCode]
 
   const commonParams = {
-    updated_by: 'admin'
+    updated_by: 'admin',
+    staff_id:row.staff_id,
+    staff_code:row.staff_code
   }
 
   const saveSqlTag = tabConfig?.sqltags?.save
@@ -90,6 +97,7 @@ async function handleFormSubmit(tabCode, submittedData) {
 
   
   //console.log("data==============",data)
+  console.log("commonParams==============",commonParams)
   const ok = await dataStore.saveData(saveSqlTag, params)
 
   if (ok) {
@@ -418,8 +426,10 @@ async function confirmDelete() {
               <DynamicVuetifyForm
                 v-else
                 v-model="formData[tab.sub_category_code]"
+                ref="formRef"
                 :fields="getItemsByTab(tab.sub_category_code)"
                 :staff-code="dataStore.states.currentRow?.staff_code"
+                :is-repeatable="false"
                 @submit="data => handleFormSubmit(tab.sub_category_code, data)"
               />
                 

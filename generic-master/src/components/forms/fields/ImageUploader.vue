@@ -29,7 +29,8 @@ const props = defineProps({
   recordId: {
     type: String,
     default: ''
-  }
+  },
+  isRepeatable: { type: Boolean, default: false },
 })
 
 const staffCode = computed(() => props.staffCode)
@@ -38,14 +39,30 @@ const documentType = computed(() => props.documentType)
 const ownerType = computed(() => props.ownerType)
 const recordId = computed(() => props.recordId)
 
-// metaオブジェクト生成
-const meta = computed(() => ({
-  categoryCode: categoryCode.value,
-  documentType: documentType.value,
-  ownerType: ownerType.value,
-  ownerId: staffCode.value,
-  recordId: recordId.value
-}))
+const meta = computed(() => {
+  const meta = {
+    categoryCode: categoryCode.value,
+    documentType: documentType.value,
+    ownerType: ownerType.value,
+    ownerId: staffCode.value,
+  }
+
+  if (props.isRepeatable && props.recordId) {
+    meta.recordId = recordId.value
+  }
+
+  return meta
+})
+
+const canLoad = computed(() => {
+  // single画像は常にロード可能
+  if (!props.isRepeatable) {
+    return true
+  }
+
+  // repeatableはrecord_id必須
+  return !!props.recordId
+})
 
 console.log("imageuploader.props=====",meta)
 
@@ -61,8 +78,21 @@ console.log("imageuploader.props=====",meta)
        }"
     /> -->
 
-    <UploadImageWrapper
+    <!-- <UploadImageWrapper
        
        :meta="meta"
-    />
+    /> -->
+
+    <div
+    v-if="props.isRepeatable && !canLoad"
+    class="text-medium-emphasis pa-4 text-center"
+  >
+    この銀行口座情報を保存すると画像を登録できます
+  </div>
+
+  <UploadImageWrapper
+    v-else
+    :meta="meta"
+  />
+
 </template>

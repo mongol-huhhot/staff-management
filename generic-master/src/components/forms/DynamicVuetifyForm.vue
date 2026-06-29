@@ -13,6 +13,7 @@ const props = defineProps({
   tabConfig: { type: Object, default: () => ({}) },
   commonParams: { type: Object, default: () => ({}) },
   staffCode: { type: String, default: '' },
+  isRepeatable: { type: Boolean, default: false },
 })
 
 const staffCode = computed(() =>props.staffCode)
@@ -24,6 +25,18 @@ console.log("DynamicVuetifyForm.vue.props===========",props)
 const emit = defineEmits(['update:modelValue', 'submit', 'saved'])
 //const dataStore = useDataStore()
 const saving = ref(false)
+
+const formRef = ref()
+
+const validate = async () => {
+  const result = await formRef.value.validate()
+
+  return result.valid
+}
+
+defineExpose({
+  validate
+})
 
 const formData = computed({
   get: () => props.modelValue,
@@ -102,7 +115,7 @@ async function submit() {
 </script>
 
 <template>
-  <v-form @submit.prevent="submit">
+  <v-form @submit.prevent="submit" ref="formRef">
     <v-row dense>
       <v-col
         v-for="field in normalFields"
@@ -129,7 +142,6 @@ async function submit() {
           :rules="buildRules(field)"
           @update:model-value="value => updateField(field, value)"
           :staffCode="staffCode"
-          :recordId="recordId"
         />
       </v-col>
     </v-row>
@@ -175,6 +187,7 @@ async function submit() {
           @update:model-value="value => updateField(field, value)"
           :staffCode="staffCode"
           :recordId="recordId"
+           :is-repeatable="isRepeatable"
         />
       </v-card-text>
     </v-card>

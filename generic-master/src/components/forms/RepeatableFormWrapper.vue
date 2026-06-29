@@ -25,6 +25,7 @@
           v-model="modelValue[index]"
           :fields="children"
           :staffCode="staffCode"
+          :is-repeatable="true"
           @submit="data => emit('submit', data)"
         />
       </v-card-text>

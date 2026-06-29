@@ -24,13 +24,6 @@ const props = defineProps({
     })
   },
   
-  // // その他の画質・サイズ等の設定値は個別で維持
-  // swapSizeInLandscape: { type: Boolean, default: true },
-  // compressRatio:       { type: Number, default: 1 },    // 0.1 ~ 1
-  // jpegQuality:         { type: Number, default: 0.9 },  // 0.1 ~ 1
-  // outputFormat:        { type: String, default: 'image/jpeg' },
-  // maxWidth:            { type: Number, default: 0 },    // 0 = ignore
-  // maxHeight:           { type: Number, default: 0 },    // 0 = ignore
 })
 
 console.log("UploadImageWrapper.props================",props)
@@ -141,7 +134,7 @@ const filePayloadList = computed(() => {
   })
 })
 // --- デバッグ・確認用 ---
- console.log("filePayloadList==================",JSON.stringify(filePayloadList.value, null, 2))
+ //console.log("filePayloadList==================",JSON.stringify(filePayloadList.value, null, 2))
 
  //デバッグ用
 watch(
@@ -167,12 +160,6 @@ const loadFiles = async () => {
     )
 
 
-    // const fileKey = props.meta.recordId
-    //   ? `${props.meta.documentType}#${props.meta.recordId}`
-    //   : props.meta.documentType
-
-    //   console.log("loadfiles.filekey=======",fileKey)
-    
     for (const file of fileStore.files[fileKey.value] || []) {
 
     //for (const file of fileStore.files[props.meta.documentType]) {
@@ -347,53 +334,6 @@ const saveAllImages = async () => {
       return
     }
 
-    //以下２，３版の処理はコンポーネントのリセットボタンを消したことで実質使わないため
-    //コメントアウト
-    // -------------------------------------------------------------
-    // 【新規追加】2. 編集前の元画像（古い画像）を特定し、一括で物理削除
-    // -------------------------------------------------------------
-    // console.log('🧹 編集された枠の古い元画像を特定しています...')
-    // const deleteTargets = []
-
-    // for (const { fileConfig } of validComponents) {
-    //   // 現在ストアに保持されている最新ファイル群 (fileStore.files[props.meta.documentType]) から、
-    //   // 今回編集されたフィールド（例: 'front' や 'back'）に対応する既存の画像データを検索      
-    //   //filestore.fileの構造変更に合わせて修正
-    //   const currentFiles =
-    //     fileStore.files?.[fileKey.value] || []
-      
-    //   const existingFile = currentFiles.find(
-    //     f => f.file_kind === `${props.meta.documentType}_${fileConfig.field}`
-    //   )
-
-    //   if (existingFile && existingFile.file_uuid) {
-    //     deleteTargets.push({
-    //       uuid: existingFile.file_uuid,
-    //       field: existingFile.file_kind
-    //     })
-    //   }
-    // }
-
-    // // 古い画像が存在する場合のみ削除フェーズを実行
-    // if (deleteTargets.length > 0) {
-    //   console.log(`🗑️ ${deleteTargets.length} 件の古い元画像を物理削除します...`)
-      
-    //   for (const target of deleteTargets) {
-    //     // deleteFileのローディングが全体と衝突しないよう options で伝播UIを制御
-    //     const isDeleted = await fileStore.deleteFile(target.uuid, { 
-    //       loading: true, 
-    //       loadingText: `${target.field} の古い画像を削除中...`,
-    //       showSuccessMessage: false // 一括処理なので個別の「成功しました」トーストは消す
-    //     })
-
-    //     // トランザクション制御：1件でも削除に失敗したら、新しい画像のアップロードに進まずエラー中断する
-    //     if (!isDeleted) {
-    //       throw new Error(`${target.field} の古い画像の削除に失敗したため、処理を中断しました。`)
-    //     }
-    //   }
-    //   console.log('✅ すべての古い元画像の削除が完了しました。')
-    // }
-
     // -------------------------------------------------------------
     // 3. 各新しい画像をループ処理で順番にアップロード（後半戦）
     // -------------------------------------------------------------
@@ -546,55 +486,10 @@ watch(
   }
 )
 
-// //デバッグ用
-// watch(
-//   () => uniqueStoreId.value,
-//   (val) => {
-//     console.log('uniqueStoreId changed', val)
-//   },
-//   { immediate: true }
-// )
-
 
 </script>
 
 <template>
-  <!-- <v-card
-  variant="outlined"
-  class="mb-4"
->
-  <v-card-text>
-
-    <v-btn-toggle
-      v-model="desktopMode"
-      mandatory
-      color="primary"
-    >
-      <v-btn
-        value="portrait"
-        prepend-icon="mdi-cellphone"
-      >
-        Portrait
-      </v-btn>
-
-      <v-btn
-        value="landscape"
-        prepend-icon="mdi-monitor"
-      >
-        Landscape
-      </v-btn>
-    </v-btn-toggle>
-
-    <v-chip
-      class="ml-3"
-      :color="swapSizeInLandscape ? 'success' : 'default'"
-    >
-      Size swap:
-      {{ swapSizeInLandscape ? 'ON' : 'OFF' }}
-    </v-chip>
-
-  </v-card-text>
-</v-card> -->
 
 <v-row>
   <v-col
@@ -625,7 +520,7 @@ watch(
   </v-col>
 </v-row>
 
-<div class="d-flex flex-column align-center ga-4 mt-6">
+<!-- <div class="d-flex flex-column align-center ga-4 mt-6">
 
   <v-btn
     color="primary"
@@ -646,5 +541,28 @@ watch(
     {{ saveResult.message }}
   </v-alert>
 
+</div> -->
+
+
+<v-alert
+  v-if="saveResult"
+  :type="saveResult.type"
+  variant="tonal"
+  class="mt-4"
+>
+  {{ saveResult.message }}
+</v-alert>
+
+<div class="d-flex justify-end mt-6">
+  <v-btn
+    color="primary"
+    size="large"
+    prepend-icon="mdi-content-save"
+    :loading="saving"
+    @click="saveAllImages"
+  >
+    画像を保存
+  </v-btn>
 </div>
+
 </template>
