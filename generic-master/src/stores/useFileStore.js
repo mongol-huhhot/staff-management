@@ -230,6 +230,7 @@ export const useFileStore = defineStore('fileStore', () => {
     }
   
     const loadFiles = async (params = {}, options = {}) => {
+      console.log("prams================",params)
     try {
       const searchParams = {}
   
