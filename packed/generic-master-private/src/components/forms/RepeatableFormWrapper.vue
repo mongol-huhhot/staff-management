@@ -37,6 +37,7 @@
         <DynamicVuetifyForm
           v-model="modelValue[index]"
           :fields="children"
+          :is-repeatable="true"
           :show-submit="false"
           :sqltags="props.sqltags"
           :tab-config="props.tabConfig"

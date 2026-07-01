@@ -224,6 +224,7 @@ function parseTabRows(tabCode, rows = []) {
 // activeになったタブだけスタッフデータをロードする
 const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
   const row = currentStaffRow.value
+  console.log("loadactivetabdata.row==========",row)
   const staffKey = getStaffKey(row)
 
   if (!staffKey || !tabCode || !category.value?.length) return
@@ -243,7 +244,7 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
         tabSqlTags.value[tabCode]?.sqltag ||
         'staffs.get_staff_data',
       category_code: tabCode,
-      staff_code: row?.staff_code || "11111",
+      staff_code: row?.staff_code || null,
       staff_id: row?.staff_id || null,
     }
   }
@@ -289,6 +290,7 @@ watch(
 
     if (newVal && activeName.value) {
       await loadActiveTabData(activeName.value, { force: true })
+      console.log("dataStore.states.currentRow")
     }
   },
   { immediate: true }
@@ -300,6 +302,7 @@ watch(
     if (newTab) {
       ensureTabFormData(newTab)
       await loadActiveTabData(newTab)
+      console.log("activeName")
     }
   }
 )
@@ -317,6 +320,7 @@ watch(
     }
 
     await loadActiveTabData(activeName.value)
+    console.log("category")
   }
 )
 

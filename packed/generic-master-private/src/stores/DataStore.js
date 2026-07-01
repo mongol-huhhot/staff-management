@@ -12,7 +12,7 @@ export const useDataStore = defineStore("dataStore", () => {
         get_user_register: 'users.get_user_register',
         get_item_category: 'masters.get_item_category',
         get_item_dictionary: 'masters.get_item_dictionary',
-        get_staff_profile: 'staffs.get_staff_profile',
+        get_staff_profile: 'staffs.get_current_staff_info',
     }
 
     const states = reactive({
@@ -26,7 +26,7 @@ export const useDataStore = defineStore("dataStore", () => {
         'get_user_register': [],        
         'get_item_category': [],
         'get_item_dictionary': [],
-        'get_staff_profile': [],
+        'get_current_staff_info': [],
     })
 
     const params = reactive({
