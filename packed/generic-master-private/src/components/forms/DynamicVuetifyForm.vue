@@ -98,6 +98,11 @@ function updateField(field, value) {
 
 // 送信処理
 async function submit() {
+  const result = await formRef.value.validate()
+  console.log("validate",result)
+  if (!result.valid) {
+    return
+  }
     emit('submit', formData.value)
 }
 </script>

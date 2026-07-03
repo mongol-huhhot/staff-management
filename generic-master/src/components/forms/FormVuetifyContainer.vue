@@ -67,11 +67,11 @@ async function handleFormSubmit(tabCode, submittedData) {
   const row = dataStore.states.currentRow
   if (!row?.staff_code) return
 
-  const valid = await formRef.value.validate()
+  // const valid = await formRef.value.validate()
 
-  if (!valid) {
-    return
-  }
+  // if (!valid) {
+  //   return
+  // }
 
   const tabConfig = tabSqlTags.value[tabCode]
 

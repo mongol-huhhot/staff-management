@@ -28,16 +28,6 @@ const saving = ref(false)
 
 const formRef = ref()
 
-const validate = async () => {
-  const result = await formRef.value.validate()
-
-  return result.valid
-}
-
-defineExpose({
-  validate
-})
-
 const formData = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value),
@@ -110,6 +100,11 @@ function updateField(field, value) {
 
 //送信処理
 async function submit() {
+  const result = await formRef.value.validate()
+  console.log("validate",result)
+  if (!result.valid) {
+    return
+  }
   emit('submit', formData.value)
 }
 </script>
@@ -183,7 +178,6 @@ async function submit() {
           :items="field.items || field.props?.items || []"
           :item-title="field.props?.itemTitle || field.props?.['item-title'] || 'label'"
           :item-value="field.props?.itemValue || field.props?.['item-value'] || 'value'"
-          :rules="buildRules(field)"
           @update:model-value="value => updateField(field, value)"
           :staffCode="staffCode"
           :recordId="recordId"

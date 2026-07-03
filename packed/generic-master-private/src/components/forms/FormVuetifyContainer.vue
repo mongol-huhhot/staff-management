@@ -74,12 +74,6 @@ async function handleFormSubmit(tabCode, submittedData) {
   const row = dataStore.states.currentRow
   if (!row?.staff_code) return
 
-  const valid = await formRef.value.validate()
-
-  if (!valid) {
-    return
-  }
-
   const tabConfig = tabSqlTags.value[tabCode]
 
   const commonParams = {
@@ -103,7 +97,7 @@ async function handleFormSubmit(tabCode, submittedData) {
   )
 
   
-  //console.log("data==============",data)
+  console.log("data==============",data)
   console.log("commonParams==============",commonParams)
   const ok = await dataStore.saveData(saveSqlTag, params)
 
@@ -196,7 +190,7 @@ function getStaffName(row) {
 }
 
 const currentStaffRow = computed(() => {
-  return dataStore.params?.attributes || dataStore.states?.currentRow || {}
+  return dataStore.params?.attributes || dataStore.states?.staff_code || {}
 })
 
 const commonParams = computed(() => {
@@ -224,7 +218,7 @@ function parseTabRows(tabCode, rows = []) {
 // activeになったタブだけスタッフデータをロードする
 const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
   const row = currentStaffRow.value
-  console.log("loadactivetabdata.row==========",row)
+  console.log("loadactivetabdata.row==========",row.staff_code)
   const staffKey = getStaffKey(row)
 
   if (!staffKey || !tabCode || !category.value?.length) return
@@ -290,7 +284,7 @@ watch(
 
     if (newVal && activeName.value) {
       await loadActiveTabData(activeName.value, { force: true })
-      console.log("dataStore.states.currentRow")
+      console.log("watch dataStore.states.currentRow")
     }
   },
   { immediate: true }
@@ -302,7 +296,7 @@ watch(
     if (newTab) {
       ensureTabFormData(newTab)
       await loadActiveTabData(newTab)
-      console.log("activeName")
+      console.log("watch activeName",newTab)
     }
   }
 )
@@ -320,7 +314,7 @@ watch(
     }
 
     await loadActiveTabData(activeName.value)
-    console.log("category")
+    console.log("watch category")
   }
 )
 
@@ -381,6 +375,8 @@ watch(
                 :sqltags="tabSqlTags[tab.sub_category_code]?.sqltags"
                 :tab-config="tabSqlTags[tab.sub_category_code] || {}"
                 :common-params="commonParams"
+                :staff-code="dataStore.params.attributes?.staff_code"
+                @submit="data => handleFormSubmit(tab.sub_category_code, data)"
               />
 
               <DynamicVuetifyForm
@@ -391,6 +387,9 @@ watch(
                 :sqltags="tabSqlTags[tab.sub_category_code]?.sqltags"
                 :tab-config="tabSqlTags[tab.sub_category_code] || {}"
                 :common-params="commonParams"
+                :staff-code="dataStore.params.attributes?.staff_code"
+                :is-repeatable="false"
+                @submit="data => handleFormSubmit(tab.sub_category_code, data)"
               />
             </v-card-text>
           </v-card>

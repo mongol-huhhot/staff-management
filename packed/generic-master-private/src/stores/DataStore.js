@@ -13,6 +13,7 @@ export const useDataStore = defineStore("dataStore", () => {
         get_item_category: 'masters.get_item_category',
         get_item_dictionary: 'masters.get_item_dictionary',
         get_staff_profile: 'staffs.get_current_staff_info',
+        get_user_staff: 'users.get_user_staff',
     }
 
     const states = reactive({
@@ -70,6 +71,10 @@ export const useDataStore = defineStore("dataStore", () => {
         return await runLoad(CONST_DEF.get_staff_profile, p,  'staffs.get_staff_profile')
     }
 
+    const get_user_staff = async (p = {}) => {
+        return await runLoad(CONST_DEF.get_user_staff, p )
+    }
+
     async function rowCliked(v) {
         states.currentRow = v?.data || null
     }
@@ -96,6 +101,7 @@ export const useDataStore = defineStore("dataStore", () => {
     }
 
     const login = async (p = {}) =>  await baseStore.login('authenticate.login', p)
+    const testUserStaff = async (p = {}) =>  await baseStore.testuserstaff('testuserstaff', p)
     const logout = async (p = {}) =>  await baseStore.logout(p)
     const verify = async (p = {}) =>  await baseStore.verify(p)
     const multiQuery = async (blocks = {}, options = {}) => baseStore.multiQuery(blocks, options)
@@ -130,6 +136,7 @@ export const useDataStore = defineStore("dataStore", () => {
         get_item_dictionary,
         get_user_register,
         get_staff_profile,
+        get_user_staff,
         login,
         logout,
         verify, 

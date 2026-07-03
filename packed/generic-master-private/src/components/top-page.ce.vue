@@ -6,7 +6,7 @@ import '@mdi/font/css/materialdesignicons.css'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 
-import { watch } from 'vue'
+import { watch, ref } from 'vue'
 import FormVuetifyContainer from '@/components/forms/FormVuetifyContainer.vue'
 import { useDataStore } from '@/stores/DataStore'
 
@@ -23,6 +23,7 @@ const props = defineProps({
 })
 
 const dataStore = useDataStore()
+const initialized = ref(false)
 
 watch(
   () => props.j,
@@ -44,6 +45,17 @@ watch(
     dataStore.params.attributes = p
 
     const result = await login();
+
+    console.log("dataStore?.params?.attributes?.user_id",dataStore?.params?.attributes?.user_id)
+
+    const sc = await dataStore.get_user_staff({
+        userid: dataStore.params.attributes.user_id
+    })
+
+    const staff_code = sc[0].staff_code;
+
+    dataStore.params.attributes.staff_code = staff_code
+    if(staff_code) initialized.value = true
   },
   {
     deep: true,
@@ -67,7 +79,8 @@ async function login() {
 <template>
   <v-locale-provider locale="ja">
     <div v-if="props.j">
-      <FormVuetifyContainer />
+      <FormVuetifyContainer 
+      v-if="initialized"/>
     </div>
 
     <div v-else>

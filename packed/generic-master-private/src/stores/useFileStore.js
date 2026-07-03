@@ -199,7 +199,11 @@ export const useFileStore = defineStore('fileStore', () => {
           owner_type: params.owner_type || 'common',
           owner_id: params.owner_id || 'none',
           file_kind: params.file_kind || 'default',
-          record_id: params.record_id || 'none',
+          //record_id: params.record_id || 'null',
+        }
+
+        if (params.record_id != null) {
+          uploadParams.record_id = params.record_id
         }
 
         console.log('upload params=', uploadParams)

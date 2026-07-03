@@ -3,7 +3,7 @@
   <div>
     <v-card
       v-for="(item, index) in modelValue"
-      :key="item.__uuid || index"
+      :key="item.__uuid || item.staff_bank_account_id || index"
       class="mb-4"
       variant="outlined"
     >
