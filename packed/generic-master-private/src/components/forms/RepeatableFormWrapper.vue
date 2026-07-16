@@ -3,13 +3,23 @@
   <div>
     <div class="d-flex justify-end mb-3">
       <v-btn
-        color="success"
-        variant="outlined"
+        color="primary"
+        class="me-2"
         :loading="saving"
-        :disabled="!modelValue?.length || !props.sqltags?.save"
-        @click="saveAll"
+        :disabled="!modelValue?.length || !props.sqltags?.save || controls?.draftSave?.disabled"
+        v-show="controls?.draftSave?.show"
+        @click="submit('draft')"
       >
-        一括保存
+        下書き保存
+      </v-btn>
+      <v-btn
+        color="primary"
+        :loading="saving"
+        :disabled="!modelValue?.length || !props.sqltags?.save || controls?.submit?.disabled"
+        v-show="controls?.submit?.show"
+        @click="submit('submitted')"
+      >
+        登録・変更申請
       </v-btn>
     </div>
 
@@ -36,6 +46,7 @@
       <v-card-text>
         <DynamicVuetifyForm
           v-model="modelValue[index]"
+          :ref="el => formRefs[index] = el"
           :fields="children"
           :is-repeatable="true"
           :show-submit="false"
@@ -57,7 +68,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref,watch,computed } from 'vue'
 import DynamicVuetifyForm from './DynamicVuetifyForm.vue'
 import { useDataStore } from '@/stores/DataStore'
 import { buildLoopParams } from '@/composables/formParamBuilder'
@@ -92,6 +103,8 @@ const emit = defineEmits(['update:modelValue', 'saved', 'deleted'])
 const dataStore = useDataStore()
 const saving = ref(false)
 const deletingIndex = ref(null)
+const formRefs = ref([])
+const controls = computed(() =>props.controls)
 
 function add() {
   emit('update:modelValue', [
@@ -103,30 +116,46 @@ function add() {
   ])
 }
 
-async function saveAll() {
-  if (!props.sqltags?.save) return
+// 送信処理
+async function submit(request_status) {
 
-  saving.value = true
-
-  try {
-    const params = buildLoopParams(
-      props.modelValue,
-      props.tabConfig,
-      props.commonParams,
-    )
-
-    const result = await dataStore.saveData(
-      props.sqltags.save,
-      params,
-    )
-
-    emit('saved', result)
-  } catch (error) {
-    console.error('RepeatableFormWrapper saveAll error:', error)
-  } finally {
-    saving.value = false
+  for (const form of formRefs.value) {
+    //console.log("repetable validate start",form)
+    const result = await form.validate()
+      if (!result) {
+        console.log("repetable validate is false")
+          return 
+      }
+      console.log("repetable validate is true")
   }
+  
+    emit('submit',request_status)
 }
+
+// async function saveAll() {
+//   if (!props.sqltags?.save) return
+
+//   saving.value = true
+
+//   try {
+//     const params = buildLoopParams(
+//       props.modelValue,
+//       props.tabConfig,
+//       props.commonParams,
+//     )
+
+//     const result = await dataStore.saveData(
+//       props.sqltags.save,
+//       params,
+//     )
+
+//     emit('saved', result)
+//   } catch (error) {
+//     console.error('RepeatableFormWrapper saveAll error:', error)
+//   } finally {
+//     saving.value = false
+//   }
+// }
 
 async function remove(index, item) {
   if (!confirm('このデータを削除しますか？')) return
@@ -160,4 +189,16 @@ async function remove(index, item) {
   copied.splice(index, 1)
   emit('update:modelValue', copied)
 }
+
+// watch(
+//   formRefs,
+//   (newformRefs) => {
+//     console.log("formdata watch",newformRefs)
+//     console.log("formdata watch",newformRefs[0])
+//     console.log("formdata watch",newformRefs[0].validate)
+//   },
+//   {
+//     deep: true
+//   }
+// )
 </script>

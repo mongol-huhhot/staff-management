@@ -23,7 +23,6 @@ const props = defineProps({
 })
 
 const dataStore = useDataStore()
-const initialized = ref(false)
 
 watch(
   () => props.j,
@@ -46,20 +45,21 @@ watch(
 
     const result = await login();
 
-    console.log("dataStore?.params?.attributes?.user_id",dataStore?.params?.attributes?.user_id)
+    //userと紐付けられたstaffを取得する処理を記述したが実際に使うわけではないのでコメントアウト
+    // console.log("dataStore?.params?.attributes?.user_id",dataStore?.params?.attributes?.user_id)
 
-    const sc = await dataStore.get_user_staff({
-        userid: dataStore.params.attributes.user_id
-    })
+    // const sc = await dataStore.get_user_staff({
+    //     userid: dataStore.params.attributes.user_id
+    // })
 
-    console.log("result get_user_staff=====",sc )
+    // console.log("result get_user_staff=====",sc )
 
-    const staff_code = sc[0].staff_code;
-    const staff_id = sc[0].staff_id;
+    // const staff_code = sc[0].staff_code;
+    // const staff_id = sc[0].staff_id;
 
-    dataStore.params.attributes.staff_code = staff_code
-    dataStore.params.attributes.staff_id = staff_id
-    if(staff_id) initialized.value = true
+    // dataStore.params.attributes.staff_code = staff_code
+    // dataStore.params.attributes.staff_id = staff_id
+    // if(staff_id) initialized.value = true
     
   },
   {
@@ -83,8 +83,10 @@ async function login() {
 
 <template>
   <v-locale-provider locale="ja">
-    <div v-if="props.j && initialized">
+    <div v-if="props.j">
       <FormVuetifyContainer 
+      ApplicationType="basic"
+      
       />
     </div>
 

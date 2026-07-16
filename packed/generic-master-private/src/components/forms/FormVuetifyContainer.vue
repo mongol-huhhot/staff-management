@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted,watchEffect } from 'vue'
 import { useDataStore } from '@/stores/DataStore'
 import { useAppConfigStore } from '@/stores/AppConfigStore'
 import DynamicVuetifyForm from '@/components/forms/DynamicVuetifyForm.vue'
@@ -26,12 +26,54 @@ const loadedTabs = ref({})
 const loadingTabs = ref({})
 
 const tabSqlTags = computed(() => configStore.MAIN_CONFIG?.tab2sqltag_list || {})
+const controls = computed(() => {
+  return (
+    configStore.buttonRules?.[
+      currentStaffRequest.value.request_status
+    ] ?? {}
+  )
+})
+
+const currentStaffRow = computed(() => ({
+  ...dataStore.params.attributes
+}))
+
+const currentStaffRequest = computed(() => ({
+  ...dataStore.states.currentRow[0]
+}))
+
+const commonParams = computed(() => {
+  const row = currentStaffRow.value || {}
+
+  return {
+    staff_id: row.staff_id || null,
+    staff_code: row.staff_code || row.user_id || null,
+    user_id: row.user_id || null,
+  }
+})
+
+watchEffect(() => {
+  console.log("status", currentStaffRequest.value?.request_status)
+  console.log("controls", controls.value)
+})
+
+
+
+const props = defineProps({
+  ApplicationType: {
+    type:String,
+    default: ()=>'staffs',
+  }
+})
+
+const application_type = computed(() => props.ApplicationType || '')
 
 onMounted(async () => {
   const multiQueryResult = await dataStore.dbAccessWithMultiTags({
     category: {
       SQLTAG: 'masters.get_item_category',
       category_code: 'staffs',
+      sub_category_code: application_type.value,
       enabled: 'active',
     },
     dictionary: {
@@ -71,7 +113,7 @@ const editMode = computed(() => {
 })
 
 async function handleFormSubmit(tabCode, submittedData) {
-  const row = dataStore.states.currentRow
+  const row = dataStore.params.attributes
   if (!row?.staff_code) return
 
   const tabConfig = tabSqlTags.value[tabCode]
@@ -79,7 +121,10 @@ async function handleFormSubmit(tabCode, submittedData) {
   const commonParams = {
     updated_by: 'admin',
     staff_id:row.staff_id,
-    staff_code:row.staff_code
+    staff_code:row.staff_code,
+    user_id:row.user_id,
+    data_type: tabCode,
+    request_status:submittedData
   }
 
   const saveSqlTag = tabConfig?.sqltags?.save
@@ -88,7 +133,8 @@ async function handleFormSubmit(tabCode, submittedData) {
     return
   }
 
-  const data = submittedData ?? formData.value[tabCode]
+  const data = formData.value[tabCode]
+  // const data = submittedData ?? formData.value[tabCode]
 
   const params = buildSaveParams(
     data,
@@ -99,6 +145,7 @@ async function handleFormSubmit(tabCode, submittedData) {
   
   console.log("data==============",data)
   console.log("commonParams==============",commonParams)
+  console.log("params==============",params)
   const ok = await dataStore.saveData(saveSqlTag, params)
 
   if (ok) {
@@ -189,19 +236,7 @@ function getStaffName(row) {
   return row?.staff_name || row?.user_name || null
 }
 
-const currentStaffRow = computed(() => ({
-  ...dataStore.params.attributes
-}))
 
-const commonParams = computed(() => {
-  const row = currentStaffRow.value || {}
-
-  return {
-    staff_id: row.staff_id || null,
-    staff_code: row.staff_code || row.user_id || null,
-    user_id: row.user_id || null,
-  }
-})
 
 // function parseTabRows(tabCode, rows = []) {
 //   const jsonbFields = tabSqlTags.value[tabCode]?.jsonb_fields || []
@@ -230,14 +265,22 @@ function parseTabRows(tabCode, rows = []) {
 
 // activeになったタブだけスタッフデータをロードする
 const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
+  console.log("start loadActiveTabData")
   const row = currentStaffRow.value
-  console.log(row)
-console.log(row.staff_code)
-console.log(Object.keys(row))
-  console.log("loadactivetabdata.row==========",row)
+//   console.log(row)
+// console.log(row.staff_code)
+// console.log(Object.keys(row))
+//   console.log("loadactivetabdata.row==========",row)
   const staffKey = getStaffKey(row)
+  console.log("before staffkey_check loadActiveTabData")
+
+  console.log("111111111 staffKey",staffKey)
+  console.log("111111111 tabCode",tabCode)
+  console.log("111111111 category.value?.length",category.value?.length)
 
   if (!staffKey || !tabCode || !category.value?.length) return
+
+console.log("after staffkey_check loadActiveTabData")
 
   ensureTabFormData(tabCode)
 
@@ -275,6 +318,9 @@ console.log(Object.keys(row))
 
   const rows = multiQueryResult.data?.[tabCode] || []
   console.log("rows========",rows)
+  
+  dataStore.states.currentRow = rows
+  
   const parsedData = parseTabRows(tabCode, rows)
   console.log("parsedData========",parsedData)
 
@@ -292,22 +338,23 @@ console.log(Object.keys(row))
   console.log(`Loaded tab data: ${tabCode}`, formData.value[tabCode])
 }
 
-watch(
-  () => dataStore.states.currentRow,
-  async (newVal) => {
-    formData.value = {}
-    loadedTabs.value = {}
-    loadingTabs.value = {}
+//管理者用スタッフ情報管理で使用しているコードで使用していないためコメントアウト
+// watch(
+//   () => dataStore.states.currentRow,
+//   async (newVal) => {
+//     formData.value = {}
+//     loadedTabs.value = {}
+//     loadingTabs.value = {}
 
-    initializeAllTabContainers()
+//     initializeAllTabContainers()
 
-    if (newVal && activeName.value) {
-      await loadActiveTabData(activeName.value, { force: true })
-      console.log("watch dataStore.states.currentRow")
-    }
-  },
-  { immediate: true }
-)
+//     if (newVal && activeName.value) {
+//       await loadActiveTabData(activeName.value, { force: true })
+//       console.log("watch dataStore.states.currentRow")
+//     }
+//   },
+//   { immediate: true }
+// )
 
 watch(
   activeName,
@@ -323,19 +370,35 @@ watch(
 watch(
   category,
   async (newCategory) => {
+    console.log("1 watch category")
     if (!newCategory?.length) return
 
     initializeAllTabContainers()
 
+    console.log("2 watch category",activeName.value)
+
     if (!activeName.value) {
       activeName.value = newCategory[0]?.sub_category_code || ''
+      console.log("2.5 watch category",activeName.value)
       return
     }
 
     await loadActiveTabData(activeName.value)
-    console.log("watch category")
+    console.log("3 watch category")
   }
 )
+
+watch(
+  formData,
+  (newVal) => {
+    console.log("formdata watch",JSON.stringify(newVal))
+  },
+  {
+    deep: true
+  }
+)
+
+ const tab = computed(()=>tabItems.value[0])
 
 </script>
 
@@ -348,12 +411,19 @@ watch(
           {{ getStaffName(currentStaffRow) }}様
         </span>
       </div>
+      <v-chip
+          color="primary"
+          variant="flat"
+          class="ml-2"
+        >
+          申請ステータス：{{ currentStaffRequest?.request_status }}
+        </v-chip>
     </v-card-title>
 
     <v-divider />
 
     <v-card-text class="pa-2">
-      <v-tabs
+      <!-- <v-tabs
         v-model="activeName"
         density="compact"
         color="primary"
@@ -372,27 +442,28 @@ watch(
           v-for="tab in tabItems"
           :key="tab.sub_category_code"
           :value="tab.sub_category_code"
-        >
+        > -->
           <v-progress-linear
-            v-if="loadingTabs[tab.sub_category_code]"
+        v-if="loadingTabs[tab?.sub_category_code]"
             indeterminate
             class="mb-3"
           />
 
           <v-card variant="outlined">
             <v-card-title class="text-subtitle-1">
-              {{ tab.remarks }} 
+          {{ tab?.remarks }}
             </v-card-title>
 
             <v-card-text>
               <RepeatableFormWrapper
-                v-if="tab.data_structure === 'repeatable'"
-                v-model="formData[tab.sub_category_code]"
-                :label="tab.remarks"
-                :children="getItemsByTab(tab.sub_category_code)"
-                :add-button-text="`${tab.category_name}追加`"
-                :sqltags="tabSqlTags[tab.sub_category_code]?.sqltags"
-                :tab-config="tabSqlTags[tab.sub_category_code] || {}"
+                v-if="tab?.data_structure === 'repeatable'"
+                v-model="formData[tab?.sub_category_code]"
+                :label="tab?.remarks"
+                :children="getItemsByTab(tab?.sub_category_code)"
+                :controls="controls"
+                :add-button-text="`${tab?.category_name}追加`"
+                :sqltags="tabSqlTags[tab?.sub_category_code]?.sqltags"
+                :tab-config="tabSqlTags[tab?.sub_category_code] || {}"
                 :common-params="commonParams"
                 :staff-code="dataStore.params.attributes?.staff_code"
                 @submit="data => handleFormSubmit(tab.sub_category_code, data)"
@@ -400,11 +471,12 @@ watch(
 
               <DynamicVuetifyForm
                 v-else
-                v-model="formData[tab.sub_category_code]"
+                v-model="formData[tab?.sub_category_code]"
                 ref="formRef"
-                :fields="getItemsByTab(tab.sub_category_code)"
-                :sqltags="tabSqlTags[tab.sub_category_code]?.sqltags"
-                :tab-config="tabSqlTags[tab.sub_category_code] || {}"
+                :controls="controls"
+                :fields="getItemsByTab(tab?.sub_category_code)"
+                :sqltags="tabSqlTags[tab?.sub_category_code]?.sqltags"
+                :tab-config="tabSqlTags[tab?.sub_category_code] || {}"
                 :common-params="commonParams"
                 :staff-code="dataStore.params.attributes?.staff_code"
                 :is-repeatable="false"
@@ -412,8 +484,8 @@ watch(
               />
             </v-card-text>
           </v-card>
-        </v-window-item>
-      </v-window>
+        <!-- </v-window-item>
+      </v-window> -->
     </v-card-text>
   </v-card>
 </template>

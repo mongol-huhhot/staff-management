@@ -39,7 +39,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_profile',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: true,
-      sqltags:{ select:'get_staff_personal_request', save:'staffs.upsert_staff_profile', delete:'staffs.delete_staff_profile' },
+      sqltags:{ select:'get_staff_personal_request', save:'save_staff_request_info', delete:'staffs.delete_staff_profile' },
       separate_items: ['id', 'staff_id', 'data_type', 'valid_from', 'valid_to', 'source_request_id', 'created_at', 'created_by', 'updated_at', 'updated_by' ],// jsonb以外の普通カラム
     },
     address: {
@@ -47,7 +47,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_address',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: true,
-      sqltags:{ select:'get_staff_personal_request', save:'', delete:'' },
+      sqltags:{ select:'get_staff_personal_request', save:'save_staff_request_info', delete:'' },
       separate_items: ['id', 'staff_id', 'data_type', 'valid_from', 'valid_to', 'source_request_id', 'created_at', 'created_by', 'updated_at', 'updated_by' ],// jsonb以外の普通カラム
     },
     contact: {
@@ -58,26 +58,78 @@ window.appConfig.MAIN_CONFIG = {
       sqltags:{ select:'get_staff_personal_request', save:'', delete:'' },
       separate_items: ['id', 'staff_id', 'data_type', 'valid_from', 'valid_to', 'source_request_id', 'created_at', 'created_by', 'updated_at', 'updated_by' ],// jsonb以外の普通カラム
     },
-    bank: {
-      label: '銀行情報',
-      data_key: 'staff_bank',
+    mynumber: {
+      label: 'マイナンバー情報',
+      data_key: 'staff_mynumber',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      sqltags:{ select:'get_staff_personal_request', save:'masters.upsert_staff_bank', delete:'masters.delete_staff_bank'}, // jsonb以外の普通カラム
-      separate_items: ['id', 'staff_id', 'data_type', 'valid_from', 'valid_to', 'source_request_id', 'created_at', 'created_by', 'updated_at', 'updated_by' ],// jsonb以外の普通カラム
+      skip_reload: true,
+      sqltags:{ select:'', save:'', delete:'' },
+      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
     },
-
+    users: {
+      label: 'ログインユーザー情報',
+      data_key: 'staff_users',
+      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      skip_reload: true,
+      sqltags:{ select:'', save:'', delete:'' },
+      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
+    },
     traffic: {
       label: '通勤情報',
       data_key: 'staff_traffic',
       jsonb_fields: ['traffic_info'],
       sqltags:{ select:'staffs.get_staff_traffic', save:'staffs.upsert_staff_traffic', delete:'staffs.delete_staff_traffic' },
     },
-
+    bank: {
+      label: '銀行情報',
+      data_key: 'staff_bank',
+      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      sqltags:{ select:'get_staff_personal_request', save:'save_staff_request_info', delete:'masters.delete_staff_bank'}, // jsonb以外の普通カラム
+      separate_items: ['id', 'staff_id', 'data_type', 'valid_from', 'valid_to', 'source_request_id', 'created_at', 'created_by', 'updated_at', 'updated_by' ],// jsonb以外の普通カラム
+    },
     education: {
       label: '資格情報',
       data_key: 'staff_education',
       jsonb_fields: ['education_info'],
       sqltags:{ select:'masters.get_staff_education', save:'masters.upsert_staff_education', delete:'masters.delete_staff_education' },
+    },
+    dependents: {
+      label: '扶養情報',
+      data_key: 'staff_dependents',
+      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      skip_reload: true,
+      sqltags:{ select:'', save:'', delete:'' },
+      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
+    },
+    contract: {
+      label: '雇用契約情報',
+      data_key: 'staff_contract',
+      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      skip_reload: true,
+      sqltags:{ select:'', save:'', delete:'' },
+      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
+    },
+    insurance: {
+      label: '保険情報',
+      data_key: 'staff_insurance',
+      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      skip_reload: true,
+      sqltags:{ select:'', save:'', delete:'' },
+      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
+    },
+    work_history: {
+      label: '職歴情報',
+      data_key: 'staff_work_history',
+      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      skip_reload: true,
+      sqltags:{ select:'', save:'', delete:'' },
+      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
+    },
+    certification: {
+      label: '資格情報',
+      data_key: 'staff_certification',
+      jsonb_fields: ['certification_info'],
+      sqltags:{ select:'masters.get_staff_certification', save:'masters.upsert_staff_certification', delete:'masters.delete_staff_certification' },
     },
   },
 };
@@ -152,5 +204,41 @@ window.appConfig.UploadFiles = {
             { field: 'front', headerName: '銀行カード'},
         ]
     },
+};
+window.appConfig.buttonRules = {
+  draft: {
+    draftSave:      { show: true,  disabled: false },
+    delete:         { show: true,  disabled: false },
+    newRequest:     { show: false, disabled: true  },
+    submit:         { show: true,  disabled: false },
+  },
+
+  submitted: {
+    draftSave:      { show: true,  disabled: true },
+    delete:         { show: true,  disabled: true },
+    newRequest:     { show: false, disabled: true },
+    submit:         { show: true,  disabled: true },
+  },
+
+  returned: {
+    draftSave:      { show: true,  disabled: false },
+    delete:         { show: true,  disabled: false },
+    newRequest:     { show: false, disabled: true },
+    submit:         { show: true,  disabled: false },
+  },
+
+  approved: {
+    draftSave:      { show: false, disabled: true },
+    delete:         { show: false, disabled: true },
+    newRequest:     { show: true,  disabled: false },
+    submit:         { show: false, disabled: true },
+  },
+
+  rejected: {
+    draftSave:      { show: false, disabled: true },
+    delete:         { show: false, disabled: true },
+    newRequest:     { show: true,  disabled: false },
+    submit:         { show: false, disabled: true },
+  },
 };
 
