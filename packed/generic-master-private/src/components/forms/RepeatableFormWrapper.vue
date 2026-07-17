@@ -96,6 +96,10 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  controls: {
+    type: Object, 
+    default: null 
+  },
 })
 
 const emit = defineEmits(['update:modelValue', 'saved', 'deleted'])
@@ -105,6 +109,8 @@ const saving = ref(false)
 const deletingIndex = ref(null)
 const formRefs = ref([])
 const controls = computed(() =>props.controls)
+
+console.log("repeatable.props",props)
 
 function add() {
   emit('update:modelValue', [

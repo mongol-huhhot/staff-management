@@ -33,6 +33,13 @@ const controls = computed(() => {
     ] ?? {}
   )
 })
+const chipcontrols = computed(() => {
+  return (
+    configStore.requestStatusConfig?.[
+      currentStaffRequest.value.request_status
+    ] ?? {}
+  )
+})
 
 const currentStaffRow = computed(() => ({
   ...dataStore.params.attributes
@@ -150,7 +157,7 @@ async function handleFormSubmit(tabCode, submittedData) {
 
   if (ok) {
     const cat = getCategoryByTab(tabCode)
-    alert(`${cat?.category_name ?? tabCode}を保存しました`)
+    alert(`${cat?.remarks ?? tabCode}を保存しました`)
 
     if (!tabConfig.skip_reload) {
       await loadActiveTabData(tabCode, { force: true })
@@ -412,11 +419,12 @@ watch(
         </span>
       </div>
       <v-chip
-          color="primary"
+          :color="chipcontrols?.color"
           variant="flat"
           class="ml-2"
+          :prepend-icon="chipcontrols?.icon"
         >
-          申請ステータス：{{ currentStaffRequest?.request_status }}
+          {{ chipcontrols?.title }}
         </v-chip>
     </v-card-title>
 

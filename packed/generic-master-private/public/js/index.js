@@ -38,25 +38,31 @@ window.appConfig.MAIN_CONFIG = {
       label: '基本情報',
       data_key: 'staff_profile',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      skip_reload: true,
+      skip_reload: false,
       sqltags:{ select:'get_staff_personal_request', save:'save_staff_request_info', delete:'staffs.delete_staff_profile' },
-      separate_items: ['id', 'staff_id', 'data_type', 'valid_from', 'valid_to', 'source_request_id', 'created_at', 'created_by', 'updated_at', 'updated_by' ],// jsonb以外の普通カラム
+      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
+                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
+                       'request_status', 'request_comment', 'approval_comment'],// jsonb以外の普通カラム
     },
     address: {
       label: '住所情報',
       data_key: 'staff_address',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      skip_reload: true,
+      skip_reload: false,
       sqltags:{ select:'get_staff_personal_request', save:'save_staff_request_info', delete:'' },
-      separate_items: ['id', 'staff_id', 'data_type', 'valid_from', 'valid_to', 'source_request_id', 'created_at', 'created_by', 'updated_at', 'updated_by' ],// jsonb以外の普通カラム
+      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
+                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
+                       'request_status', 'request_comment', 'approval_comment'],// jsonb以外の普通カラム
     },
     contact: {
       label: '連絡先情報',
       data_key: 'staff_contact',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      skip_reload: true,
-      sqltags:{ select:'get_staff_personal_request', save:'', delete:'' },
-      separate_items: ['id', 'staff_id', 'data_type', 'valid_from', 'valid_to', 'source_request_id', 'created_at', 'created_by', 'updated_at', 'updated_by' ],// jsonb以外の普通カラム
+      skip_reload: false,
+      sqltags:{ select:'get_staff_personal_request', save:'save_staff_request_info', delete:'' },
+      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
+                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
+                       'request_status', 'request_comment', 'approval_comment'],// jsonb以外の普通カラム
     },
     mynumber: {
       label: 'マイナンバー情報',
@@ -241,4 +247,50 @@ window.appConfig.buttonRules = {
     submit:         { show: false, disabled: true },
   },
 };
+window.appConfig.requestStatusConfig = {
+  draft: {
+    title: "下書き",
+    color: "grey",
+    icon: "mdi-file-document-edit-outline",
+    variant: "flat",
+    textColor: "white",
+    description: "編集・下書き保存が可能です"
+  },
+
+  submitted: {
+    title: "申請中",
+    color: "primary",
+    icon: "mdi-send",
+    variant: "flat",
+    textColor: "white",
+    description: "承認待ちです"
+  },
+
+  returned: {
+    title: "差戻し",
+    color: "warning",
+    icon: "mdi-arrow-u-left-top",
+    variant: "flat",
+    textColor: "white",
+    description: "修正して再申請してください"
+  },
+
+  approved: {
+    title: "承認済み",
+    color: "success",
+    icon: "mdi-check-circle",
+    variant: "flat",
+    textColor: "white",
+    description: "正式データとして登録されています"
+  },
+
+  rejected: {
+    title: "却下",
+    color: "error",
+    icon: "mdi-close-circle",
+    variant: "flat",
+    textColor: "white",
+    description: "申請は却下されました"
+  }
+}
 
