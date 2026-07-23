@@ -18,9 +18,32 @@ const selectedRowData = ref({
   // 'password': '',
   'is_active': true,
   content: {}
-})
+})+
 
 const dataStore = useDataStore()
+
+
+const isLocalDev = () => {
+  return window.location.hostname === 'localhost' ||
+         window.location.hostname === '127.0.0.1'
+}
+
+
+async function checkLogin() {
+    // ログインチェック
+    if ( isLocalDev() ) {
+      const result = await devLogin()
+      console.log('Dev login result:', result)
+      loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
+    } else {
+      const verified = await dataStore.verify({
+        loading: false,
+      })
+      loginReady.value = !!verified
+    }
+
+    return loginReady.value
+}
 
 // ログイン完了までDashboardを描画しない
 const loginReady = ref(false)
@@ -30,31 +53,31 @@ const loginReady = ref(false)
 // 本番環境では、ユーザー登録は別の方法で行うことを想定している
 // ここでは、デモ用のユーザー登録を行う
 // <%user%>と<%password%>は、実際のユーザー名とパスワードに置き換える必要がある
-async function login() {
-  // 既に有効なトークンがあればそのまま利用
-  if (await dataStore.verify()) return true
+// async function login() {
+//   // 既に有効なトークンがあればそのまま利用
+//   if (await dataStore.verify()) return true
 
-  if (import.meta.env.VITE_APP_MODE !== 'development') {
-    console.warn('有効なトークンがありません。ホスト側でログインしてください。')
-    return false
-  }
-  // select * from user_schema.check_user(<%user%>, <%password%>)
-  const ret = await dataStore.login(
-    {
-      user: 'its@janga.co.jp',
-      password: 'janga1',
-    },
-    {
-      persist: true,
-      loading: true,
-    }
-  )
+//   if (import.meta.env.VITE_APP_MODE !== 'development') {
+//     console.warn('有効なトークンがありません。ホスト側でログインしてください。')
+//     return false
+//   }
+//   // select * from user_schema.check_user(<%user%>, <%password%>)
+//   const ret = await dataStore.login(
+//     {
+//       user: 'its@janga.co.jp',
+//       password: 'janga1',
+//     },
+//     {
+//       persist: true,
+//       loading: true,
+//     }
+//   )
 
-  return !!ret?.token
-}
+//   return !!ret?.token
+// }
 
 onBeforeMount(async () => {
-  loginReady.value = await login()
+  loginReady.value = await checkLogin()
 })
 
 // <%user%>, <%password%>
