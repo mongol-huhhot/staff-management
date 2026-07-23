@@ -2,11 +2,13 @@ window.appConfig = window.appConfig || {};
 window.appConfig.DASHBOARD_CONFIG = {
     staff_code: '11018',
     debug_mode: true,
+    // 処理待ちバッジに数える申請ステータス（例: ['submitted'] や ['submitted', 'returned']）
+    pending_statuses: ['submitted'],
     todos: [
-        { type: '雇用契約管理', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'employment_contract', condition: {'is_approaching_expiration': true}, url: '/employment-contracts' },
-        { type: '休暇承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'leave_approval', condition: {'is_pending': true}, url: '/leave-approvals' },
-        { type: '残業・早出承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'overtime_approval', condition: {'is_pending': true}, url: '/overtime-approvals' },
-        { type: '振休承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'compensatory_leave_approval', condition: {'is_pending': true}, url: '/compensatory-leave-approvals' },
+        // { type: '雇用契約管理', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'employment_contract', condition: {'is_approaching_expiration': true}, url: '/employment-contracts' },
+        // { type: '休暇承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'leave_approval', condition: {'is_pending': true}, url: '/leave-approvals' },
+        // { type: '残業・早出承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'overtime_approval', condition: {'is_pending': true}, url: '/overtime-approvals' },
+        // { type: '振休承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'compensatory_leave_approval', condition: {'is_pending': true}, url: '/compensatory-leave-approvals' },
     //     // { type: 'リアルタイム打刻情報', text: 'ホーム画面追加のお知らせ', color: 'indigo', sql_tag: 'real_time_clocking', condition: {'has_updates': true}, url: '/real-time-clocking' },
     //     // { type: 'シフト管理', text: 'ホーム画面追加のお知らせ', color: 'blue', sql_tag: 'shift_management', condition: {'has_conflicts': true}, url: '/shift-management' },
     ],

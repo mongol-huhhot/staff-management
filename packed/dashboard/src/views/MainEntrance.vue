@@ -20,30 +20,41 @@ const selectedRowData = ref({
   content: {}
 })
 
+const dataStore = useDataStore()
+
+// ログイン完了までDashboardを描画しない
+const loginReady = ref(false)
+
 // ユーザー登録のためのログイン処理
 // ローカルホストでのみ実行されるようにしている
 // 本番環境では、ユーザー登録は別の方法で行うことを想定している
 // ここでは、デモ用のユーザー登録を行う
 // <%user%>と<%password%>は、実際のユーザー名とパスワードに置き換える必要がある
 async function login() {
-  // if (location.href.indexOf('localhost') > 0) {
-    const baseStore = useDataStore()
-    const sqltag = 'login'
-    const params = {'user': 'maruyama', password:'janga1'}
-    const ret = await baseStore.login(sqltag, params)
+  // 既に有効なトークンがあればそのまま利用
+  if (await dataStore.verify()) return true
 
-  if (ret && ret.status === 'success') {
-      localStorage.setItem('token', ret.data.token);
-      return true
+  if (import.meta.env.VITE_APP_MODE !== 'development') {
+    console.warn('有効なトークンがありません。ホスト側でログインしてください。')
+    return false
   }
+  // select * from user_schema.check_user(<%user%>, <%password%>)
+  const ret = await dataStore.login(
+    {
+      user: 'its@janga.co.jp',
+      password: 'janga1',
+    },
+    {
+      persist: true,
+      loading: true,
+    }
+  )
 
-  return false
+  return !!ret?.token
 }
 
 onBeforeMount(async () => {
-  if(! await login() ) return
-  // const params = {'user': 'demo3@janga.co.jp', password:'demo3'}
-  // await store.loadStaffList({draft_status: store.status})
+  loginReady.value = await login()
 })
 
 // <%user%>, <%password%>
@@ -116,6 +127,6 @@ const logo = {
 <template>
   <v-container fluid class="pa-0 ma-0 fill-height" style="width: 100vw;">
     <!-- <UserAuth /> -->
-    <Dashboard />
+    <Dashboard v-if="loginReady" />
   </v-container>
 </template>

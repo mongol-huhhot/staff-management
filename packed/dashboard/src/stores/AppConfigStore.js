@@ -1,7 +1,7 @@
 // stores/appConfig.js
 import { defineStore } from 'pinia'
 /***
- * a structured global confit store.
+ * a structured global config store.
  * in some case, we can load config from db.
  */
 export const useAppConfigStore = defineStore('appConfig', {
