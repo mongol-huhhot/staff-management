@@ -113,7 +113,7 @@ function handleMenuSelect(menu) {
                 @confirm="handleTodoConfirm"
                 @toggle-mode="toggleMode"
               />
-sqltags            </pane>
+            </pane>
 
             <!-- 中央 pane 通知・お知らせ -->
             <pane size="30" min-size="20">
