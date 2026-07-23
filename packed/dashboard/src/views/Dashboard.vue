@@ -1,17 +1,16 @@
 <script setup>
-import { ref, computed, } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import { useAppConfigStore } from '@/stores/AppConfigStore'
+import { useDataStore } from '@/stores/DataStore'
+import TodoPane from '@/components/dashboard/TodoPane.vue'
+import NoticePane from '@/components/dashboard/NoticePane.vue'
+import MenuPane from '@/components/dashboard/MenuPane.vue'
 
 const appConfigStore = useAppConfigStore()
+const dataStore = useDataStore()
 appConfigStore.loadFromWindow()
-
-console.log("ffff===-", appConfigStore.DASHBOARD_CONFIG)
-
-const leftTab = ref('todo')
-const centerTab = ref('notice')
-const rightTab = ref('all')
 
 const horizontal_vertical = ref('horizontal') // 'horizontal' or 'vertical'
 
@@ -19,23 +18,65 @@ const toggleMode = () => {
     horizontal_vertical.value = horizontal_vertical.value === 'horizontal' ? 'vertical' : 'horizontal'
 }
 
-const todos = computed(() => appConfigStore?.DASHBOARD_CONFIG?.todos )
-const notices = computed(() => appConfigStore?.DASHBOARD_CONFIG?.notices )
-const menus = computed(() => appConfigStore?.DASHBOARD_CONFIG?.menus )
 
-watch(
-    () => appConfigStore.DASHBOARD_CONFIG,
-    ( newConfig ) => {
-        // console.log('Dashboard config updated:', newConfig)
-        if( !newConfig ) return
+const todos = ref(appConfigStore?.DASHBOARD_CONFIG?.todos || [])
 
-        
+// 未処理として数える申請ステータス。DASHBOARD_CONFIG.pending_statuses で導入先毎に変更できる
+const DEFAULT_PENDING_STATUSES = ['submitted']
 
-        // Update the dashboard config in the store
-    },
-    { deep: true, immediate: true }
-)
+function pendingStatuses() {
+    const configured = appConfigStore?.DASHBOARD_CONFIG?.pending_statuses
+    if (Array.isArray(configured) && configured.length) return configured.join(',')
+    if (typeof configured === 'string' && configured) return configured
+    return DEFAULT_PENDING_STATUSES.join(',')
+}
+const notices = computed(() => appConfigStore?.DASHBOARD_CONFIG?.notices || [])
+const menus = computed(() => appConfigStore?.DASHBOARD_CONFIG?.menus || [])
 
+onMounted(async () => {
+    await loadTodos()
+})
+
+async function loadTodos() {
+    // get_staff_personal_request_counts_by_category は staff_id を渡さない場合、全スタッフ分を集計する
+    const result = await dataStore.dbAccessWithMultiTags({
+        request_counts: {
+            SQLTAG: 'get_staff_personal_request_counts_by_category',
+            category_code: 'staffs',
+            request_statuses: pendingStatuses(),
+            staff_id: null,
+        },
+    })
+
+    if (result.code !== 0) {
+        console.error('Failed to load todos:', result.message)
+        return
+    }
+
+    const rows = result.data?.request_counts || []
+    if (!rows.length) return
+
+    todos.value = rows.map(cat => ({
+        type: cat.remarks || cat.sub_category_name || cat.sub_category_code,
+        text: cat.category_name,
+        color: 'red',
+        category_code: cat.category_code,
+        sub_category_code: cat.sub_category_code,
+        data_structure: cat.data_structure,
+        ui_component: cat.ui_component,
+        count: Number(cat.count) || 0,
+    }))
+}
+
+// 処理待ちの「確認」ボタン。今後 category_code/sub_category_code による画面遷移をここに実装する
+function handleTodoConfirm(item) {
+    console.log('todo confirm:', item)
+}
+
+// メニュー選択。今後 menu.url への遷移をここに実装する
+function handleMenuSelect(menu) {
+    console.log('menu select:', menu)
+}
 </script>
 
 <template>
@@ -50,146 +91,24 @@ watch(
       <v-main>
         <div class="dashboard">
           <splitpanes class="default-theme main-split" :horizontal="horizontal_vertical !== 'horizontal'">
-            <!-- 左 pane -->
+            <!-- 左 pane 処理待ち -->
             <pane size="36" min-size="20">
-              <v-card class="pane-card" flat>
-                <v-tabs v-model="leftTab" density="compact" color="light-blue">
-                  <v-tab value="todo">
-                    処理待ち
-                    <v-badge content="3" color="red" inline />
-                  </v-tab>
-                  <!-- <v-tab value="done">已办</v-tab> -->
-                  
-                  <v-spacer />
-
-                  <v-tooltip>
-                    <template #activator="{ props }">
-                      <v-btn icon variant="text" color="light-blue" @click="toggleMode" v-bind="props">
-                        <v-icon>{{ horizontal_vertical === 'horizontal' ? 'mdi-arrow-expand-horizontal' : 'mdi-arrow-expand-vertical' }}</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>縦横切替え</span>
-                  </v-tooltip>
-                </v-tabs>
-
-                <v-window v-model="leftTab">
-                  <v-window-item value="todo">
-                    <v-list density="compact">
-                      <v-list-item
-                        v-for="(item, index) in todos"
-                        :key="index"
-                        class="todo-item"
-                      >
-                        <template #title>
-                          <span :class="`text-${item.color}`">
-                            [{{ item.type }}]
-                          </span>
-                        </template>
-
-                        <template #subtitle>
-                          {{ item.text }}
-                        </template>
-
-                        <template #append>
-                          <v-badge content="3" color="red" inline />
-                          <v-btn
-                            size="small"
-                            rounded
-                            variant="tonal"
-                            color="light-blue"
-                          >
-                            確認
-                          </v-btn>
-                        </template>
-                      </v-list-item>
-                    </v-list>
-                  </v-window-item>
-
-                  <v-window-item value="done">
-                    <div class="empty-box">処理済みデータはありません</div>
-                  </v-window-item>
-                </v-window>
-              </v-card>
+              <TodoPane
+                :todos="todos"
+                :horizontal="horizontal_vertical === 'horizontal'"
+                @confirm="handleTodoConfirm"
+                @toggle-mode="toggleMode"
+              />
             </pane>
 
-            <!-- 中央 pane -->
+            <!-- 中央 pane 通知・お知らせ -->
             <pane size="30" min-size="20">
-              <v-card class="pane-card" flat>
-                <v-tabs v-model="centerTab" density="compact" color="light-blue">
-                  <v-tab value="notice">
-                    通知
-                    <v-badge content="2" color="red" inline />
-                  </v-tab>
-                  <v-tab value="news">お知らせ</v-tab>
-
-                  <v-spacer />
-
-                  <v-btn icon variant="text" color="light-blue">
-                    <v-icon>mdi-plus</v-icon>
-                  </v-btn>
-                </v-tabs>
-
-                <v-window v-model="centerTab">
-                  <v-window-item value="notice">
-                    <v-list density="compact">
-                      <v-list-item
-                        v-for="(notice, index) in notices"
-                        :key="index"
-                        class="notice-item"
-                      >
-                        <template #prepend>
-                          <v-icon color="grey">mdi-bell-outline</v-icon>
-                        </template>
-
-                        <v-list-item-title class="notice-text">
-                          {{ notice }}
-                        </v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-window-item>
-
-                  <v-window-item value="news">
-                    <div class="empty-box">お知らせはありません</div>
-                  </v-window-item>
-                </v-window>
-              </v-card>
+              <NoticePane :notices="notices" />
             </pane>
 
-            <!-- 右 pane -->
+            <!-- 右 pane 全部（メニュー） -->
             <pane size="34" min-size="22">
-              <v-card class="pane-card" flat>
-                <v-tabs v-model="rightTab" density="compact" color="light-blue">
-                  <v-tab value="all">全部</v-tab>
-                </v-tabs>
-
-                <v-window v-model="rightTab">
-                  <v-window-item value="all">
-                    <v-container fluid>
-                      <v-row dense>
-                        <v-col
-                          v-for="(menu, index) in menus"
-                          :key="index"
-                          cols="12"
-                          sm="6"
-                          md="4"
-                        >
-                          <v-card class="menu-card" variant="elevated">
-                            <v-avatar color="blue-lighten-4" size="40">
-                              <v-icon color="primary">
-                                {{ menu.icon }}
-                              </v-icon>
-                            </v-avatar>
-
-                            <div class="menu-title">
-                              {{ menu.title }}
-                            </div>
-                          </v-card>
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-window-item>
-                </v-window>
-              </v-card>
+              <MenuPane :menus="menus" @select="handleMenuSelect" />
             </pane>
           </splitpanes>
         </div>
@@ -207,44 +126,6 @@ watch(
 
 .main-split {
   height: 100%;
-}
-
-.pane-card {
-  height: 100%;
-  overflow: hidden;
-  border: 1px solid #e0e0e0;
-}
-
-.todo-item,
-.notice-item {
-  border-bottom: 1px solid #eeeeee;
-  min-height: 66px;
-}
-
-.notice-text {
-  white-space: normal;
-  line-height: 1.5;
-}
-
-.menu-card {
-  height: 118px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  border-radius: 6px;
-}
-
-.menu-title {
-  font-size: 14px;
-  color: #333;
-}
-
-.empty-box {
-  padding: 40px;
-  color: #999;
-  text-align: center;
 }
 
 /* splitpanes の境界線 */
