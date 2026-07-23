@@ -20,7 +20,7 @@ const props = defineProps({
 
 const staffCode = computed(() =>props.staffCode)
 
-const recordId = computed(() => props.modelValue?.record_id)
+const recordId = computed(() => props.modelValue?.id)
 
 const controls = computed(() =>props.controls?.[formData.value?.request_status ?? 'tmp'] ?? {})
 const chipcontrols = computed(() =>props.chipcontrols?.[formData.value?.request_status ?? 'tmp'] ?? {})

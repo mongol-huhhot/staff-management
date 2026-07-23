@@ -39,7 +39,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_profile',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: false,
-      sqltags:{ select:'get_staff_personal_request', save:'upsert_staff_request_info',insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'staffs.delete_staff_profile' },
+      sqltags:{ select:'get_staff_personal_request',insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
                        'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
@@ -49,7 +49,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_address',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: false,
-      sqltags:{ select:'get_staff_personal_request', save:'upsert_staff_request_info',insert:'insert_staff_request_info',update:'update_staff_request_info',  delete:'' },
+      sqltags:{ select:'get_staff_personal_request',insert:'insert_staff_request_info',update:'update_staff_request_info',  delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
                        'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
@@ -59,21 +59,21 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_contact',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: false,
-      sqltags:{ select:'get_staff_personal_request', save:'upsert_staff_request_info', insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
+      sqltags:{ select:'get_staff_personal_request', insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
                        'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
     },
     mynumber: {
-      label: 'マイナンバー情報',
+      label: 'マイナンバー情報',//未実装
       data_key: 'staff_mynumber',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: true,
-      sqltags:{ select:'', save:'', delete:'' },
+      sqltags:{ select:'', insert:'',update:'', delete:'' },
       separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
     },
     users: {
-      label: 'ログインユーザー情報',
+      label: 'ログインユーザー情報',//未実装
       data_key: 'staff_users',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: true,
@@ -83,22 +83,26 @@ window.appConfig.MAIN_CONFIG = {
     traffic: {
       label: '通勤情報',
       data_key: 'staff_traffic',
-      jsonb_fields: ['traffic_info'],
-      sqltags:{ select:'staffs.get_staff_traffic', save:'staffs.upsert_staff_traffic', delete:'staffs.delete_staff_traffic' },
+      jsonb_fields: ['data_jsonb'],
+      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
+                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
+                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
     },
     bank: {
       label: '銀行情報',
       data_key: 'staff_bank',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      sqltags:{ select:'masters.get_staff_bank_request', save:'', delete:'masters.delete_staff_bank'}, // jsonb以外の普通カラム
-      separate_items: ['id', 'staff_id', 'data_type', 'valid_from', 'valid_to', 'source_request_id', 'created_at', 'created_by', 'updated_at', 'updated_by' ,'new_request_type'],// jsonb以外の普通カラム
+      sqltags:{ select:'masters.get_staff_bank_request',insert:'insert_staff_request_info',update:'update_staff_request_info', delete:''}, // jsonb以外の普通カラム
+      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
+                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
+                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
     },
     education: {
       label: '教育情報',
       data_key: 'staff_education',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: false,
-      sqltags:{ select:'masters.get_staff_education_request', save:'upsert_staff_request_info', insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
+      sqltags:{ select:'masters.get_staff_education_request',insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
                        'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
@@ -107,15 +111,17 @@ window.appConfig.MAIN_CONFIG = {
       label: '扶養情報',
       data_key: 'staff_dependents',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      skip_reload: true,
+      skip_reload: false,
       sqltags:{ select:'', save:'', delete:'' },
-      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
+      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
+                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
+                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
     },
     contract: {
-      label: '雇用契約情報',
+      label: '雇用契約情報',//未実装
       data_key: 'staff_contract',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      skip_reload: true,
+      skip_reload: false,
       sqltags:{ select:'', save:'', delete:'' },
       separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
     },
@@ -123,20 +129,24 @@ window.appConfig.MAIN_CONFIG = {
       label: '保険情報',
       data_key: 'staff_insurance',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      skip_reload: true,
+      skip_reload: false,
       sqltags:{ select:'', save:'', delete:'' },
-      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
+      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
+                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
+                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
     },
     work_history: {
       label: '職歴情報',
       data_key: 'staff_work_history',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      skip_reload: true,
+      skip_reload: false,
       sqltags:{ select:'', save:'', delete:'' },
-      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
+      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
+                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
+                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
     },
     certification: {
-      label: '資格情報',
+      label: '資格情報',//未実装
       data_key: 'staff_certification',
       jsonb_fields: ['certification_info'],
       sqltags:{ select:'masters.get_staff_certification', save:'masters.upsert_staff_certification', delete:'masters.delete_staff_certification' },
