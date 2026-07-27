@@ -47,6 +47,7 @@
         <DynamicVuetifyForm
           v-model="modelValue[index]"
           :ref="el => formRefs[index] = el"
+          :approved-data="item.__approved"
           :fields="children"
           :is-repeatable="true"
           :show-submit="true"

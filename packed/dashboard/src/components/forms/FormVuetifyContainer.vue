@@ -18,6 +18,7 @@ const formRef = ref()
 configStore.loadFromWindow()
 
 const formData = ref({})
+const approvedData = ref({}) // タブごとの変更前（承認済）データ
 const activeName = ref('')
 const category = ref([])
 const dictionary = ref([])
@@ -251,6 +252,55 @@ function parseTabRows(tabCode, rows = []) {
   return Array.isArray(parsed) ? (parsed[0] || {}) : {}
 }
 
+// 変更前（承認済＝現在有効な staff_personal_data）を申請行から分離する
+function extractApprovedData(tabCode, rows = []) {
+  const repeatable = isRepeatableCategory(tabCode)
+
+  if (!rows.length) {
+    if (!repeatable) approvedData.value[tabCode] = {}
+    return rows
+  }
+
+  return rows.map(row => {
+    const {
+      approved_data_jsonb,
+      approved_record_id,
+      approved_valid_from,
+      ...rest
+    } = row
+
+    let parsed = {}
+    try {
+      if (typeof approved_data_jsonb === 'string' && approved_data_jsonb.trim() !== '') {
+        parsed = JSON.parse(approved_data_jsonb)
+      } else if (approved_data_jsonb && typeof approved_data_jsonb === 'object') {
+        parsed = approved_data_jsonb
+      }
+    } catch (e) {
+      console.error('approved_data_jsonb parse failed:', e)
+    }
+
+    const hasApproved =
+      approved_record_id != null || Object.keys(parsed).length > 0
+
+    const approved = hasApproved
+      ? {
+          ...parsed,
+          source_request_id: approved_record_id ?? null,
+          valid_from: approved_valid_from ?? parsed.valid_from,
+        }
+      : {}
+
+    if (repeatable) {
+      rest.__approved = approved
+    } else {
+      approvedData.value[tabCode] = approved
+    }
+
+    return rest
+  })
+}
+
 // activeになったタブだけスタッフデータをロードする
 const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
   console.log("start loadActiveTabData")
@@ -273,10 +323,10 @@ console.log("after staffkey_check loadActiveTabData")
   const condition = {
     [tabCode]: {
       SQLTAG:
-        tabSqlTags.value[tabCode]?.sqlTags?.select ||
-        tabSqlTags.value[tabCode]?.sqlTag ||
-        'staffs.get_staff_data',
+        tabSqlTags.value[tabCode]?.sqlTags?.select,
       category_code: tabCode,
+      one_row: isRepeatableCategory(tabCode) ? '' : '1',
+      group_key: tabSqlTags.value[tabCode]?.group_key || '',
       staff_code: row.staff_code || null,
       staff_id: row.staff_id || null,
     }
@@ -295,11 +345,14 @@ console.log("after staffkey_check loadActiveTabData")
     return
   }
 
-  const rows = multiQueryResult.data?.[tabCode] || []
+  let rows = multiQueryResult.data?.[tabCode] || []
   console.log("rows========",rows)
-  
+
+  // 申請行に同梱された変更前（承認済）カラムを分離する
+  rows = extractApprovedData(tabCode, rows)
+
   dataStore.states.currentRow = rows
-  
+
   const parsedData = parseTabRows(tabCode, rows)
   console.log("parsedData========",parsedData)
 
@@ -411,7 +464,7 @@ watch(
             class="mb-3"
           />
 
-          <v-card variant="outlined">
+          <v-card v-if="tab" variant="outlined">
             <v-card-title class="text-subtitle-1">
           {{ tab?.remarks }}
             </v-card-title>
@@ -436,6 +489,7 @@ watch(
                 v-else
                 v-model="formData[tab?.sub_category_code]"
                 ref="formRef"
+                :approved-data="approvedData[tab?.sub_category_code]"
                 :controls="controls"
                 :chipControls="chipControls"
                 :fields="getItemsByTab(tab?.sub_category_code)"

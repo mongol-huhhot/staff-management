@@ -7,6 +7,7 @@ export function removeSystemFields(data) {
 
   const copied = { ...data }
   delete copied.__uuid
+  delete copied.__approved // repeatable行に添付される変更前（承認済）データ
 
   return copied
 }

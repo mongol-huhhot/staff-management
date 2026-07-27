@@ -1,42 +1,71 @@
+
 window.appConfig = window.appConfig || {};
+
+  const REQUEST_SEPARATE_ITEMS = [
+    // キー
+    'id', 'record_id', 'staff_id', 'data_type', 'valid_from',
+    // 申請ライフサイクル
+    'request_type', 'request_status', 'new_request_status',
+    'request_comment', 'approval_comment',
+    'requested_at', 'requested_by',
+    'approved_at', 'approved_by',
+    'rejected_at', 'rejected_by',
+    // 監査
+    'created_at', 'created_by', 'updated_at', 'updated_by',
+  ];
+
+  // 申請系タブ共通の保存タグ（select はタブごとに指定する）
+  const REQUEST_SAVE_TAGS = {
+    select: 'get_staff_submitter_request',
+    insert:'insert_staff_request_info',
+    update: 'update_staff_request_info',
+    delete: '',
+  };
+
+  // 未実装タブのプレースホルダ
+  const NO_TAGS = { select: '', insert: '', update: '', delete: '' };
+
 window.appConfig.DASHBOARD_CONFIG = {
-    staff_code: '11018',
-    debug_mode: true,
-    // 処理待ちバッジに数える申請ステータス（例: ['submitted'] や ['submitted', 'returned']）
-    pending_statuses: ['submitted'],
-    todos: [
-        // { type: '雇用契約管理', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'employment_contract', condition: {'is_approaching_expiration': true}, url: '/employment-contracts' },
-        // { type: '休暇承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'leave_approval', condition: {'is_pending': true}, url: '/leave-approvals' },
-        // { type: '残業・早出承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'overtime_approval', condition: {'is_pending': true}, url: '/overtime-approvals' },
-        // { type: '振休承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'compensatory_leave_approval', condition: {'is_pending': true}, url: '/compensatory-leave-approvals' },
-    //     // { type: 'リアルタイム打刻情報', text: 'ホーム画面追加のお知らせ', color: 'indigo', sql_tag: 'real_time_clocking', condition: {'has_updates': true}, url: '/real-time-clocking' },
-    //     // { type: 'シフト管理', text: 'ホーム画面追加のお知らせ', color: 'blue', sql_tag: 'shift_management', condition: {'has_conflicts': true}, url: '/shift-management' },
-    ],
-    // notices: {
-    //     sql_tag: 'notices',
-    //     condition: {'is_active': true},
-    // },
-    notices: [
-        '算定基礎や保険関連書類の作成も可能となりました！詳しくはお問合せください！',
-        'リリース情報',
-        '算定基礎や保険関連書類の作成も可能となりました！詳しくはお問合せください！',
-        '算定基礎や保険関連書類の作成も可能となりました！詳しくはお問合せください！',
-        '算定基礎や保険関連書類の作成も可能となりました！詳しくはお問合せください！',
-    ],
-    menus: [
-        { title: '給与明細', icon: 'mdi-database', url: '/pay-stubs' },
-        { title: '雇用保険', icon: 'mdi-account-card', url: '/employment-insurance' },
-        { title: '資料アップロード', icon: 'mdi-file-upload', url: '/document-upload' },
-        { title: '勤怠時間計算', icon: 'mdi-swap-horizontal', url: '/attendance-calculation' },
-        { title: '給与明細', icon: 'mdi-database', url: '/pay-stubs' },
-        { title: '雇用保険', icon: 'mdi-account-card', url: '/employment-insurance' },
-        { title: '勤怠時間計算', icon: 'mdi-swap-horizontal', url: '/attendance-calculation' },
-        { title: '給与明細', icon: 'mdi-database', url: '/pay-stubs' },
-        { title: '雇用保険', icon: 'mdi-account-card', url: '/employment-insurance' },
-    ],
+  staff_code: '11018',
+  debug_mode: true,
+
+  // 処理待ちバッジに数える申請ステータス（例: ['submitted'] や ['submitted', 'returned']）
+  pending_statuses: ['submitted'],
+
+  todos: [
+      // { type: '雇用契約管理', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'employment_contract', condition: {'is_approaching_expiration': true}, url: '/employment-contracts' },
+      // { type: '休暇承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'leave_approval', condition: {'is_pending': true}, url: '/leave-approvals' },
+      // { type: '残業・早出承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'overtime_approval', condition: {'is_pending': true}, url: '/overtime-approvals' },
+      // { type: '振休承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'compensatory_leave_approval', condition: {'is_pending': true}, url: '/compensatory-leave-approvals' },
+  //     // { type: 'リアルタイム打刻情報', text: 'ホーム画面追加のお知らせ', color: 'indigo', sql_tag: 'real_time_clocking', condition: {'has_updates': true}, url: '/real-time-clocking' },
+  //     // { type: 'シフト管理', text: 'ホーム画面追加のお知らせ', color: 'blue', sql_tag: 'shift_management', condition: {'has_conflicts': true}, url: '/shift-management' },
+  ],
+  // notices: {
+  //     sql_tag: 'notices',
+  //     condition: {'is_active': true},
+  // },
+  notices: [
+    '算定基礎や保険関連書類の作成も可能となりました！詳しくはお問合せください！',
+    'リリース情報',
+    '算定基礎や保険関連書類の作成も可能となりました！詳しくはお問合せください！',
+    '算定基礎や保険関連書類の作成も可能となりました！詳しくはお問合せください！',
+    '算定基礎や保険関連書類の作成も可能となりました！詳しくはお問合せください！',
+  ],
+  menus: [
+    { title: '給与明細', icon: 'mdi-database', url: '/pay-stubs' },
+    { title: '雇用保険', icon: 'mdi-account-card', url: '/employment-insurance' },
+    { title: '資料アップロード', icon: 'mdi-file-upload', url: '/document-upload' },
+    { title: '勤怠時間計算', icon: 'mdi-swap-horizontal', url: '/attendance-calculation' },
+    { title: '給与明細', icon: 'mdi-database', url: '/pay-stubs' },
+    { title: '雇用保険', icon: 'mdi-account-card', url: '/employment-insurance' },
+    { title: '勤怠時間計算', icon: 'mdi-swap-horizontal', url: '/attendance-calculation' },
+    { title: '給与明細', icon: 'mdi-database', url: '/pay-stubs' },
+    { title: '雇用保険', icon: 'mdi-account-card', url: '/employment-insurance' },
+  ],
 };
 window.appConfig.MAIN_CONFIG = {
   debug_mode: true,
+
   approval_flow: {
     staff_profile: {
       label: '基本情報',
@@ -72,119 +101,116 @@ window.appConfig.MAIN_CONFIG = {
     basic: {
       label: '基本情報',
       data_key: 'staff_profile',
-      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags:{ select:'get_staff_personal_request',insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
-      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from',
-                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by',
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+      sqlTags: REQUEST_SAVE_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
     },
     address: {
       label: '住所情報',
       data_key: 'staff_address',
-      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags:{ select:'get_staff_personal_request',insert:'insert_staff_request_info',update:'update_staff_request_info',  delete:'' },
-      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from',
-                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by',
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+      sqlTags: REQUEST_SAVE_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
     },
     contact: {
       label: '連絡先情報',
       data_key: 'staff_contact',
-      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      skip_reload: false,
-      sqlTags:{ select:'get_staff_personal_request', insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
-      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from',
-                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by',
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
-    },
-    mynumber: {
-      label: 'マイナンバー情報',//未実装
-      data_key: 'staff_mynumber',
-      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      skip_reload: true,
-      sqlTags:{ select:'', insert:'',update:'', delete:'' },
-      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
-    },
-    users: {
-      label: 'ログインユーザー情報',//未実装
-      data_key: 'staff_users',
-      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      skip_reload: true,
-      sqlTags:{ select:'', save:'', delete:'' },
-      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
-    },
-    traffic: {
-      label: '通勤情報',
-      data_key: 'staff_traffic',
       jsonb_fields: ['data_jsonb'],
-      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from',
-                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by',
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+      skip_reload: false,
+      sqlTags: REQUEST_SAVE_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
     },
     bank: {
       label: '銀行情報',
       data_key: 'staff_bank',
-      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      sqlTags:{ select:'masters.get_staff_bank_request',insert:'insert_staff_request_info',update:'update_staff_request_info', delete:''}, // jsonb以外の普通カラム
-      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from',
-                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by',
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+      jsonb_fields: ['data_jsonb'],
+      skip_reload: false,
+      group_key: 'staff_bank_account_id', // repeatable: 口座を識別するdata_jsonbキー（キー名は要確認）
+      sqlTags: REQUEST_SAVE_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
     },
     education: {
       label: '教育情報',
       data_key: 'staff_education',
-      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags:{ select:'masters.get_staff_education_request',insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
-      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from',
-                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by',
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
-      },
+      group_key: 'education_type', // repeatable: data_jsonbのこのキーごとに最新1件を取得
+      sqlTags: REQUEST_SAVE_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
+    },
+    traffic: {
+      label: '通勤情報', // select 未設定（旧: sqlTags 定義なし）
+      data_key: 'staff_traffic',
+      jsonb_fields: ['data_jsonb'],
+      skip_reload: false,
+      sqlTags: REQUEST_SAVE_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
+    },
+
+    // ---- select 未実装の申請系タブ ----
     dependents: {
       label: '扶養情報',
       data_key: 'staff_dependents',
-      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags:{ select:'', save:'', delete:'' },
-      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from',
-                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by',
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
-    },
-    contract: {
-      label: '雇用契約情報',//未実装
-      data_key: 'staff_contract',
-      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      skip_reload: false,
-      sqlTags:{ select:'', save:'', delete:'' },
-      separate_items: ['staff_code', 'profile_version'],// jsonb以外の普通カラム
+      sqlTags: REQUEST_SAVE_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
     },
     insurance: {
       label: '保険情報',
       data_key: 'staff_insurance',
-      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags:{ select:'', save:'', delete:'' },
-      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from',
-                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by',
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+      sqlTags: REQUEST_SAVE_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
     },
     work_history: {
       label: '職歴情報',
       data_key: 'staff_work_history',
-      jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
+      jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags:{ select:'', save:'', delete:'' },
-      separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from',
-                       'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by',
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+      sqlTags: REQUEST_SAVE_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
     },
+
+    // ---- 未実装タブ ----
+    mynumber: {
+      label: 'マイナンバー情報', // 未実装
+      data_key: 'staff_mynumber',
+      jsonb_fields: ['data_jsonb'],
+      skip_reload: true,
+      sqlTags: { ...NO_TAGS },
+      separate_items: ['staff_code', 'profile_version'],
+    },
+    users: {
+      label: 'ログインユーザー情報', // 未実装
+      data_key: 'staff_users',
+      jsonb_fields: ['data_jsonb'],
+      skip_reload: true,
+      sqlTags: { ...NO_TAGS },
+      separate_items: ['staff_code', 'profile_version'],
+    },
+    contract: {
+      label: '雇用契約情報', // 未実装
+      data_key: 'staff_contract',
+      jsonb_fields: ['data_jsonb'],
+      skip_reload: false,
+      sqlTags: { ...NO_TAGS },
+      separate_items: ['staff_code', 'profile_version'],
+    },
+
+    // ---- 独自構造のタブ ----
     certification: {
-      label: '資格情報',//未実装
+      label: '資格情報', // 未実装
       data_key: 'staff_certification',
       jsonb_fields: ['certification_info'],
-      sqlTags:{ select:'masters.get_staff_certification', save:'masters.upsert_staff_certification', delete:'masters.delete_staff_certification' },
+      sqlTags: {
+        select: 'masters.get_staff_certification',
+        save: 'masters.upsert_staff_certification',
+        delete: 'masters.delete_staff_certification',
+      },
     },
   },
 };
@@ -261,7 +287,7 @@ window.appConfig.UploadFiles = {
     },
 };
 window.appConfig.buttonRules = {
-  draft: {
+    draft: {
     draftSave:      { show: true,  disabled: false },
     delete:         { show: false,  disabled: false },
     newRequest:     { show: false, disabled: true  },
