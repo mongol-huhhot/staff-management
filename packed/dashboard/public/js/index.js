@@ -127,7 +127,6 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_bank',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      group_key: 'staff_bank_account_id', // repeatable: 口座を識別するdata_jsonbキー（キー名は要確認）
       sqlTags: REQUEST_SAVE_TAGS,
       separate_items: REQUEST_SEPARATE_ITEMS,
     },
@@ -136,7 +135,6 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_education',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      group_key: 'education_type', // repeatable: data_jsonbのこのキーごとに最新1件を取得
       sqlTags: REQUEST_SAVE_TAGS,
       separate_items: REQUEST_SEPARATE_ITEMS,
     },

@@ -325,8 +325,6 @@ console.log("after staffkey_check loadActiveTabData")
       SQLTAG:
         tabSqlTags.value[tabCode]?.sqlTags?.select,
       category_code: tabCode,
-      one_row: isRepeatableCategory(tabCode) ? '' : '1',
-      group_key: tabSqlTags.value[tabCode]?.group_key || '',
       staff_code: row.staff_code || null,
       staff_id: row.staff_id || null,
     }

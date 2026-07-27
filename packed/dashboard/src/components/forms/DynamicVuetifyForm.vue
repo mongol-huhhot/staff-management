@@ -36,12 +36,7 @@ const approvedRecordId = computed(
 const showHistory = computed(() => {
   if (!props.approvedData || !Object.keys(props.approvedData).length) return false
 
-  // 表示中のデータ自身が承認済（＝現在有効データの元申請）の場合は「変更前」を出さない
   if (formData.value?.request_status === 'approved') return false
-  if (
-    props.approvedData.source_request_id &&
-    props.approvedData.source_request_id === formData.value?.id
-  ) return false
 
   return true
 })
