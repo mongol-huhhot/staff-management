@@ -103,6 +103,19 @@ async function closeTodoDialog() {
     await loadTodos()
 }
 
+const staffListRef = ref(null)
+const formRefreshTick = ref(0)
+
+// 承認操作後の画面更新: フォーム再読込・スタッフ一覧・処理待ち件数
+async function refreshAfterApproval({ clearSelection = false } = {}) {
+    if (clearSelection) {
+        selectedRow.value = null
+    }
+    formRefreshTick.value++
+    await staffListRef.value?.loadData()
+    await loadTodos()
+}
+
 // メニュー選択。今後 menu.url への遷移をここに実装する
 function handleMenuSelect(menu) {
     console.log('menu select:', menu)
@@ -155,11 +168,13 @@ function handleMenuSelect(menu) {
                 {{ currentTodo?.text }}
               </span>
 
-              <v-btn
-                icon="mdi-close"
-                variant="text"
-                @click="closeTodoDialog"
-              />
+              <div class="d-flex align-center ga-2">
+                <v-btn
+                  icon="mdi-close"
+                  variant="text"
+                  @click="closeTodoDialog"
+                />
+              </div>
             </v-card-title>
 
             <v-divider />
@@ -170,6 +185,7 @@ function handleMenuSelect(menu) {
                 <pane size="45" min-size="20">
                   <div class="dialog-list-pane">
                     <StaffList
+                      ref="staffListRef"
                       :request-filter="staffListFilter"
                       @row-selected="handleStaffSelected"
                     />
@@ -180,8 +196,9 @@ function handleMenuSelect(menu) {
                 <pane size="55" min-size="30">
                   <div v-if="selectedRow" class="dialog-form-pane">
                     <FormVuetifyContainer
-                      :key="`${currentTodo?.sub_category_code}:${selectedRow?.staff_id || selectedRow?.staff_code}`"
+                      :key="`${currentTodo?.sub_category_code}:${selectedRow?.staff_id || selectedRow?.staff_code}:${formRefreshTick}`"
                       :ApplicationType="currentTodo?.sub_category_code"
+                      @approval-done="refreshAfterApproval"
                     />
                   </div>
                   <div v-else class="dialog-form-placeholder">

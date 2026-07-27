@@ -32,14 +32,6 @@ window.appConfig.DASHBOARD_CONFIG = {
   // 処理待ちバッジに数える申請ステータス（例: ['submitted'] や ['submitted', 'returned']）
   pending_statuses: ['submitted'],
 
-  todos: [
-      // { type: '雇用契約管理', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'employment_contract', condition: {'is_approaching_expiration': true}, url: '/employment-contracts' },
-      // { type: '休暇承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'leave_approval', condition: {'is_pending': true}, url: '/leave-approvals' },
-      // { type: '残業・早出承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'overtime_approval', condition: {'is_pending': true}, url: '/overtime-approvals' },
-      // { type: '振休承認', text: 'ホーム画面追加のお知らせ', color: 'red', sql_tag: 'compensatory_leave_approval', condition: {'is_pending': true}, url: '/compensatory-leave-approvals' },
-  //     // { type: 'リアルタイム打刻情報', text: 'ホーム画面追加のお知らせ', color: 'indigo', sql_tag: 'real_time_clocking', condition: {'has_updates': true}, url: '/real-time-clocking' },
-  //     // { type: 'シフト管理', text: 'ホーム画面追加のお知らせ', color: 'blue', sql_tag: 'shift_management', condition: {'has_conflicts': true}, url: '/shift-management' },
-  ],
   // notices: {
   //     sql_tag: 'notices',
   //     condition: {'is_active': true},
@@ -215,13 +207,13 @@ window.appConfig.MAIN_CONFIG = {
 
 window.appConfig.UploadFiles = {
     // default config for staff. these items will be gotten from login information
-    editable: true, // if editable: false then the own has viewable permission only. if editable:  true then has editing permission
+    editable: false, // if editable: false then the own has viewable permission only. if editable:  true then has editing permission
     height: 200,    // number of Pixels
     width:  200,    // number of Pixels
     returnType: 'base64', // 'base64' or 'blob'
     direction: 'row', // 'row' or 'column'
     student_card: {
-        editable: true, // if editable: false then the own has viewable permission only. if editable:  true then has editing permission
+        editable: false, // if editable: false then the own has viewable permission only. if editable:  true then has editing permission
         height: 360,    // number of Pixels
         width:  360,    // number of Pixels
         returnType: 'blob', // 'base64' or 'blob'
@@ -234,7 +226,7 @@ window.appConfig.UploadFiles = {
         ],
     },
     mynumber_card: {
-        editable: true, // if editable: false then the own has viewable permission only. if editable:  true then has editing permission
+        editable: false, // if editable: false then the own has viewable permission only. if editable:  true then has editing permission
         height: 360,    // number of Pixels
         width:  360,    // number of Pixels
         returnType: 'blob', // 'base64' or 'blob'
@@ -251,7 +243,7 @@ window.appConfig.UploadFiles = {
         ]
     },
     bank_book: {
-        editable: true, // if editable: false then the own has viewable permission only. if editable:  true then has editing permission
+        editable: false, // if editable: false then the own has viewable permission only. if editable:  true then has editing permission
         height: 360,    // number of Pixels
         width:  360,    // number of Pixels
         returnType: 'blob', // 'base64' or 'blob'
@@ -268,7 +260,7 @@ window.appConfig.UploadFiles = {
         ]
     },
     bank_card: {
-        editable: true, // if editable: false then the own has viewable permission only. if editable:  true then has editing permission
+        editable: false, // if editable: false then the own has viewable permission only. if editable:  true then has editing permission
         height: 360,    // number of Pixels
         width:  360,    // number of Pixels
         returnType: 'blob', // 'base64' or 'blob'
@@ -284,46 +276,14 @@ window.appConfig.UploadFiles = {
         ]
     },
 };
+
 window.appConfig.buttonRules = {
-    draft: {
-    draftSave:      { show: true,  disabled: false },
-    delete:         { show: false,  disabled: false },
-    newRequest:     { show: false, disabled: true  },
-    submit:         { show: true,  disabled: false },
-  },
+  add: { show: false, disabled: true },
 
   submitted: {
-    draftSave:      { show: true,  disabled: true },
-    delete:         { show: false,  disabled: true },
-    newRequest:     { show: false, disabled: true },
-    submit:         { show: true,  disabled: true },
-  },
-
-  returned: {
-    draftSave:      { show: true,  disabled: false },
-    delete:         { show: false,  disabled: false },
-    newRequest:     { show: false, disabled: true },
-    submit:         { show: true,  disabled: false },
-  },
-
-  approved: {
-    draftSave:      { show: false, disabled: true },
-    delete:         { show: false, disabled: true },
-    newRequest:     { show: true,  disabled: false },
-    submit:         { show: false, disabled: true },
-  },
-
-  rejected: {
-    draftSave:      { show: false, disabled: true },
-    delete:         { show: false, disabled: true },
-    newRequest:     { show: true,  disabled: false },
-    submit:         { show: false, disabled: true },
-  },
-  tmp: {
-    draftSave:      { show: true, disabled: false },
-    delete:         { show: false, disabled: true },
-    newRequest:     { show: false,  disabled: true },
-    submit:         { show: true, disabled: false },
+    approve:    { show: true, disabled: false, status: 'approved' },
+    returnBack: { show: true, disabled: false, status: 'returned' },
+    reject:     { show: true, disabled: false, status: 'rejected' },
   },
 };
 window.appConfig.requestStatusConfig = {

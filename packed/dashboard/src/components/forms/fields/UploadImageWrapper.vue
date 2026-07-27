@@ -553,7 +553,7 @@ watch(
   {{ saveResult.message }}
 </v-alert>
 
-<div class="d-flex justify-end mt-6">
+<div v-if="editable" class="d-flex justify-end mt-6">
   <v-btn
     color="primary"
     size="large"

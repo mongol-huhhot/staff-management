@@ -43,7 +43,33 @@ const showHistory = computed(() => {
 
 console.log("DynamicVuetifyForm.vue.props===========",props)
 console.log("chipControls", chipControls)
-const emit = defineEmits(['update:modelValue', 'submit', 'saved'])
+const emit = defineEmits(['update:modelValue', 'submit', 'saved', 'approval'])
+
+// 承認側の操作ボタン（buttonRules の approve / returnBack / reject。submitted 時のみ show）
+const approvalControls = computed(() => {
+  const rules = {}
+  for (const action of ['approve', 'returnBack', 'reject']) {
+    const rule = controls.value?.[action]
+    if (rule?.show) rules[action] = rule
+  }
+  return rules
+})
+
+function statusStyle(status) {
+  return props.chipControls?.[status] ?? {}
+}
+
+function actionLabel(rule) {
+  return rule.label || statusStyle(rule.status).title || ''
+}
+
+function emitApproval(rule) {
+  emit('approval', {
+    new_status: rule.status,
+    label: actionLabel(rule),
+    request: formData.value,
+  })
+}
 const saving = ref(false)
 
 const formRef = ref()
@@ -122,34 +148,10 @@ function updateField(field, value) {
     [field.key]: newValue,
   })
 }
-
-// 送信処理
-// async function submit(status) {
-//   const result = await formRef.value.validate()
-//   console.log("validate",result)
-//   if (!result.valid) {
-//     return
-//   }
-//     emit('submit', status)
-// }
-
-// 送信処理
-async function submit(request_status) {
-  const result = await formRef.value.validate()
-  console.log("validate",result)
-  if (!result.valid) {
-    return
-  }
-
-  if(request_status){
-    formData.value.new_request_status = request_status
-  }
-    emit('submit', formData.value)
-}
 </script>
 
 <template>
-  <v-form @submit.prevent="submit" ref="formRef" v-model="valid">
+  <v-form @submit.prevent ref="formRef" v-model="valid">
 
     <v-row >
       <v-col cols="12" class="text-right">
@@ -206,21 +208,17 @@ async function submit(request_status) {
 
     <v-row v-if="showSubmit">
       <v-col cols="12" class="text-right">
-        <!-- <v-btn class="me-2" color="info" @click="submit('draft')"  
-        :loading="saving" :disabled="props.disabled  || controls?.newRequest?.disabled" v-show="controls?.newRequest?.show && !props.isRepeatable" >
-          新規申請作成
-        </v-btn> -->
-        <v-btn class="me-2" color="secondary" @click="submit('draft')"  
-        :loading="saving" :disabled="props.disabled  || controls?.draftSave?.disabled" v-show="controls?.draftSave?.show" >
-          下書き保存
-        </v-btn>
-        <v-btn class="me-2" color="primary" @click="submit('submitted')" 
-        :loading="saving" :disabled="props.disabled || !valid || controls?.submit?.disabled" v-show="controls?.draftSave?.show">
-          登録・変更申請
-        </v-btn>
-        <v-btn class="me-2" color="error" @click="submit('')"  
-        :loading="saving" :disabled="props.disabled  || controls?.delete?.disabled" v-show="controls?.delete?.show" >
-          削除申請
+        <v-btn
+          v-for="(rule, action) in approvalControls"
+          :key="action"
+          class="me-2"
+          variant="flat"
+          :color="statusStyle(rule.status).color"
+          :prepend-icon="statusStyle(rule.status).icon"
+          :disabled="props.disabled || rule.disabled"
+          @click="emitApproval(rule)"
+        >
+          {{ actionLabel(rule) }}
         </v-btn>
       </v-col>
     </v-row>

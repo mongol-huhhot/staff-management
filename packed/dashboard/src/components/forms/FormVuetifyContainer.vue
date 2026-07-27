@@ -4,6 +4,7 @@ import { useDataStore } from '@/stores/DataStore'
 import { useAppConfigStore } from '@/stores/AppConfigStore'
 import DynamicVuetifyForm from '@/components/forms/DynamicVuetifyForm.vue'
 import RepeatableFormWrapper from '@/components/forms/RepeatableFormWrapper.vue'
+import ApprovalActions from '@/components/dashboard/ApprovalActions.vue'
 import { parseJsonbFields, parseAndFlattenJsonbFields, parseRepeatableJsonbFields } from '@/composables/utilFactory'
 import { useFileStore } from '@/stores/useFileStore'
 import { buildSaveParams } from '@/composables/formParamBuilder'
@@ -62,6 +63,9 @@ const props = defineProps({
     default: ()=>'staffs',
   }
 })
+
+const emit = defineEmits(['approval-done'])
+const approvalActionsRef = ref(null)
 
 const application_type = computed(() => props.ApplicationType || '')
 
@@ -357,10 +361,12 @@ console.log("after staffkey_check loadActiveTabData")
   if (isRepeatableCategory(tabCode)) {
     formData.value[tabCode] = Array.isArray(parsedData) ? parsedData : []
   } else {
-    formData.value[tabCode] = {
-      ...(formData.value[tabCode] || {}),
-      ...(parsedData || {}),
-    }
+    formData.value[tabCode] = rows.length
+      ? {
+          ...(formData.value[tabCode] || {}),
+          ...(parsedData || {}),
+        }
+      : {}
   }
 
   loadedTabs.value[tabCode] = cacheKey
@@ -412,6 +418,19 @@ watch(
 
  const tab = computed(()=>tabItems.value[0])
 
+const hasTabData = computed(() => {
+  const tabCode = tab.value?.sub_category_code
+  if (!tabCode) return false
+
+  const data = formData.value[tabCode]
+
+  if (isRepeatableCategory(tabCode)) {
+    return Array.isArray(data) && data.length > 0
+  }
+
+  return !!data?.id
+})
+
 </script>
 
 <template>
@@ -422,6 +441,14 @@ watch(
           {{ commonParams.staff_code }} -
           {{ getStaffName(currentStaffRow) }}様
         </span>
+      </div>
+
+      <div class="header-actions">
+        <ApprovalActions
+          ref="approvalActionsRef"
+          :selected-row="currentStaffRow"
+          @done="opts => emit('approval-done', opts)"
+        />
       </div>
       <!-- <v-chip
           :color="chipControls?.color"
@@ -468,8 +495,15 @@ watch(
             </v-card-title>
 
             <v-card-text>
+              <v-alert
+                v-if="!hasTabData"
+                type="info"
+                variant="tonal"
+              >
+                申請中データはすべて確認済みです。
+              </v-alert>
               <RepeatableFormWrapper
-                v-if="tab?.data_structure === 'repeatable'"
+                v-else-if="tab?.data_structure === 'repeatable'"
                 v-model="formData[tab?.sub_category_code]"
                 :label="tab?.remarks"
                 :children="getItemsByTab(tab?.sub_category_code)"
@@ -481,6 +515,7 @@ watch(
                 :common-params="commonParams"
                 :staff-code="dataStore.params.attributes?.staff_code"
                 @submit="data => handleFormSubmit(tab.sub_category_code, data)"
+                @approval="payload => approvalActionsRef?.openApprovalDialog(payload)"
               />
 
               <DynamicVuetifyForm
@@ -497,6 +532,7 @@ watch(
                 :staff-code="dataStore.params.attributes?.staff_code"
                 :is-repeatable="false"
                 @submit="data => handleFormSubmit(tab.sub_category_code, data)"
+                @approval="payload => approvalActionsRef?.openApprovalDialog(payload)"
               />
             </v-card-text>
           </v-card>

@@ -54,6 +54,7 @@
           :controls="controls"
           :chipControls="chipControls"
           @submit="data => emit('submit', data)"
+          @approval="payload => emit('approval', payload)"
           :sqlTags="props.sqlTags"
           :tab-config="props.tabConfig"
           :common-params="props.commonParams"
@@ -62,8 +63,10 @@
     </v-card>
 
     <v-btn
+      v-if="controls?.add?.show"
       color="primary"
       variant="outlined"
+      :disabled="controls?.add?.disabled"
       @click="add"
     >
       {{ addButtonText || '追加' }}
@@ -108,7 +111,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['update:modelValue', 'saved', 'deleted'])
+const emit = defineEmits(['update:modelValue', 'saved', 'deleted', 'submit', 'approval'])
 
 const dataStore = useDataStore()
 const saving = ref(false)
