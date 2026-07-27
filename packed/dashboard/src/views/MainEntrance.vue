@@ -16,7 +16,7 @@ const selectedRowData = ref({
   // 'password': '',
   'is_active': true,
   content: {}
-})+
+})
 
 const dataStore = useDataStore()
 
