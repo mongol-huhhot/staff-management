@@ -1,32 +1,48 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { buildRules } from '@/composables/useRuleFactory'
+import FieldHistoryLabel from '@/components/forms/fields/FieldHistoryLabel.vue'
+import ApprovedImageDialog from '@/components/forms/fields/ApprovedImageDialog.vue'
 
 const props = defineProps({
-  modelValue: { type: Object, required: true },
+  modelValue: { type: Object, default: () => ({}) },
   fields: { type: Array, required: true },
   mode: { type: String, default: 'self' },
   disabled: { type: Boolean, default: false },
   items: { type: Array, default: () => [] },
   showSubmit: { type: Boolean, default: true },
   controls: { type: Object, default: null },
-  chipcontrols: { type: Object, default: null },
-  sqltags: { type: Object, default: null },
+  chipControls: { type: Object, default: null },
+  sqlTags: { type: Object, default: null },
   tabConfig: { type: Object, default: () => ({}) },
   commonParams: { type: Object, default: () => ({}) },
   staffCode: { type: String, default: '' },
   isRepeatable: { type: Boolean, default: false },
+  approvedData: { type: Object, default: null }, // 変更前（承認済）データ。key は formData と同じ
 })
 
 const staffCode = computed(() =>props.staffCode)
 
-const recordId = computed(() => props.modelValue?.id)
+const recordId = computed(() => props.modelValue?.record_id)
 
 const controls = computed(() =>props.controls?.[formData.value?.request_status ?? 'tmp'] ?? {})
-const chipcontrols = computed(() =>props.chipcontrols?.[formData.value?.request_status ?? 'tmp'] ?? {})
+const chipControls = computed(() =>props.chipControls?.[formData.value?.request_status ?? 'tmp'] ?? {})
+
+const approvedRecordId = computed(
+  () => props.approvedData?.source_request_id ?? null
+)
+
+// 変更前ラベルを表示するかどうか
+const showHistory = computed(() => {
+  if (!props.approvedData || !Object.keys(props.approvedData).length) return false
+
+  if (formData.value?.request_status === 'approved') return false
+
+  return true
+})
 
 console.log("DynamicVuetifyForm.vue.props===========",props)
-
+console.log("chipControls", chipControls)
 const emit = defineEmits(['update:modelValue', 'submit', 'saved'])
 const saving = ref(false)
 
@@ -60,6 +76,8 @@ const normalFields = computed(() =>
     field => field.group !== 'attachment'
   )
 )
+
+console.log("normalFields", normalFields)
 
 const attachmentFields = computed(() =>
   visibleFields.value.filter(
@@ -137,12 +155,12 @@ async function submit(request_status) {
       <v-col cols="12" class="text-right">
         <div class="d-flex ga-2">
           <v-chip
-          :color="chipcontrols?.color"
+          :color="chipControls?.color"
           variant="flat"
           class="ml-2"
-          :prepend-icon="chipcontrols?.icon"
+          :prepend-icon="chipControls?.icon"
         >
-          {{ chipcontrols?.title }}
+          {{ chipControls?.title }}
         </v-chip>
         </div>
       </v-col>
@@ -156,6 +174,12 @@ async function submit(request_status) {
         sm="6"
         md="4"
       >
+        <FieldHistoryLabel
+          v-if="showHistory"
+          :field="field"
+          :approved-value="approvedData?.[field.key]"
+          :current-value="formData[field.key]"
+        />
         <component
           density="compact"
           :is="field.component || 'v-text-field'"
@@ -210,8 +234,17 @@ async function submit(request_status) {
 
     <v-divider class="my-6" />
 
-      <v-card-title>
+      <v-card-title class="d-flex align-center">
         {{ field.label }}
+        <v-spacer />
+        <ApprovedImageDialog
+          v-if="showHistory && approvedRecordId && field.props?.documentType"
+          :document-type="field.props.documentType"
+          :category-code="field.props.categoryCode"
+          :owner-type="field.props.ownerType || 'staff'"
+          :staff-code="staffCode"
+          :record-id="approvedRecordId"
+        />
       </v-card-title>
     
       <v-card-text>

@@ -18,6 +18,7 @@ const formRef = ref()
 configStore.loadFromWindow()
 
 const formData = ref({})
+const approvedData = ref({}) // タブごとの変更前（承認済）データ
 const activeName = ref('')
 const category = ref([])
 const dictionary = ref([])
@@ -25,23 +26,10 @@ const dictionary = ref([])
 const loadedTabs = ref({})
 const loadingTabs = ref({})
 
-const tabSqlTags = computed(() => configStore.MAIN_CONFIG?.tab2sqltag_list || {})
+const tabSqlTags = computed(() => configStore.MAIN_CONFIG?.tab2sqlTag_list || {})
 const controls = computed(() => configStore.buttonRules || {})
-const chipcontrols = computed(() => configStore.requestStatusConfig || {})
-// const controls = computed(() => {
-//   return (
-//     configStore.buttonRules?.[
-//       currentStaffRequest.value.request_status
-//     ] ?? {}
-//   )
-// })
-// const chipcontrols = computed(() => {
-//   return (
-//     configStore.requestStatusConfig?.[
-//       currentStaffRequest.value.request_status
-//     ] ?? {}
-//   )
-// })
+const chipControls = computed(() => configStore.requestStatusConfig || {})
+
 
 const currentStaffRow = computed(() => ({
   ...dataStore.params.attributes
@@ -139,10 +127,10 @@ async function handleFormSubmit(tabCode, submittedData) {
 
   const saveSqlTag =
         data.id
-            ? tabConfig.sqltags.update
-            : tabConfig.sqltags.insert
+            ? tabConfig.sqlTags.update
+            : tabConfig.sqlTags.insert
   
-  //const saveSqlTag = tabConfig?.sqltags?.save
+  //const saveSqlTag = tabConfig?.sqlTags?.save
   if (!tabConfig) {
     console.error('tabConfig not found:', tabCode)
     return
@@ -263,34 +251,61 @@ function parseTabRows(tabCode, rows = []) {
 
   return Array.isArray(parsed) ? (parsed[0] || {}) : {}
 }
-// function parseTabRows(tabCode, rows = []) {
-//     const jsonbFields = tabSqlTags.value[tabCode]?.jsonb_fields || []
 
-//     if (isRepeatableCategory(tabCode)) {
-//         return parseRepeatableJsonbFields(rows, jsonbFields)
-//     }
+// 変更前（承認済＝現在有効な staff_personal_data）を申請行から分離する
+function extractApprovedData(tabCode, rows = []) {
+  const repeatable = isRepeatableCategory(tabCode)
 
-//     const parsed = parseAndFlattenJsonbFields(rows, jsonbFields)
+  if (!rows.length) {
+    if (!repeatable) approvedData.value[tabCode] = {}
+    return rows
+  }
 
-//     const row = parsed[0]
+  return rows.map(row => {
+    const {
+      approved_data_jsonb,
+      approved_record_id,
+      approved_valid_from,
+      ...rest
+    } = row
 
-//     return row
-// }
+    let parsed = {}
+    try {
+      if (typeof approved_data_jsonb === 'string' && approved_data_jsonb.trim() !== '') {
+        parsed = JSON.parse(approved_data_jsonb)
+      } else if (approved_data_jsonb && typeof approved_data_jsonb === 'object') {
+        parsed = approved_data_jsonb
+      }
+    } catch (e) {
+      console.error('approved_data_jsonb parse failed:', e)
+    }
+
+    const hasApproved =
+      approved_record_id != null || Object.keys(parsed).length > 0
+
+    const approved = hasApproved
+      ? {
+          ...parsed,
+          source_request_id: approved_record_id ?? null,
+          valid_from: approved_valid_from ?? parsed.valid_from,
+        }
+      : {}
+
+    if (repeatable) {
+      rest.__approved = approved
+    } else {
+      approvedData.value[tabCode] = approved
+    }
+
+    return rest
+  })
+}
 
 // activeになったタブだけスタッフデータをロードする
 const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
   console.log("start loadActiveTabData")
   const row = currentStaffRow.value
-//   console.log(row)
-// console.log(row.staff_code)
-// console.log(Object.keys(row))
-//   console.log("loadactivetabdata.row==========",row)
   const staffKey = getStaffKey(row)
-  console.log("before staffkey_check loadActiveTabData")
-
-  console.log("111111111 staffKey",staffKey)
-  console.log("111111111 tabCode",tabCode)
-  console.log("111111111 category.value?.length",category.value?.length)
 
   if (!staffKey || !tabCode || !category.value?.length) return
 
@@ -308,9 +323,7 @@ console.log("after staffkey_check loadActiveTabData")
   const condition = {
     [tabCode]: {
       SQLTAG:
-        tabSqlTags.value[tabCode]?.sqltags?.select ||
-        tabSqlTags.value[tabCode]?.sqltag ||
-        'staffs.get_staff_data',
+        tabSqlTags.value[tabCode]?.sqlTags?.select,
       category_code: tabCode,
       staff_code: row.staff_code || null,
       staff_id: row.staff_id || null,
@@ -330,11 +343,14 @@ console.log("after staffkey_check loadActiveTabData")
     return
   }
 
-  const rows = multiQueryResult.data?.[tabCode] || []
+  let rows = multiQueryResult.data?.[tabCode] || []
   console.log("rows========",rows)
-  
+
+  // 申請行に同梱された変更前（承認済）カラムを分離する
+  rows = extractApprovedData(tabCode, rows)
+
   dataStore.states.currentRow = rows
-  
+
   const parsedData = parseTabRows(tabCode, rows)
   console.log("parsedData========",parsedData)
 
@@ -351,24 +367,6 @@ console.log("after staffkey_check loadActiveTabData")
 
   console.log(`Loaded tab data: ${tabCode}`, formData.value[tabCode])
 }
-
-//管理者用スタッフ情報管理で使用しているコードで使用していないためコメントアウト
-// watch(
-//   () => dataStore.states.currentRow,
-//   async (newVal) => {
-//     formData.value = {}
-//     loadedTabs.value = {}
-//     loadingTabs.value = {}
-
-//     initializeAllTabContainers()
-
-//     if (newVal && activeName.value) {
-//       await loadActiveTabData(activeName.value, { force: true })
-//       console.log("watch dataStore.states.currentRow")
-//     }
-//   },
-//   { immediate: true }
-// )
 
 watch(
   activeName,
@@ -426,12 +424,12 @@ watch(
         </span>
       </div>
       <!-- <v-chip
-          :color="chipcontrols?.color"
+          :color="chipControls?.color"
           variant="flat"
           class="ml-2"
-          :prepend-icon="chipcontrols?.icon"
+          :prepend-icon="chipControls?.icon"
         >
-          {{ chipcontrols?.title }}
+          {{ chipControls?.title }}
         </v-chip> -->
     </v-card-title>
 
@@ -464,7 +462,7 @@ watch(
             class="mb-3"
           />
 
-          <v-card variant="outlined">
+          <v-card v-if="tab" variant="outlined">
             <v-card-title class="text-subtitle-1">
           {{ tab?.remarks }}
             </v-card-title>
@@ -476,9 +474,9 @@ watch(
                 :label="tab?.remarks"
                 :children="getItemsByTab(tab?.sub_category_code)"
                 :controls="controls"
-                :chipcontrols="chipcontrols"
+                :chipControls="chipControls"
                 :add-button-text="`${tab?.category_name}追加`"
-                :sqltags="tabSqlTags[tab?.sub_category_code]?.sqltags"
+                :sqlTags="tabSqlTags[tab?.sub_category_code]?.sqlTags"
                 :tab-config="tabSqlTags[tab?.sub_category_code] || {}"
                 :common-params="commonParams"
                 :staff-code="dataStore.params.attributes?.staff_code"
@@ -489,10 +487,11 @@ watch(
                 v-else
                 v-model="formData[tab?.sub_category_code]"
                 ref="formRef"
+                :approved-data="approvedData[tab?.sub_category_code]"
                 :controls="controls"
-                :chipcontrols="chipcontrols"
+                :chipControls="chipControls"
                 :fields="getItemsByTab(tab?.sub_category_code)"
-                :sqltags="tabSqlTags[tab?.sub_category_code]?.sqltags"
+                :sqlTags="tabSqlTags[tab?.sub_category_code]?.sqlTags"
                 :tab-config="tabSqlTags[tab?.sub_category_code] || {}"
                 :common-params="commonParams"
                 :staff-code="dataStore.params.attributes?.staff_code"
