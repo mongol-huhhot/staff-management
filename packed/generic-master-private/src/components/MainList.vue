@@ -17,6 +17,15 @@ import AgGridDataBrowser from '@/components/helper/grid/PagedAgGridCard.vue'
 import { parseAndFlattenJsonbFields } from '@/composables/utilFactory'
 import Encoding from 'encoding-japanese'
 
+const props = defineProps({
+  ApplicationType: {
+    type:String,
+    default: ()=>'staffs',
+  }
+})
+
+const application_type = computed(() => props.ApplicationType || '')
+
 const agGridHandler = ref(null)
 
 const dataStore = useDataStore()
@@ -98,10 +107,13 @@ watch(
 
 const loadData = async () => {
   let val = await dataStore.get_staff_profile({
-    category_code: 'staffs'
+    category_code: application_type.value
   })
-  val = val?.[0]?.result || []
-  rows.value = parseAndFlattenJsonbFields(val, ['profile_jsonb'])
+  console.log("category_code",application_type.value)
+  //val = val?.[0]?.result || []
+  val = val || []
+  rows.value = parseAndFlattenJsonbFields(val, ['data_jsonb'])
+  console.log("mainlist.rows",val)
   await nextTick()
 }
 
@@ -170,6 +182,13 @@ const gridColumns = computed(() => {
 
 watch(
   () => showDeleted.value,
+  async () => {
+    await getSalaryList()
+  }
+)
+
+watch(
+  () => application_type,
   async () => {
     await getSalaryList()
   }
@@ -321,13 +340,13 @@ async function handleDownload() {
           個人情報管理
         </h4>
 
-        <a
+        <!-- <a
           href="https://surupas.native365.net/jfsg230540/webcomponents/jfsg230540/chart-system/?k=retroactive"
           target="_blank"
           class="help_link"
         >
           操作手順・説明書はこちら
-        </a>
+        </a> -->
       </div>
     </v-card-title>
 
@@ -346,7 +365,7 @@ async function handleDownload() {
           style="width:10em; margin-top:4px; margin-right:12px;"
         />
 
-        <div class="box_header">
+        <!-- <div class="box_header">
           <CSVUpload
             v-model:openCSV="openCSV"
             title="変動データCSV"
@@ -369,9 +388,9 @@ async function handleDownload() {
               </v-btn>
             </template>
           </v-tooltip>
-        </div>
+        </div> -->
 
-        <v-chip
+        <!-- <v-chip
           v-if="approvedMessage === '届済'"
           color="success"
           style="margin-top:8px; margin-left:12px;"
@@ -385,7 +404,7 @@ async function handleDownload() {
           style="margin-top:8px; margin-left:12px;"
         >
           {{ approvedMessage }}
-        </v-chip>
+        </v-chip> -->
       </div>
 
       <AgGridDataBrowser
@@ -393,7 +412,7 @@ async function handleDownload() {
         ref="agGridHandler"
         :rowData="rows"
         :columns="gridColumns"
-        height="calc(100vh - 310px)"
+        gridHeight="calc(100vh - 245px)"
         @row-click="handleRowClick"
       />
     </v-card-text>

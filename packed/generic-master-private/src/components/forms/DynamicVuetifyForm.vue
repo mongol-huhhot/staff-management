@@ -175,6 +175,7 @@ async function submit(request_status) {
           :rules="buildRules(field)"
           @update:model-value="value => updateField(field, value)"
           validate-on="input"
+          :variant="field.variant"
           :staffCode="staffCode"
         />
       </v-col>
@@ -231,6 +232,7 @@ async function submit(request_status) {
           :item-title="field.props?.itemTitle || field.props?.['item-title'] || 'label'"
           :item-value="field.props?.itemValue || field.props?.['item-value'] || 'value'"
           :rules="buildRules(field)"
+          :requestStatus="formData?.request_status"
           @update:model-value="value => updateField(field, value)"
           :staffCode="staffCode"
           :recordId="recordId"

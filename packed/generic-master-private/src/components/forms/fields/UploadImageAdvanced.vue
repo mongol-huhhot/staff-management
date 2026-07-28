@@ -21,6 +21,7 @@ const props = defineProps({
   outputFormat: { type: String, default: 'image/jpeg' }, // 'image/jpeg' | 'image/png' | 'image/webp'
   maxWidth:     { type: Number, default: 0 },    // optional hard cap; 0 = ignore
   maxHeight:    { type: Number, default: 0 },    // optional hard cap; 0 = ignore
+  btncfg: { type: Object, default: {} }
 })
 
 console.log("UploadImageAdvanced.vue----props===", props)
@@ -343,6 +344,8 @@ defineExpose({ getCropped, resetCropper, deleteImage, cancelUpload, croppedImage
       <div class="controls py-2">
         <v-btn
           v-if="showCameraButton"
+          v-show="props.btncfg?.upload?.show"
+          :disabled="props.btncfg?.upload?.disabled"
           type="button"
           prepend-icon="mdi-camera"
           class="btn btn-primary"
@@ -353,6 +356,8 @@ defineExpose({ getCropped, resetCropper, deleteImage, cancelUpload, croppedImage
 
         <v-btn
           v-if="showGalleryButton"
+          v-show="props.btncfg?.upload?.show"
+          :disabled="props.btncfg?.upload?.disabled"
           type="button"
           color="secondary"
           prepend-icon="mdi-image-multiple"
@@ -426,7 +431,8 @@ defineExpose({ getCropped, resetCropper, deleteImage, cancelUpload, croppedImage
       
       <div class="controls mt-3">
         <v-btn v-if="croppedImage" class="btn btn-danger" type="button" prepend-icon="mdi-restore" color="warning" @click="resetCropper">リセット</v-btn>
-        <v-btn v-else class="btn btn-outline-danger" type="button" prepend-icon="mdi-delete" color="error" @click="requestDelete">削除</v-btn>
+        <v-btn v-else v-show="props.btncfg?.delete?.show" :disabled="props.btncfg?.delete?.disabled"
+        class="btn btn-outline-danger" type="button" prepend-icon="mdi-delete" color="error" @click="requestDelete">削除</v-btn>
       </div>
     </div>
 
