@@ -23,6 +23,8 @@ function statusConfig(status) {
 
 const loginUserId = () => dataStore.getLoginUser()?.user_id
 
+const requestTags = computed(() => appConfigStore.REQUEST_SAVE_TAGS || {})
+
 const approveDialog = ref(false)
 const approveComment = ref('')
 const approving = ref(false)
@@ -38,7 +40,7 @@ async function approveAllRequests() {
 
   approving.value = true
 
-  const ok = await dataStore.saveData('approve_staff_requests', {
+  const ok = await dataStore.saveData(requestTags.value.approve, {
     staff_id: row.staff_id,
     approved_by: loginUserId(),
     approval_comment: approveComment.value || '',
@@ -84,7 +86,7 @@ async function runItemApproval() {
 
   let ok
   if (action.new_status === 'approved') {
-    ok = await dataStore.saveData('approve_staff_requests', {
+    ok = await dataStore.saveData(requestTags.value.approve, {
       staff_id: props.selectedRow?.staff_id,
       approved_by: loginUserId(),
       approval_comment: itemApprovalComment.value || '',
@@ -93,7 +95,7 @@ async function runItemApproval() {
     })
   } else {
     // 差戻し・却下は申請行の UPDATE のみ
-    ok = await dataStore.saveData('update_staff_request_status', {
+    ok = await dataStore.saveData(requestTags.value.update_status, {
       request_id: action.request.id,
       new_status: action.new_status,
       action_by: loginUserId(),

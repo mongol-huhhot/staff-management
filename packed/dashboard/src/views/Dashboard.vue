@@ -40,10 +40,9 @@ onMounted(async () => {
 })
 
 async function loadTodos() {
-    // get_staff_personal_request_counts_by_category は staff_id を渡さない場合、全スタッフ分を集計する
     const result = await dataStore.dbAccessWithMultiTags({
         request_counts: {
-            SQLTAG: 'get_staff_personal_request_counts_by_category',
+            SQLTAG: appConfigStore.REQUEST_SAVE_TAGS?.count_category,
             category_code: 'staffs',
             request_statuses: pendingStatuses(),
             staff_id: null,
