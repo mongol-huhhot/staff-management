@@ -91,6 +91,7 @@ export const useDataStore = defineStore("dataStore", () => {
         login,
         logout,
         verify,
+        getLoginUser: baseStore.getLoginUser,
         dbAccessWithMultiTags,
     }
 })

@@ -77,9 +77,9 @@ const selectedRow = ref(null)
 
 // 処理待ちから開くスタッフ一覧の絞り込み条件。currentTodo に連動する
 const staffListFilter = computed(() => {
-    if (!currentTodo.value?.sub_category_code) return null
+    if (!currentTodo.value) return null
     return {
-        sub_category_code: currentTodo.value.sub_category_code,
+        sub_category_code: currentTodo.value.sub_category_code || '',
         request_statuses: pendingStatuses(),
     }
 })
