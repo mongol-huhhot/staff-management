@@ -26,16 +26,22 @@ const isLocalDev = () => {
 }
 
 async function checkLogin() {
-    // ログインチェック
-    if ( isLocalDev() ) {
-      const result = await devLogin()
-      console.log('Dev login result:', result)
-      loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
-    } else {
-      const verified = await dataStore.verify({
+    const verified = await dataStore.verify({
         loading: false,
-      })
-      loginReady.value = !!verified
+    })
+    if (verified) {
+      loginReady.value = true
+      return true
+    }
+
+    try {
+      const result = await devLogin()
+      console.log('Login result:', result)
+      loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
+    } catch (error) {
+      // ログイン失敗（テナントにユーザーが無い等）。白画面の原因はコンソールで確認できるようにする
+      console.warn('login failed:', error?.message || error)
+      loginReady.value = false
     }
 
     return loginReady.value
