@@ -8,7 +8,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css'
 
 import { watch, ref } from 'vue'
 import FormVuetifyContainer from '@/components/forms/FormVuetifyContainer.vue'
-import MainLayout from '@/components/MainLayout.vue'
+// import MainLayout from '@/components/MainLayout.vue'
 import { useDataStore } from '@/stores/DataStore'
 
 
@@ -44,7 +44,7 @@ watch(
 
     dataStore.params.attributes = p
 
-    const result = await login();
+    const result = await checkLogin()
 
     //userと紐付けられたstaffを取得する処理を記述したが実際に使うわけではないのでコメントアウト
     // console.log("dataStore?.params?.attributes?.user_id",dataStore?.params?.attributes?.user_id)
@@ -69,16 +69,55 @@ watch(
   }
 )
 
-// select * from user_schema.check_user(<%user%>, <%password%>)
-async function login() {
-  const result = await dataStore.login({
-    user: 'sysadmin',
-    password: 'janga1',
-  },{remember: true})
-
-  console.log('Login result:', result)
-  return result
+const isLocalDev = () => {
+  return window.location.hostname === 'localhost' ||
+         window.location.hostname === '127.0.0.1'
 }
+
+async function checkLogin() {
+    // ログインチェック
+    if ( isLocalDev() ) {
+      const result = await devLogin()
+      console.log('Dev login result:', result)
+      loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
+    }
+    
+    // 通常環境：全体ログインに頼る
+    const verified = await dataStore.verify({
+      loading: false,
+    })
+    loginReady.value = !!verified
+
+    return loginReady.value
+}
+
+// ログイン完了までDashboardを描画しない
+const loginReady = ref(false)
+
+// ユーザー登録のためのログイン処理
+async function devLogin() {
+  return await dataStore.login(
+    {
+      user: import.meta.env.VITE_DEV_LOGIN_USER || 'its@janga.co.jp',
+      password: import.meta.env.VITE_DEV_LOGIN_PASSWORD || 'janga1',
+    },
+    {
+      persist: true,
+      loading: true,
+    }
+  )
+}
+
+// select * from user_schema.check_user(<%user%>, <%password%>)
+// async function login() {
+//   const result = await dataStore.login({
+//     user: 'sysadmin',
+//     password: 'janga1',
+//   },{remember: true})
+
+//   console.log('Login result:', result)
+//   return result
+// }
 
 </script>
 

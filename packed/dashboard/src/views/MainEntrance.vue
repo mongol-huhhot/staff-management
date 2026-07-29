@@ -32,12 +32,12 @@ async function checkLogin() {
       console.log('Dev login result:', result)
       loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
     }
+    
     // 通常環境：全体ログインに頼る
     const verified = await dataStore.verify({
       loading: false,
     })
     loginReady.value = !!verified
-    
 
     return loginReady.value
 }
