@@ -16,11 +16,11 @@ const currentTab = ref('all')
 
 <template>
   <v-card class="pane-card" flat>
-    <v-tabs v-model="currentTab" density="compact" color="light-blue">
+    <v-tabs v-model="currentTab" density="compact" color="light-blue" class="pane-tabs">
       <v-tab value="all">全部</v-tab>
     </v-tabs>
 
-    <v-window v-model="currentTab">
+    <v-window v-model="currentTab" class="pane-body">
       <v-window-item value="all">
         <v-container fluid>
           <v-row dense>
@@ -55,6 +55,19 @@ const currentTab = ref('all')
   height: 100%;
   overflow: hidden;
   border: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ヘッダー（タブ）は縮ませない */
+.pane-tabs {
+  flex: 0 0 auto;
+}
+
+.pane-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .menu-card {

@@ -86,7 +86,19 @@ export const useDbStore = defineStore('dbStore', () => {
     sessionStorage.removeItem('token')
   }
 
-  // const joinPath = (a = '', b = '') => `${String(a).replace(/\/+$/, '')}/${String(b).replace(/^\/+/, '')}`
+  const getLoginUser = () => {
+    const token = getToken()
+    if (!token) return null
+    try {
+      const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+      const bin = atob(b64.padEnd(b64.length + ((4 - (b64.length % 4)) % 4), '='))
+      console.log(JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)))))
+      return JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))))
+    } catch (_) {
+      return null
+    }
+  }
+
   function detectTid() {
     if (typeof window === 'undefined') return commonParams.tid
 
@@ -413,6 +425,7 @@ export const useDbStore = defineStore('dbStore', () => {
     getToken,
     saveToken,
     clearToken,
+    getLoginUser,
 
     // config
     // setTenantId,

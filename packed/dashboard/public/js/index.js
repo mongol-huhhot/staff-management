@@ -14,13 +14,20 @@ window.appConfig = window.appConfig || {};
     'created_at', 'created_by', 'updated_at', 'updated_by',
   ];
 
-  // 申請系タブ共通の保存タグ（select はタブごとに指定する）
+  // ダッシュボードで使う申請系 SQL タグをここに集約する
   const REQUEST_SAVE_TAGS = {
-    select: 'get_staff_submitter_request',
+    select: 'staff.request.select_submitted',
     insert:'insert_staff_request_info',
     update: 'update_staff_request_info',
     delete: '',
+    approve: 'staff.request.approve',                   // 承認（一括・個別）
+    update_status: 'staff.request.update_status',       // 差戻し・却下
+    count_category: 'staff.request.count_category',     // 処理待ち件数
+    select_profile: 'staff.profile.select_by_request',  // 処理待ち別スタッフ一覧
   };
+
+  // コンポーネント側（Dashboard.vue / ApprovalActions.vue / DataStore.js）からも参照できるように公開する
+  window.appConfig.REQUEST_SAVE_TAGS = REQUEST_SAVE_TAGS;
 
   // 未実装タブのプレースホルダ
   const NO_TAGS = { select: '', insert: '', update: '', delete: '' };

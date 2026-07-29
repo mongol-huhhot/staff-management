@@ -23,6 +23,7 @@ const props = defineProps({
       recordId: '',        // ex) 
     })
   },
+  requestStatus: { type: String, default: 'tmp' },
   
 })
 
@@ -40,6 +41,7 @@ const fileStore = useFileStore()
 
 // --- Config ---
 const cfg = computed(() => (configStore.UploadFiles?.[props.meta.documentType]) || {})
+const btncfg = computed(() => (configStore.uploadImageRules?.[props.requestStatus]) || {})
 const files = computed(() => cfg.value.files || [])
 const baseWidth = computed(() => cfg.value.width)
 const baseHeight = computed(() => cfg.value.height)
@@ -516,6 +518,7 @@ watch(
           :outputFormat="outputFormat"
           :maxWidth="maxWidth"
           :maxHeight="maxHeight"
+          :btncfg="btncfg"
     />
   </v-col>
 </v-row>
@@ -559,6 +562,8 @@ watch(
     size="large"
     prepend-icon="mdi-content-save"
     :loading="saving"
+    v-show="btncfg?.save?.show"
+    :disabled="btncfg?.save?.disabled"
     @click="saveAllImages"
   >
     画像を保存

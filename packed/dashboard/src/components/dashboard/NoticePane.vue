@@ -16,7 +16,7 @@ const currentTab = ref('notice')
 
 <template>
   <v-card class="pane-card" flat>
-    <v-tabs v-model="currentTab" density="compact" color="light-blue">
+    <v-tabs v-model="currentTab" density="compact" color="light-blue" class="pane-tabs">
       <v-tab value="notice">
         通知
         <v-badge v-if="notices.length" :content="notices.length" color="red" inline />
@@ -30,7 +30,7 @@ const currentTab = ref('notice')
       </v-btn>
     </v-tabs>
 
-    <v-window v-model="currentTab">
+    <v-window v-model="currentTab" class="pane-body">
       <v-window-item value="notice">
         <v-list density="compact">
           <v-list-item
@@ -61,6 +61,19 @@ const currentTab = ref('notice')
   height: 100%;
   overflow: hidden;
   border: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ヘッダー（タブ）は縮ませない */
+.pane-tabs {
+  flex: 0 0 auto;
+}
+
+.pane-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .notice-item {

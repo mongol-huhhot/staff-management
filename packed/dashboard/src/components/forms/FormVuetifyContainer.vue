@@ -447,6 +447,9 @@ const hasTabData = computed(() => {
         <ApprovalActions
           ref="approvalActionsRef"
           :selected-row="currentStaffRow"
+          :data-type="application_type"
+          :data-type-name="tab?.remarks || ''"
+          :has-data="hasTabData"
           @done="opts => emit('approval-done', opts)"
         />
       </div>

@@ -17,7 +17,6 @@ const dataStore = useDataStore()
 const rows = ref([])
 const loading = ref(false)
 
-// サーバー側ページング。limit/offset は SQL タグ側の [paging] ブロックで解釈される
 const page = ref(0)
 const pageSize = ref(100)
 const totalCount = ref(0)
@@ -25,16 +24,12 @@ const totalCount = ref(0)
 const loadData = async () => {
     loading.value = true
     try {
-        let val = []
-        if (props.requestFilter?.sub_category_code) {
-            // 該当カテゴリの未処理申請を持つスタッフのみ（badge 件数と対応）
-            val = await dataStore.get_staff_profile_by_request({
-                sub_category_code: props.requestFilter.sub_category_code,
-                request_statuses: props.requestFilter.request_statuses || 'submitted',
-                limit: pageSize.value,
-                offset: page.value * pageSize.value,
-            })
-        }
+            const val = await dataStore.get_staff_profile_by_request({
+            sub_category_code: props.requestFilter?.sub_category_code || '',
+            request_statuses: props.requestFilter?.request_statuses || 'submitted',
+            limit: String(pageSize.value),
+            offset: String(page.value * pageSize.value),
+        })
         // total_count は SQL 側の count(*) over() が全行に付与する
         totalCount.value = Number(val?.[0]?.total_count) || 0
         rows.value = parseAndFlattenJsonbFields(val || [], ['profile_jsonb'])

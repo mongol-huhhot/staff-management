@@ -130,7 +130,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_insurance',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: false,
-      sqltags:{ select:'', save:'', delete:'' },
+      sqltags:{ select:'masters.get_staff_insurance_request', insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
                        'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
@@ -320,5 +320,36 @@ window.appConfig.requestStatusConfig = {
     textColor: "white",
     description: "申請は却下されました"
   }
+}
+window.appConfig.uploadImageRules = {
+  draft: {
+    save: {   show: true,   disabled: false, }, 
+    upload: {   show: true,   disabled: false, }, 
+    delete: {   show: true,   disabled: false, },
+  },
+
+  submitted: {
+    save: {   show: true,   disabled: true, }, 
+    upload: {   show: true,   disabled: true, }, 
+    delete: {   show: true,   disabled: true, },
+  },
+
+  returned: {
+    save: {  show: true,  disabled: false,},
+    upload: {  show: true,  disabled: false,},
+    delete: {  show: true,  disabled: false,},
+  },
+
+  approved: {
+    save: {  show: false,  disabled: true,},
+    upload: {  show: false,  disabled: true,},
+    delete: {  show: false,  disabled: true,},
+  },
+
+  rejected: {
+    save: {  show: false,  disabled: true,},
+    upload: {  show: false,  disabled: true,},
+    delete: {  show: false,  disabled: true,},
+  },
 }
 

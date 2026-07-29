@@ -509,8 +509,9 @@ watch(
 
 <style scoped>
 .container-card {
-  height: 100%;
+  height: auto;
   margin: 0px;
+  min-height: 100%;
   background-color: #fff;
   border-radius: 8px;
   border: 0 solid #e0e0e0;

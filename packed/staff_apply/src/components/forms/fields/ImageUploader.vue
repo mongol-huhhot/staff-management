@@ -31,6 +31,7 @@ const props = defineProps({
     default: ''
   },
   isRepeatable: { type: Boolean, default: false },
+  requestStatus: { type: String, default: 'tmp' },
 })
 
 const staffCode = computed(() => props.staffCode)
@@ -38,6 +39,7 @@ const categoryCode = computed(() => props.categoryCode)
 const documentType = computed(() => props.documentType)
 const ownerType = computed(() => props.ownerType)
 const recordId = computed(() => props.recordId)
+const requestStatus = computed(() => props.requestStatus)
 
 const meta = computed(() => {
   const meta = {
@@ -93,6 +95,7 @@ console.log("imageuploader.props=====",meta)
   <UploadImageWrapper
     v-else
     :meta="meta"
+    :requestStatus="requestStatus"
   />
 
 </template>

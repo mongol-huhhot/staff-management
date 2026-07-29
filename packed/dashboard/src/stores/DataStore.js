@@ -8,7 +8,7 @@ export const useDataStore = defineStore("dataStore", () => {
 
     const CONST_DEF = {
         get_item_category: 'masters.get_item_category',
-        get_staff_profile_by_request: 'staffs.get_staff_profile_by_request',
+        get_staff_profile_by_request: 'staff.profile.select_by_request',    
     }
 
     const states = reactive({
@@ -91,6 +91,7 @@ export const useDataStore = defineStore("dataStore", () => {
         login,
         logout,
         verify,
+        getLoginUser: baseStore.getLoginUser,
         dbAccessWithMultiTags,
     }
 })

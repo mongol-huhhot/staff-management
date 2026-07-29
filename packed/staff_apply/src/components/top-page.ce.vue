@@ -8,6 +8,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css'
 
 import { watch, ref } from 'vue'
 import FormVuetifyContainer from '@/components/forms/FormVuetifyContainer.vue'
+import MainLayout from '@/components/MainLayout.vue'
 import { useDataStore } from '@/stores/DataStore'
 
 
@@ -71,7 +72,7 @@ watch(
 // select * from user_schema.check_user(<%user%>, <%password%>)
 async function login() {
   const result = await dataStore.login({
-    user: 'its@janga.co.jp',
+    user: 'sysadmin',
     password: 'janga1',
   },{remember: true})
 
@@ -87,6 +88,9 @@ async function login() {
       <FormVuetifyContainer 
       :ApplicationType="dataStore.params.attributes.app_type"
       />
+      <!-- <MainLayout
+      :ApplicationType="dataStore.params.attributes.app_type"
+      /> -->
     </div>
 
     <div v-else>
