@@ -25,8 +25,8 @@ export const useDbStore = defineStore('dbStore', () => {
   const DEFAULT_RETURN = 1
   const DEFAULT_RESULT_TYPE = 1
   const DEFAULT_QUERY_TYPE = 2
-  const DEFAULT_TID = 'premier'
-  const DEFAULT_SQL_PATH = 'showcase/user-roles_management/entrance.sql'
+  const DEFAULT_TID = 'showcase'
+  const DEFAULT_SQL_PATH = 'apps/user-roles_management/entrance.sql'
 
   const commonConstants = reactive({
     TRANSACTION_URL: '/dataEngine/v5/handleRequest/requestHandler.php',
