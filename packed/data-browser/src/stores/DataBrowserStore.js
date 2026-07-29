@@ -1,13 +1,13 @@
 // DataBrowserStore.js
 import { reactive, } from "vue"
 import { defineStore, createPinia, setActivePinia } from "pinia"
-import { useBaseStore } from '@/stores/BaseStore'
+import { useDbStore } from '@/stores/useDbStore'
 // import { useMasterStore } from '@/stores/masters/MasterStore'
 
 setActivePinia(createPinia())
 
-export const useDataBrowserStore = defineStore('dataBrowserStore', () => { 
-    const dbStore = useBaseStore()
+export const useDataBrowserStore = defineStore('dataBrowserStore', () => {
+    const dbStore = useDbStore()
     
     const CONST_DEF = {
         get_user_info: 'get_user_info',
@@ -46,7 +46,7 @@ export const useDataBrowserStore = defineStore('dataBrowserStore', () => {
 
     const getData = async(sqltag='',  p={}) => {
         console.log("getData====",sqltag,  p)
-        if ( sqltag==='' ) return 
+        if ( sqltag==='' ) return
         if( !(sqltag in CONST_DEF) ) return
 
         const ret = await dbStore.load(sqltag, p)
@@ -57,11 +57,20 @@ export const useDataBrowserStore = defineStore('dataBrowserStore', () => {
         return data[sqltag]
     }
 
+    const login = async (p = {}, options = {}, SQL_PATH = null) =>
+        await dbStore.login('authenticate.login', p, options, SQL_PATH)
+    const verify = async (options = {}) => await dbStore.verify(options)
+    const logout = async (options = {}) => await dbStore.logout(options)
+
     return {
         states,
         data,
         params,
 
         getData,
+
+        login,
+        verify,
+        logout,
     }
 })

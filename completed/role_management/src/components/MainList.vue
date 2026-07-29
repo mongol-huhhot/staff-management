@@ -81,6 +81,7 @@ watch(
 
 const handleRowClick = (event) => {
   dataStore.states.currentRow = event.data
+  console.log("dataStore.states.currentRow====", dataStore.states.currentRow)
 }
 
 // const gridColumns = computed(() => {

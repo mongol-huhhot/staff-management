@@ -21,18 +21,18 @@ module.exports = defineConfig({
       },
     },
     proxy: {
-        "/dataEngine/v3/": {
-          target: 'https://surupas-run.native365.net',
+        "/dataEngine/v5/": {
+          target: 'https://surupas-dev.native365.net',
           changeOrigin: true,
           secure:false,
-          pathRewrite: {'^/dataEngine/v3/': '/dataEngine/v3/'},
+          pathRewrite: {'^/dataEngine/v5/': '/dataEngine/v5/'},
           logLevel: 'debug' 
         },
         "/tools/": {
-          target: 'https://surupas-run.native365.net'
+          target: 'https://surupas-dev.native365.net'
         },
         "/human_resources/": {
-          target: 'https://surupas-run.native365.net'
+          target: 'https://surupas-dev.native365.net'
         }
     }
   },
