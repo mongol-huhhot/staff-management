@@ -321,4 +321,80 @@ window.appConfig.requestStatusConfig = {
     description: "申請は却下されました"
   }
 }
+window.appConfig.uploadImageRules = {
+  draft: {
+    save: {
+      show: true,
+      disabled: false,
+    },
+    upload: {
+      show: true,
+      disabled: false,
+    },
+    delete: {
+      show: true,
+      disabled: false,
+    },
+  },
+
+  submitted: {
+    save: {
+      show: true,
+      disabled: true,
+    },
+    upload: {
+      show: true,
+      disabled: true,
+    },
+    delete: {
+      show: true,
+      disabled: true,
+    },
+  },
+
+  returned: {
+    save: {
+      show: true,
+      disabled: false,
+    },
+    upload: {
+      show: true,
+      disabled: false,
+    },
+    delete: {
+      show: true,
+      disabled: false,
+    },
+  },
+
+  approved: {
+    save: {
+      show: false,
+      disabled: true,
+    },
+    upload: {
+      show: false,
+      disabled: true,
+    },
+    delete: {
+      show: false,
+      disabled: true,
+    },
+  },
+
+  rejected: {
+    save: {
+      show: false,
+      disabled: true,
+    },
+    upload: {
+      show: false,
+      disabled: true,
+    },
+    delete: {
+      show: false,
+      disabled: true,
+    },
+  },
+}
 
