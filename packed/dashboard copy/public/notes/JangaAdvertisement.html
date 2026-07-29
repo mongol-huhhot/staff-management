@@ -1,0 +1,73 @@
+<body style="color: white; margin-top: 20px;">
+        <h2 style="text-align: center; margin: 0;" >SURUPAsの各要素</h2>
+        <h5 style="text-align: center; margin: 0;">人事労務JANGA「SURUPAs」</h5>
+        <div class="content-wrapper" style="text-align: left;margin-left: 60px;">
+          <ul style="padding-left: 0; list-style-position: inside;">
+              <li>Strength：個人の強みを活かす</li>
+              <li>Understanding：相互理解の促進</li>
+              <li>Role：役割の明確化</li>
+              <li>Update：スキルの更新</li>
+              <li>Purpose：目的の共有</li>
+              <li>Autonomy：自律性の推進</li>
+              <li>Successive Growth：継続的な成長</li>
+          </ul>
+          <iframe
+            src="https://www.youtube.com/embed/AvgAsJOepMs"
+            title="実績紹介"
+            frameborder="0"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            @error="handleVideoError"
+            style=" width: 85%; height: 30%;"
+          ></iframe>
+          <p style="margin: 10px 0 0;">① DXの各フェーズにSURUPAsを適用</p>
+          <p style="margin: 0;">② 人事労務の情報を共有し、変革文化を醸成</p>
+          <p style="margin: 0;">③ 社員の自律と協働で推進力を高める</p>
+          <div style="margin-top: 10px;">
+          <a href="https://www.janga.co.jp/cases/" target="_blank" style="color: blue;">お客様の声</a>
+          <a href="https://janga.co.jp/surupas/work/" target="_blank" style="color: blue;margin-left: 20px;">導入事例</a>
+          </div>
+      </div>
+      <div class="marquee-container">
+        <div class="marquee-content">
+          <img src="https://www.janga.co.jp/jinji/image/sms-logolist2.jpg" >
+          <img src="https://www.janga.co.jp/jinji/image/sms-logolist2.jpg" >
+        </div>
+      </div>
+</body>   
+<style>
+.marquee-container {
+  width: 100%;          
+  max-width: 800px;      
+  overflow: hidden;
+  padding: 10px 0;
+}
+
+.marquee-content {
+  display: flex;
+  width: max-content;
+  animation: scroll-left 40s linear infinite;
+}
+
+.marquee-content img {
+  height: 50px; 
+  object-fit: contain;
+  display: block;
+}
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+</style>
+<script>
+  const handleVideoError = () => {
+    console.error('Failed to load YouTube video')
+  }
+</script>
+
+

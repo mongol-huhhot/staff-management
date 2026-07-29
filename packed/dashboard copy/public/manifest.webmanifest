@@ -1,0 +1,16 @@
+{
+    "name": "Janga Surupas WR",
+    "short_name": "Surupas",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ddd",
+    "theme_color": "#000000",
+    "icons": [
+      {
+        "src": "/surupas-sms.png",
+        "sizes": "319x79",
+        "type": "image/png"
+      }
+    ]
+  }
+  

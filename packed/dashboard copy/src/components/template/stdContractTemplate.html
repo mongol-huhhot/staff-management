@@ -1,0 +1,320 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link type="text/css" rel="stylesheet">
+<style type="text/css">
+    :root {
+        --border-color: #5c5f61;
+    }
+
+    .ritz .waffle a {
+        color: inherit;
+    }
+
+    .ritz .waffle .s2 {
+        border-bottom: 1px SOLID var(--border-color);
+        border-right: 1px SOLID var(--border-color);
+        background-color: #ffffff;
+        text-align: center;
+        color: #000000;
+        font-family: Arial;
+        font-size: 10pt;
+        vertical-align: middle;
+        white-space: nowrap;
+        direction: ltr;
+        padding: 2px 3px 2px 3px;
+    }
+
+    .ritz .waffle .s1 {
+        border-bottom: 1px SOLID var(--border-color);
+        border-right: 1px SOLID var(--border-color);
+        background-color: #ffffff;
+        text-align: right;
+        color: #000000;
+        font-family: Arial;
+        font-size: 10pt;
+        vertical-align: middle;
+        white-space: nowrap;
+        direction: ltr;
+        padding: 2px 3px 2px 3px;
+    }
+
+    .ritz .waffle .s5 {
+        border-left: none;
+        border-right: 1px SOLID var(--border-color);
+        border-bottom: 1px SOLID var(--border-color);
+        background-color: #ffffff;
+        text-align: left;
+        color: #000000;
+        font-family: Arial;
+        font-size: 10pt;
+        vertical-align: middle;
+        white-space: nowrap;
+        direction: ltr;
+        padding: 2px 3px 2px 3px;
+    }
+
+    .ritz .waffle .s7 {
+        border-bottom: 1px SOLID var(--border-color);
+        border-right: 1px SOLID var(--border-color);
+        background-color: #ffffff;
+        text-align: left;
+        color: #000000;
+        font-family: Arial;
+        font-size: 7pt;
+        vertical-align: middle;
+        white-space: normal;
+        overflow: hidden;
+        word-wrap: break-word;
+        direction: ltr;
+        padding: 2px 3px 2px 3px;
+    }
+
+    .ritz .waffle .s3 {
+        border-bottom: 1px SOLID var(--border-color);
+        border-right: 1px SOLID var(--border-color);
+        background-color: #ffffff;
+        text-align: left;
+        color: #000000;
+        font-family: Arial;
+        font-size: 10pt;
+        vertical-align: middle;
+        white-space: normal;
+        overflow: hidden;
+        word-wrap: break-word;
+        direction: ltr;
+        padding: 2px 3px 2px 3px;
+    }
+
+    .ritz .waffle .s6 {
+        border-left: none;
+        border-right: 1px SOLID  var(--border-color);
+        border-bottom: 1px SOLID  var(--border-color);
+        background-color: #ffffff;
+        text-align: left;
+        color: #000000;
+        font-family: Arial;
+        font-size: 7pt;
+        vertical-align: middle;
+        white-space: normal;
+        overflow: hidden;
+        word-wrap: break-word;
+        direction: ltr;
+        padding: 2px 3px 2px 3px;
+    }
+
+    .ritz .waffle .s0 {
+        border: 1px SOLID var(--border-color);
+        background-color: #ffffff;
+        text-align: left;
+        color: #000000;
+        font-family: Arial;
+        font-size: 10pt;
+        vertical-align: middle;
+        white-space: nowrap;
+        direction: ltr;
+        padding: 2px 3px 2px 3px;
+    }
+
+    .ritz .waffle .s4 {
+        border-right: none;
+        border-bottom: 1px SOLID  var(--border-color);
+        background-color: #ffffff;
+        text-align: left;
+        color: #000000;
+        font-family: Arial;
+        font-size: 10pt;
+        vertical-align: middle;
+        white-space: nowrap;
+        direction: ltr;
+        padding: 2px 3px 2px 3px;
+    }
+    .grid-container {
+        padding: 8px;
+    }
+</style>
+<div class="ritz grid-container" dir="ltr">
+    <table class="waffle" cellspacing="0" cellpadding="0">
+        <tbody>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr" rowspan="3">従 業 員</td>
+                <td class="s0" dir="ltr">名称</td>
+                <td class="s0" dir="ltr" colspan="6"><%staff_name%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">所属部署</td>
+                <td class="s0" dir="ltr" colspan="6"><%department_name%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">現住所</td>
+                <td class="s0" dir="ltr" colspan="4">〒<%zip_code%><br><%address%></td>
+                <td class="s0" dir="ltr" colspan="2">TEL:<%tel%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">雇 用 形 態</td>
+                <td class="s0" dir="ltr" colspan="7"><%salary_type%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr" rowspan="7">契 約 期 間</td>
+                <td class="s0" dir="ltr">期間の定めあり:</td>
+                <td class="s1" dir="ltr"><%contract_period_start%></td>
+                <td class="s2" dir="ltr">~</td>
+                <td class="s0" dir="ltr" colspan="4"><%contract_period_end%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">契約の更新：</td>
+                <td class="s0" dir="ltr" colspan="6"><%has_contract_update%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">更新上限の有無：</td>
+                <td class="s0" dir="ltr" colspan="6"><%has_update_upper_limit%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">契約の更新の<br>判断基準</td>
+                <td class="s0" dir="ltr" colspan="6"><%contract_update_base%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">試用期間</td>
+                <td class="s0" dir="ltr" colspan="6"><%has_trial_period%></td>
+            </tr>
+            <tr style="height: 76px">
+                <td class="s0" dir="ltr" colspan="7">
+                    【労働契約法に定める同一の企業との間での通算契約期間が<br>本契約期間中に会社に対して期間の定めのない労働契約（無期労働契約）の締結の申し込みをすることにより、本契約<br>期間の末日の翌日から無期労働契約に転換することができる。<br>
+                    この場合の本契約からの労働条件の変更の有無：<%has_condition_change%>
+                </td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr" colspan="7">【有期雇用特別措置法による特例の対象者の場合】<br>無期転換申し込み権が発生しない期間：Ⅰ（高度専門）Ⅱ（定年後の高齢者）<br>Ⅰ
+                    特定有期業務の開始から完了までの期間 （上限10年間）<br>Ⅱ 定年後引き継いで雇用される期間:</td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">就 業 場 所</td>
+                <td class="s0" dir="ltr">（雇入れ直後）</td>
+                <td class="s0" colspan="3"><%work_place%></td>
+                <td class="s0" dir="ltr">（変更の範囲）</td>
+                <td class="s0" colspan="2"><%work_place_additional%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">業 務 内 容</td>
+                <td class="s0" dir="ltr">（雇入れ直後）</td>
+                <td class="s0" colspan="3"><%work_content%></td>
+                <td class="s0" dir="ltr">（変更の範囲）</td>
+                <td class="s0" colspan="2"><%work_content_addtional%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr" rowspan="3">就 業 時 間</td>
+                <td class="s0" dir="ltr">始業・終業</td>
+                <td class="s0" dir="ltr" colspan="6">～<br>○20詳細は、就業規則第1条～第条、 第条～第条、 第条～第条</td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">休憩時間</td>
+                <td class="s0" dir="ltr" colspan="6">○<%break_hours%>分</td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">時間外労働</td>
+                <td class="s0" dir="ltr" colspan="6"><%has_over_time_work%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">休　　　日</td>
+                <td class="s0" dir="ltr" colspan="7">定休日：毎週曜日、国民の祝日<br>○詳細は、就業規則第 1条～第条、 第条～第条</td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">休　　　暇</td>
+                <td class="s0" dir="ltr" colspan="7">継続勤務６か月以内：<%paid_leave_period%>か月で日<br>○詳細は、就業規則第 1条～第条、第条～第条</td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr" rowspan="12">賃　　　金</td>
+                <td class="s0" dir="ltr">基本給</td>
+                <td class="s0" dir="ltr" colspan="6">月給： <%basic_salary%> 円</td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">諸手当</td>
+                <td class="s0" dir="ltr" colspan="6">
+                    <%loop:allowances%>
+                    <div>手当項目名: <%allowance_name%> 手当項目値:<%allowance_value%> 単位: <%allowance_unit%></div>
+                    <%endloop:allowances%>
+                </td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">割増賃金率</td>
+                <td class="s3" dir="ltr" colspan="6">
+                    <%loop:over_time_pay_rates%>
+                        <div>手当項目名: <%rate_name%> 手当項目値:<%raye_value%>%</div>
+                    <%endloop:over_time_pay_rates%>
+                    <!-- 法定超月６０時間以内(<%below_60_rate%>)% <br>
+                    法定超月６０時間超(<%over_60_rate%>)% <br>
+                    所定超(<%std_over_rate%>)% <br>
+                    法定休日(<%legal_leave_work_rate%>)% <br>
+                    法定外休日(<%over_legal_work_rate%>)%<br>
+                    深夜(<%night_shift_rate%>)%<br> -->
+                </td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">締切日/支払日</td>
+                <td class="s0" dir="ltr" colspan="6">
+                    毎月31日締切 翌月25日支払（25日が休日の場合は前払い）
+                </td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr" rowspan="3">社会保険の<br>加入状況</td>
+                <td class="s0" dir="ltr">健康保険</td>
+                <td class="s4 softmerge" dir="ltr">
+                    <div class="softmerge-inner" style="width:117px;left:-1px"><%has_health_insurance%></div>
+                </td>
+                <td class="s5"></td>
+                <td class="s6" dir="ltr" colspan="3">①一週間あたりの決まった労働時間が<br>②雇用期間が 年以上の見込みがある方※学生ではない方（夜間・定時制は除く）</td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">厚生年金</td>
+                <td class="s4 softmerge" dir="ltr">
+                    <div class="softmerge-inner" style="width:117px;left:-1px"><%has_pension_insurance%></div>
+                </td>
+                <td class="s5"></td>
+                <td class="s6" dir="ltr" colspan="3">①一週間あたりの決まった労働時間が<br>②雇用期間が 年以上の見込みがある方※学生ではない方（夜間・定時制は除く）</td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">介護保険</td>
+                <td class="s4 softmerge" dir="ltr">
+                    <div class="softmerge-inner" style="width:117px;left:-1px"><%has_nursing_care_insurance%></div>
+                </td>
+                <td class="s5"></td>
+                <td class="s6" dir="ltr" colspan="3">※健康保険加入者で40歳以上65歳未満の方は原則として加入義務があります。<br>3か月を超えて在留する40歳以上の外国籍の方も対象）
+                </td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">雇用保険の<br>適応</td>
+                <td class="s0" dir="ltr" colspan="3"><%has_employment_insurance%></td>
+                <td class="s7" dir="ltr" colspan="3">①一週間あたりの決まった労働時間が時間以上<br>②31日以上引き続き雇用されることが見込まれる方
+                    学生ではない方（夜間・定時制は除く）<br>※社会保険加入時には雇用保険も加入となります。</td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">賃金改定</td>
+                <td class="s0" dir="ltr" colspan="6"><%has_wage_revision%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">昇給</td>
+                <td class="s0" dir="ltr" colspan="6"><%has_wage_raise%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">賞与</td>
+                <td class="s0" dir="ltr" colspan="6"><%has_bonus%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">退職金</td>
+                <td class="s0" dir="ltr" colspan="6"><%has_retirement_allowance%></td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">退職に関する事項</td>
+                <td class="s3" dir="ltr" colspan="7">
+                    定年制：<%retirement_age%>歳まで<br>自己都合の退職の手続き：退職する日以上前に届け出ること<br>解雇の事由および手続き：<br>
+                    ○詳細は、就業規則第１条～第条、 第条～第条</td>
+            </tr>
+            <tr style="height: 20px">
+                <td class="s0" dir="ltr">そ の 他</td>
+                <td class="s3" dir="ltr" colspan="7">
+                    ※以下は、「契約期間」について「期間の定めあり」とした場合についての説明です。労働契約法第１８条の規定により、<br>
+                    有期労働契約（<%contract_period_start%>以降に開始するもの）の契約期間が通算５年を超える場合には、労働契約の期間の末日ま<br>
+                    でに労働者から申込みをすることにより、当該労働契約の期間の末日の翌日から期間の定めのない労働契約に転換されます。<br>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
