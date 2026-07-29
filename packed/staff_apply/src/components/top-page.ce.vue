@@ -11,7 +11,6 @@ import FormVuetifyContainer from '@/components/forms/FormVuetifyContainer.vue'
 // import MainLayout from '@/components/MainLayout.vue'
 import { useDataStore } from '@/stores/DataStore'
 
-
 const props = defineProps({
   j: {
     type: String,
@@ -33,18 +32,22 @@ watch(
 
     let p = props.j
 
+    console.log("ppppppppppppppppppp===", p)
+
     try {
       if (props.j && typeof props.j === 'string') {
         p = JSON.parse(props.j.replace(/&quot;/g, '"'))
+        console.log("AAAAAAAAAAAAAAAAAAAAAAa===", p)
       }
     } catch (e) {
-      console.log(e)
+      console.log("EEEEEEE===", e)
       return
     }
 
     dataStore.params.attributes = p
 
     const result = await checkLogin()
+    console.log("ttttttttttttttttttttttttttttttttt===", result)
 
     //userと紐付けられたstaffを取得する処理を記述したが実際に使うわけではないのでコメントアウト
     // console.log("dataStore?.params?.attributes?.user_id",dataStore?.params?.attributes?.user_id)
@@ -75,20 +78,24 @@ const isLocalDev = () => {
 }
 
 async function checkLogin() {
-    // ログインチェック
-    if ( isLocalDev() ) {
-      const result = await devLogin()
-      console.log('Dev login result:', result)
-      loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
-    }
-    
+  console.log("checkLogin=====", isLocalDev() )
+  // ログインチェック
+  if ( isLocalDev() ) {
+    console.log('Dev login result2222222222222222222222:', result)
+    const result = await devLogin()
+    console.log('Dev login result:', result)
+    loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
+
+  } else {
+     console.log("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
     // 通常環境：全体ログインに頼る
     const verified = await dataStore.verify({
       loading: false,
     })
     loginReady.value = !!verified
+  }
 
-    return loginReady.value
+  return loginReady.value
 }
 
 // ログイン完了までDashboardを描画しない
