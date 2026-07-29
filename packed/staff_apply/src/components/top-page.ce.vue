@@ -24,6 +24,49 @@ const props = defineProps({
 
 const dataStore = useDataStore()
 
+// ログイン完了までDashboardを描画しない
+const loginReady = ref(false)
+const initReady = ref(false)
+
+const isLocalDev = () => {
+  return window.location.hostname === 'localhost' ||
+         window.location.hostname === '127.0.0.1'
+}
+
+// ユーザー登録のためのログイン処理
+async function devLogin() {
+  return await dataStore.login(
+    {
+      user: import.meta.env.VITE_DEV_LOGIN_USER || 'its@janga.co.jp',
+      password: import.meta.env.VITE_DEV_LOGIN_PASSWORD || 'janga1',
+    },
+    {
+      persist: true,
+      loading: true,
+    }
+  )
+}
+
+async function checkLogin() {
+  console.log("checkLogin=====", isLocalDev() )
+  // ログインチェック
+  if ( isLocalDev() ) {
+    const result = await devLogin()
+    console.log('Dev login result:', result)
+    loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
+
+  } else {
+     console.log("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
+    // 通常環境：全体ログインに頼る
+    const verified = await dataStore.verify({
+      loading: false,
+    })
+    loginReady.value = !!verified
+  }
+
+  return loginReady.value
+}
+
 watch(
   () => props.j,
   async () => {
@@ -64,56 +107,12 @@ watch(
     // dataStore.params.attributes.staff_code = staff_code
     // dataStore.params.attributes.staff_id = staff_id
     // if(staff_id) initialized.value = true
-    
   },
   {
     deep: true,
     immediate: true,
   }
 )
-
-const isLocalDev = () => {
-  return window.location.hostname === 'localhost' ||
-         window.location.hostname === '127.0.0.1'
-}
-
-async function checkLogin() {
-  console.log("checkLogin=====", isLocalDev() )
-  // ログインチェック
-  if ( isLocalDev() ) {
-    console.log('Dev login result2222222222222222222222:', result)
-    const result = await devLogin()
-    console.log('Dev login result:', result)
-    loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
-
-  } else {
-     console.log("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
-    // 通常環境：全体ログインに頼る
-    const verified = await dataStore.verify({
-      loading: false,
-    })
-    loginReady.value = !!verified
-  }
-
-  return loginReady.value
-}
-
-// ログイン完了までDashboardを描画しない
-const loginReady = ref(false)
-
-// ユーザー登録のためのログイン処理
-async function devLogin() {
-  return await dataStore.login(
-    {
-      user: import.meta.env.VITE_DEV_LOGIN_USER || 'its@janga.co.jp',
-      password: import.meta.env.VITE_DEV_LOGIN_PASSWORD || 'janga1',
-    },
-    {
-      persist: true,
-      loading: true,
-    }
-  )
-}
 
 // select * from user_schema.check_user(<%user%>, <%password%>)
 // async function login() {
@@ -130,13 +129,17 @@ async function devLogin() {
 
 <template>
   <v-locale-provider locale="ja">
-    <div v-if="props.j">
-      <FormVuetifyContainer 
-      :ApplicationType="dataStore.params.attributes.app_type"
+    <div v-if="props.j && loginReady">
+      <FormVuetifyContainer
+        :ApplicationType="dataStore.params.attributes.app_type"
       />
       <!-- <MainLayout
       :ApplicationType="dataStore.params.attributes.app_type"
       /> -->
+    </div>
+
+    <div v-else-if="props.j && !loginReady" class="d-flex justify-center align-center pa-8">
+      <v-progress-circular indeterminate color="primary" />
     </div>
 
     <div v-else>
