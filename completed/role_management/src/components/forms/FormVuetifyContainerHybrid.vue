@@ -267,11 +267,11 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
   const selectTag = tabConfig?.sqltags?.select
 
   // 新規追加時は role_code が無いので、selectしない、または空フォーム表示にします。
-  // if (runTimeParams.value?.__mode === 'new') {
-  //   formData.value[tabCode] = {}
-  //   loadedTabs.value[tabCode] = `new:${tabCode}`
-  //   return
-  // }
+  if (runTimeParams.value?.__mode === 'new') {
+    formData.value[tabCode] = {}
+    loadedTabs.value[tabCode] = `new:${tabCode}`
+    return
+  }
 
   if (!selectTag) {
     loadedTabs.value[tabCode] = `no-select:${tabCode}`

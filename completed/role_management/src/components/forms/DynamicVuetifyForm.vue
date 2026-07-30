@@ -381,7 +381,7 @@ async function handleDelete() {
 
   const result = await dataStore.runSave(props.sqltags.delete, params)
 
-  if (result.code !== 0) {
+  if (!result) {
     alert('削除に失敗しました。')
     return
   }
