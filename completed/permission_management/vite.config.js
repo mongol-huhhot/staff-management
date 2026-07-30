@@ -31,12 +31,12 @@ export default defineConfig({
   },
 
   build: {
-    lib: {
-      entry: path.resolve(__dirname, 'src/main.js'),
-      name: 'GenericMasterSystem',
-      fileName: 'generic-master-system',
-      formats: ['iife'],
-    },
+    // lib: {
+    //   entry: path.resolve(__dirname, 'src/main.js'),
+    //   name: 'GenericMasterSystem',
+    //   fileName: 'generic-master-system',
+    //   formats: ['iife'],
+    // },
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
