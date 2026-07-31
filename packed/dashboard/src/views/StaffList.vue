@@ -10,7 +10,7 @@ const props = defineProps({
     requestFilter: { type: Object, default: null },
 })
 
-const emit = defineEmits(['row-selected'])
+const emit = defineEmits(['row-selected', 'selection-changed'])
 
 const dataStore = useDataStore()
 
@@ -78,13 +78,17 @@ const gridColumns = computed(() => {
     })
 })
 
+const gridCardRef = ref(null)
+
 defineExpose({
     loadData,
+    clearSelection: () => gridCardRef.value?.clearSelection?.(),
 })
 </script>
 
 <template>
   <AgGridDataBrowser
+    ref="gridCardRef"
     title="スタッフ一覧"
     :rowData="rows"
     :columns="gridColumns"
@@ -96,5 +100,6 @@ defineExpose({
     @prev-page="handlePrevPage"
     @next-page="handleNextPage"
     @page-size-change="handlePageSizeChange"
+    @selection-changed="selected => emit('selection-changed', selected)"
   />
 </template>

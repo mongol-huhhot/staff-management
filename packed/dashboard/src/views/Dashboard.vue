@@ -7,12 +7,15 @@ import { useDataStore } from '@/stores/DataStore'
 import TodoPane from '@/components/dashboard/TodoPane.vue'
 import NoticePane from '@/components/dashboard/NoticePane.vue'
 import MenuPane from '@/components/dashboard/MenuPane.vue'
-import StaffList from '@/views/StaffList.vue'
-import FormVuetifyContainer from '@/components/forms/FormVuetifyContainer.vue'
+import StaffListPane from '@/components/dashboard/StaffListPane.vue'
+import StaffDetailPane from '@/components/dashboard/StaffDetailPane.vue'
 
 const appConfigStore = useAppConfigStore()
 const dataStore = useDataStore()
 appConfigStore.loadFromWindow()
+
+const { loadTodos, pendingStatuses } = dataStore
+const todos = computed(() => dataStore.data.todos)
 
 const horizontal_vertical = ref('horizontal') // 'horizontal' or 'vertical'
 
@@ -20,58 +23,24 @@ const toggleMode = () => {
     horizontal_vertical.value = horizontal_vertical.value === 'horizontal' ? 'vertical' : 'horizontal'
 }
 
-const todos = ref(appConfigStore?.DASHBOARD_CONFIG?.todos || [])
-
-// 未処理として数える申請ステータス。DASHBOARD_CONFIG.pending_statuses で導入先毎に変更できる
-const DEFAULT_PENDING_STATUSES = ['submitted']
-
-function pendingStatuses() {
-    const configured = appConfigStore?.DASHBOARD_CONFIG?.pending_statuses
-    if (Array.isArray(configured) && configured.length) return configured.join(',')
-    if (typeof configured === 'string' && configured) return configured
-    return DEFAULT_PENDING_STATUSES.join(',')
-}
 const notices = computed(() => appConfigStore?.DASHBOARD_CONFIG?.notices || [])
 const menus = computed(() => appConfigStore?.DASHBOARD_CONFIG?.menus || [])
 
 onMounted(async () => {
     await loadTodos()
+    const type = new URL(window.location.href).searchParams.get('type')
+    if (type) {
+        const todo = todos.value.find(t => t.sub_category_code === type)
+        if (todo) handleTodoConfirm(todo)
+    }
 })
 
-async function loadTodos() {
-    const result = await dataStore.dbAccessWithMultiTags({
-        request_counts: {
-            SQLTAG: appConfigStore.REQUEST_SAVE_TAGS?.count_category,
-            category_code: 'staffs',
-            request_statuses: pendingStatuses(),
-            staff_id: null,
-        },
-    })
-
-    if (result.code !== 0) {
-        console.error('Failed to load todos:', result.message)
-        return
-    }
-
-    const rows = result.data?.request_counts || []
-    if (!rows.length) return
-
-    todos.value = rows.map(cat => ({
-        type: cat.remarks || cat.sub_category_name || cat.sub_category_code,
-        text: cat.category_name,
-        color: 'red',
-        category_code: cat.category_code,
-        sub_category_code: cat.sub_category_code,
-        data_structure: cat.data_structure,
-        ui_component: cat.ui_component,
-        count: Number(cat.count) || 0,
-    }))
-}
-
-// 処理待ち画面ダイアログの状態
-const todoDialog = ref(false)
+// 処理待ちの選択状態。currentTodo の有無が中央・右ペインの表示を切り替える
 const currentTodo = ref(null)
 const selectedRow = ref(null)
+
+const staffListPaneRef = ref(null)
+const formRefreshTick = ref(0)
 
 // 処理待ちから開くスタッフ一覧の絞り込み条件。currentTodo に連動する
 const staffListFilter = computed(() => {
@@ -82,11 +51,20 @@ const staffListFilter = computed(() => {
     }
 })
 
-// 処理待ちの「確認」ボタン。スタッフ一覧をダイアログで開く
+// 選択中カテゴリを URL クエリ（?type=address 等）に反映する
+function setTypeQuery(type) {
+    const url = new URL(window.location.href)
+    if (type) url.searchParams.set('type', type)
+    else url.searchParams.delete('type')
+    window.history.replaceState(null, '', url)
+}
+
+// 処理待ちの「確認」ボタン。中央ペインをスタッフ一覧に切り替える
 function handleTodoConfirm(item) {
     currentTodo.value = item
     selectedRow.value = null
-    todoDialog.value = true
+    staffListPaneRef.value?.clearSelection()
+    setTypeQuery(item?.sub_category_code || null)
 }
 
 // スタッフ一覧で行選択。選択スタッフをフォームコンテナに渡す
@@ -95,14 +73,13 @@ function handleStaffSelected(row) {
     dataStore.params.attributes = row || {}
 }
 
-// ダイアログを閉じるときも件数を最新化する
-async function closeTodoDialog() {
-    todoDialog.value = false
+async function closeTodo() {
+    currentTodo.value = null
+    selectedRow.value = null
+    dataStore.params.attributes = {}
+    setTypeQuery(null)
     await loadTodos()
 }
-
-const staffListRef = ref(null)
-const formRefreshTick = ref(0)
 
 // 承認操作後の画面更新: フォーム再読込・スタッフ一覧・処理待ち件数
 async function refreshAfterApproval({ clearSelection = false } = {}) {
@@ -110,7 +87,7 @@ async function refreshAfterApproval({ clearSelection = false } = {}) {
         selectedRow.value = null
     }
     formRefreshTick.value++
-    await staffListRef.value?.loadData()
+    await staffListPaneRef.value?.loadData()
     await loadTodos()
 }
 
@@ -123,17 +100,11 @@ function handleMenuSelect(menu) {
 <template>
   <v-app>
     <v-layout>
-      <!-- <v-app-bar color="light-blue" height="56" flat>
-        <v-toolbar-title class="text-white text-subtitle-1">
-          ホーム ｜ 導入設定 ｜ マスタ管理 ｜ 人事本部 ｜ 給与関連 ｜ 人事評価 ｜ 個人ポータル ｜ 経理本部 ｜ 総務本部 ｜ 営業本部
-        </v-toolbar-title>
-      </v-app-bar> -->
-
       <v-main>
         <div class="dashboard">
-          <splitpanes class="default-theme main-split" :horizontal="horizontal_vertical !== 'horizontal'">
+          <splitpanes class="main-split" :horizontal="horizontal_vertical !== 'horizontal'">
             <!-- 左 pane 処理待ち -->
-            <pane size="36" min-size="20">
+            <pane size="30" min-size="20">
               <TodoPane
                 :todos="todos"
                 :horizontal="horizontal_vertical === 'horizontal'"
@@ -142,71 +113,35 @@ function handleMenuSelect(menu) {
               />
             </pane>
 
-            <!-- 中央 pane 通知・お知らせ -->
-            <pane size="30" min-size="20">
-              <NoticePane :notices="notices" />
+            <!-- 中央 pane 通常はお知らせ。処理待ち選択中はスタッフ一覧 -->
+            <pane size="34" min-size="20">
+              <NoticePane v-if="!currentTodo" :notices="notices" />
+
+              <StaffListPane
+                v-else
+                ref="staffListPaneRef"
+                :todo="currentTodo"
+                :filter="staffListFilter"
+                @close="closeTodo"
+                @row-selected="handleStaffSelected"
+                @approved="refreshAfterApproval"
+              />
             </pane>
 
-            <!-- 右 pane 全部（メニュー） -->
-            <pane size="34" min-size="22">
-              <MenuPane :menus="menus" @select="handleMenuSelect" />
+            <!-- 右 pane 通常はメニュー。処理待ち選択中は詳細フォーム -->
+            <pane size="36" min-size="22">
+              <MenuPane v-if="!currentTodo" :menus="menus" @select="handleMenuSelect" />
+
+              <StaffDetailPane
+                v-else
+                :todo="currentTodo"
+                :row="selectedRow"
+                :refresh-tick="formRefreshTick"
+                @approval-done="refreshAfterApproval"
+              />
             </pane>
           </splitpanes>
         </div>
-
-        <!-- 処理待ち「確認」で開く画面 -->
-        <v-dialog
-          v-model="todoDialog"
-          fullscreen
-          >
-          <v-card class="todo-dialog-card">
-            <v-card-title class="d-flex align-center justify-space-between">
-              <span class="text-subtitle-1 font-weight-bold">
-                <span v-if="currentTodo?.type">[{{ currentTodo.type }}]</span>
-                {{ currentTodo?.text }}
-              </span>
-
-              <div class="d-flex align-center ga-2">
-                <v-btn
-                  icon="mdi-close"
-                  variant="text"
-                  @click="closeTodoDialog"
-                />
-              </div>
-            </v-card-title>
-
-            <v-divider />
-
-            <v-card-text class="pa-2 todo-dialog-body">
-              <splitpanes class="default-theme" style="height: 100%;">
-                <!-- 左 pane スタッフ一覧 -->
-                <pane size="45" min-size="20">
-                  <div class="dialog-list-pane">
-                    <StaffList
-                      ref="staffListRef"
-                      :request-filter="staffListFilter"
-                      @row-selected="handleStaffSelected"
-                    />
-                  </div>
-                </pane>
-
-                <!-- 右 pane フォーム -->
-                <pane size="55" min-size="30">
-                  <div v-if="selectedRow" class="dialog-form-pane">
-                    <FormVuetifyContainer
-                      :key="`${currentTodo?.sub_category_code}:${selectedRow?.staff_id || selectedRow?.staff_code}:${formRefreshTick}`"
-                      :ApplicationType="currentTodo?.sub_category_code"
-                      @approval-done="refreshAfterApproval"
-                    />
-                  </div>
-                  <div v-else class="dialog-form-placeholder">
-                    左の一覧からスタッフを選択してください
-                  </div>
-                </pane>
-              </splitpanes>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
       </v-main>
     </v-layout>
   </v-app>
@@ -223,49 +158,41 @@ function handleMenuSelect(menu) {
   height: 100%;
 }
 
-/* splitpanes の境界線 */
-:deep(.splitpanes__splitter) {
-  background: #e0e0e0;
-  width: 5px;
+.main-split :deep(.splitpanes__splitter) {
+  background: transparent;
+  position: relative;
 }
 
-:deep(.splitpanes__splitter:hover) {
+.main-split :deep(.splitpanes__splitter)::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 3px;
+  background: #cfd8dc;
+  transition: background-color 0.2s ease;
+}
+
+.main-split :deep(.splitpanes__splitter:hover)::before {
   background: #29b6f6;
 }
 
-.todo-dialog-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+.main-split.splitpanes--vertical :deep(.splitpanes__splitter) {
+  width: 9px;
 }
 
-.todo-dialog-body {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
+.main-split.splitpanes--vertical :deep(.splitpanes__splitter)::before {
+  width: 3px;
+  height: 40px;
 }
 
-.dialog-list-pane {
-  height: 100%;
-  overflow-y: auto;
+.main-split.splitpanes--horizontal :deep(.splitpanes__splitter) {
+  height: 9px;
 }
 
-.dialog-form-pane {
-  height: 100%;
-  overflow-y: auto;
-}
-
-.dialog-form-pane :deep(.container-card) {
-  height: auto;
-  min-height: 100%;
-}
-
-.dialog-form-placeholder {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #90a4ae;
-  font-size: 1.1em;
+.main-split.splitpanes--horizontal :deep(.splitpanes__splitter)::before {
+  width: 40px;
+  height: 3px;
 }
 </style>

@@ -25,40 +25,6 @@ const loginUserId = () => dataStore.getLoginUser()?.user_id
 
 const requestTags = computed(() => appConfigStore.REQUEST_SAVE_TAGS || {})
 
-const approveDialog = ref(false)
-const approveComment = ref('')
-const approving = ref(false)
-
-function openBulkApprove() {
-  approveComment.value = ''
-  approveDialog.value = true
-}
-
-async function approveAllRequests() {
-  const row = props.selectedRow
-  if (!row?.staff_id) return
-
-  approving.value = true
-
-  const ok = await dataStore.saveData(requestTags.value.approve, {
-    staff_id: row.staff_id,
-    approved_by: loginUserId(),
-    approval_comment: approveComment.value || '',
-    data_type: props.dataType || '', // '' = 全タブ対象
-    request_id: '',                  // '' = 全申請対象
-  })
-
-  approving.value = false
-
-  if (!ok) return
-
-  approveDialog.value = false
-  approveComment.value = ''
-  showSnackbar('申請を承認しました', 'success')
-
-  // 全て承認済みになったため選択を解除して一覧に戻す
-  emit('done', { clearSelection: true })
-}
 
 // ---- 個別の承認・差戻し・却下 ----
 const itemApprovalDialog = ref(false)
@@ -119,52 +85,6 @@ defineExpose({
 </script>
 
 <template>
-  <v-btn
-    v-if="selectedRow?.staff_id && hasData"
-    color="primary"
-    prepend-icon="mdi-check-all"
-    @click="openBulkApprove"
-  >
-    一括承認
-  </v-btn>
-
-  <v-dialog v-model="approveDialog" max-width="480">
-    <v-card>
-      <v-card-title class="d-flex align-center">
-        一括承認
-      </v-card-title>
-
-      <v-divider />
-
-      <v-card-text>
-        <p class="mb-4">
-          {{ selectedRow?.staff_name || selectedRow?.user_name }}様の<template v-if="dataTypeName">「{{ dataTypeName }}」の</template>申請中の申請を
-          <strong>全て承認</strong>します。よろしいでしょうか？
-        </p>
-        <v-textarea
-          v-model="approveComment"
-          label="承認コメント（任意）"
-          rows="2"
-          variant="outlined"
-          hide-details
-        />
-      </v-card-text>
-
-      <v-card-actions>
-        <v-spacer />
-        <v-btn variant="text" @click="approveDialog = false">キャンセル</v-btn>
-        <v-btn
-          color="primary"
-          variant="flat"
-          :loading="approving"
-          @click="approveAllRequests"
-        >
-          承認する
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-
   <!-- 個別承認・差戻し・却下の確認ダイアログ -->
   <v-dialog v-model="itemApprovalDialog" max-width="480">
     <v-card>

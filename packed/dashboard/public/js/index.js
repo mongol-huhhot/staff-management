@@ -55,11 +55,6 @@ window.appConfig.DASHBOARD_CONFIG = {
     { title: '雇用保険', icon: 'mdi-account-card', url: '/employment-insurance' },
     { title: '資料アップロード', icon: 'mdi-file-upload', url: '/document-upload' },
     { title: '勤怠時間計算', icon: 'mdi-swap-horizontal', url: '/attendance-calculation' },
-    { title: '給与明細', icon: 'mdi-database', url: '/pay-stubs' },
-    { title: '雇用保険', icon: 'mdi-account-card', url: '/employment-insurance' },
-    { title: '勤怠時間計算', icon: 'mdi-swap-horizontal', url: '/attendance-calculation' },
-    { title: '給与明細', icon: 'mdi-database', url: '/pay-stubs' },
-    { title: '雇用保険', icon: 'mdi-account-card', url: '/employment-insurance' },
   ],
 };
 window.appConfig.MAIN_CONFIG = {

@@ -18,6 +18,7 @@ const emit = defineEmits([
   'page-size-change',
   'prev-page',
   'next-page',
+  'selection-changed',
 ])
 
 const agGridHandler = ref(null)
@@ -53,6 +54,11 @@ const handleNext = () => {
 const handlePageSizeChange = (val) => {
   emit('page-size-change', val)
 }
+
+defineExpose({
+  clearSelection: () => agGridHandler.value?.clearSelection?.(),
+  getSelectedRows: () => agGridHandler.value?.getSelectedRows?.() || [],
+})
 </script>
 
 <template>
@@ -70,13 +76,6 @@ const handlePageSizeChange = (val) => {
               <span v-if="filteredCount">
                 ({{ filteredCount }})
               </span>
-            </span>
-
-            <span
-              v-if="agGridHandler?.selectedRowCount > 0"
-            >
-              選択数：
-              {{ agGridHandler.selectedRowCount }}
             </span>
           </template>
 
@@ -132,6 +131,7 @@ const handlePageSizeChange = (val) => {
         :rowData="rowData"
         :height="gridHeight"
         :show_op="true"
+        @selection-changed="rows => emit('selection-changed', rows)"
       />
     </v-card-text>
   </v-card>

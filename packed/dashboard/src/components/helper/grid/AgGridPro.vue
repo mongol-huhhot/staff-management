@@ -19,6 +19,7 @@ const emit = defineEmits([
   'grid-ready',
   'filtered-changed',
   'counts-changed',
+  'selection-changed',
   'delete-row',
 ])
 
@@ -449,6 +450,10 @@ function onGridReady(params) {
     () => {
       refreshSelectedRowCount()
       emitCounts()
+      emit(
+        'selection-changed',
+        params.api.getSelectedRows?.() || []
+      )
     }
   )
 
@@ -519,6 +524,10 @@ function refreshLayout(mode = 'fit') {
 defineExpose({
   gridApi,
   gridColumnApi,
+  selectedRowCount,
+
+  getSelectedRows: () =>
+    gridApi.value?.getSelectedRows?.() || [],
 
   openQuickFilter: () => {
     quickFilterOpen.value = true
