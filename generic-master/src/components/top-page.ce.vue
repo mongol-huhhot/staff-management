@@ -6,9 +6,10 @@ import '@mdi/font/css/materialdesignicons.css'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 
-import { watch } from 'vue'
+import { ref, watch } from 'vue'
 import MainLayout from '@/components/MainLayout.vue'
 import { useDataStore } from '@/stores/DataStore'
+import { useDbStore } from '@/stores/useDbStore'
 
 
 const props = defineProps({
@@ -23,6 +24,44 @@ const props = defineProps({
 })
 
 const dataStore = useDataStore()
+
+const loginReady = ref(false)
+const loginChecked = ref(false)
+
+const isLocalDev = () => {
+  return window.location.hostname === 'localhost' ||
+         window.location.hostname === '127.0.0.1'
+}
+
+async function checkLogin() {
+    // ログインチェック
+    if ( isLocalDev() ) {
+      const result = await devLogin()
+      console.log('Dev login result:', result)
+      loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
+    }
+    
+    // 通常環境：全体ログインに頼る
+    const verified = await dataStore.verify({
+      loading: false,
+    })
+    loginReady.value = !!verified
+
+    return loginReady.value
+}
+
+async function devLogin() {
+  return await dataStore.login(
+    {
+      user: import.meta.env.VITE_DEV_LOGIN_USER || 'its@janga.co.jp',
+      password: import.meta.env.VITE_DEV_LOGIN_PASSWORD || 'janga1',
+    },
+    {
+      persist: true,
+      loading: true,
+    }
+  )
+}
 
 watch(
   () => props.j,
@@ -42,7 +81,8 @@ watch(
 
     dataStore.params.attributes = p
 
-    const result = await login();
+    const ok = await checkLogin()
+    if (!ok) return
 
     await dataStore.get_user_register({
        user_id: p.user_id,
@@ -54,23 +94,22 @@ watch(
   }
 )
 
-// select * from user_schema.check_user(<%user%>, <%password%>)
-async function login() {
-  const result = await dataStore.login({
-    user: 'its@janga.co.jp',
-    password: 'janga1',
-  },{remember: true})
-
-  console.log('Login result:', result)
-  return result
-}
-
 </script>
 
 <template>
   <v-locale-provider locale="ja">
-    <div v-if="props.j">
+    <div v-if="props.j && loginReady">
       <MainLayout />
+    </div>
+
+    <div v-else-if="props.j && !loginChecked" class="d-flex justify-center align-center pa-8">
+      <v-progress-circular indeterminate color="primary" />
+    </div>
+
+    <div v-else-if="props.j && !loginReady">
+      <h4 style="color: brown;">
+        認証されていません。ポータルからログインし直してください。
+      </h4>
     </div>
 
     <div v-else>
