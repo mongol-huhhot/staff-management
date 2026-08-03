@@ -23,7 +23,7 @@ function statusConfig(status) {
 
 const loginUserId = () => dataStore.getLoginUser()?.user_id
 
-const requestTags = computed(() => appConfigStore.REQUEST_SAVE_TAGS || {})
+const requestTags = computed(() => appConfigStore.REQUEST_TAGS || {})
 
 
 // ---- 個別の承認・差戻し・却下 ----

@@ -41,7 +41,7 @@ async function approveCheckedRequest() {
     isApproveDialog.value = true
 
     try {
-    await dataStore.saveData(appConfigStore.REQUEST_SAVE_TAGS?.approve, {
+    await dataStore.saveData(appConfigStore.REQUEST_TAGS?.approve, {
         staff_id: targets.map(r => r.staff_id).join(','),
         approved_by: dataStore.getLoginUser()?.user_id,
         approval_comment: approveComment.value || '',

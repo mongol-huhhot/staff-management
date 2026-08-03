@@ -15,7 +15,7 @@ window.appConfig = window.appConfig || {};
   ];
 
   // ダッシュボードで使う申請系 SQL タグをここに集約する
-  const REQUEST_SAVE_TAGS = {
+  const REQUEST_TAGS = {
     select: 'staff.request.select_submitted',
     insert:'insert_staff_request_info',
     update: 'update_staff_request_info',
@@ -27,10 +27,8 @@ window.appConfig = window.appConfig || {};
   };
 
   // コンポーネント側（Dashboard.vue / ApprovalActions.vue / DataStore.js）からも参照できるように公開する
-  window.appConfig.REQUEST_SAVE_TAGS = REQUEST_SAVE_TAGS;
+  window.appConfig.REQUEST_TAGS = REQUEST_TAGS;
 
-  // 未実装タブのプレースホルダ
-  const NO_TAGS = { select: '', insert: '', update: '', delete: '' };
 
 window.appConfig.DASHBOARD_CONFIG = {
   staff_code: '11018',
@@ -97,7 +95,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_profile',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags: REQUEST_SAVE_TAGS,
+      sqlTags: REQUEST_TAGS,
       separate_items: REQUEST_SEPARATE_ITEMS,
     },
     address: {
@@ -105,7 +103,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_address',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags: REQUEST_SAVE_TAGS,
+      sqlTags: REQUEST_TAGS,
       separate_items: REQUEST_SEPARATE_ITEMS,
     },
     contact: {
@@ -113,7 +111,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_contact',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags: REQUEST_SAVE_TAGS,
+      sqlTags: REQUEST_TAGS,
       separate_items: REQUEST_SEPARATE_ITEMS,
     },
     bank: {
@@ -121,7 +119,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_bank',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags: REQUEST_SAVE_TAGS,
+      sqlTags: REQUEST_TAGS,
       separate_items: REQUEST_SEPARATE_ITEMS,
     },
     education: {
@@ -129,7 +127,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_education',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags: REQUEST_SAVE_TAGS,
+      sqlTags: REQUEST_TAGS,
       separate_items: REQUEST_SEPARATE_ITEMS,
     },
     traffic: {
@@ -137,7 +135,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_traffic',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags: REQUEST_SAVE_TAGS,
+      sqlTags: REQUEST_TAGS,
       separate_items: REQUEST_SEPARATE_ITEMS,
     },
 
@@ -147,7 +145,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_dependents',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags: REQUEST_SAVE_TAGS,
+      sqlTags: REQUEST_TAGS,
       separate_items: REQUEST_SEPARATE_ITEMS,
     },
     insurance: {
@@ -155,7 +153,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_insurance',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags: REQUEST_SAVE_TAGS,
+      sqlTags: REQUEST_TAGS,
       separate_items: REQUEST_SEPARATE_ITEMS,
     },
     work_history: {
@@ -163,7 +161,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_work_history',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags: REQUEST_SAVE_TAGS,
+      sqlTags: REQUEST_TAGS,
       separate_items: REQUEST_SEPARATE_ITEMS,
     },
 
@@ -172,37 +170,33 @@ window.appConfig.MAIN_CONFIG = {
       label: 'マイナンバー情報', // 未実装
       data_key: 'staff_mynumber',
       jsonb_fields: ['data_jsonb'],
-      skip_reload: true,
-      sqlTags: { ...NO_TAGS },
-      separate_items: ['staff_code', 'profile_version'],
+      skip_reload: false,
+      sqlTags: REQUEST_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
     },
     users: {
       label: 'ログインユーザー情報', // 未実装
       data_key: 'staff_users',
       jsonb_fields: ['data_jsonb'],
-      skip_reload: true,
-      sqlTags: { ...NO_TAGS },
-      separate_items: ['staff_code', 'profile_version'],
+      skip_reload: false,
+      sqlTags: REQUEST_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
     },
     contract: {
       label: '雇用契約情報', // 未実装
       data_key: 'staff_contract',
       jsonb_fields: ['data_jsonb'],
       skip_reload: false,
-      sqlTags: { ...NO_TAGS },
-      separate_items: ['staff_code', 'profile_version'],
+      sqlTags: REQUEST_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
     },
-
-    // ---- 独自構造のタブ ----
     certification: {
       label: '資格情報', // 未実装
       data_key: 'staff_certification',
       jsonb_fields: ['certification_info'],
-      sqlTags: {
-        select: 'masters.get_staff_certification',
-        save: 'masters.upsert_staff_certification',
-        delete: 'masters.delete_staff_certification',
-      },
+      skip_reload: false,
+      sqlTags: REQUEST_TAGS,
+      separate_items: REQUEST_SEPARATE_ITEMS,
     },
   },
 };

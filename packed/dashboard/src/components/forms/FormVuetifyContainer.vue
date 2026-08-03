@@ -45,7 +45,7 @@ const commonParams = computed(() => {
 
   return {
     staff_id: row.staff_id || null,
-    staff_code: row.staff_code || row.user_id || null,
+    staff_code: row.staff_code || null,
     user_id: row.user_id || null,
   }
 })

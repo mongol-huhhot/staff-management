@@ -68,7 +68,7 @@ export const useDataStore = defineStore("dataStore", () => {
 
         const result = await dbAccessWithMultiTags({
             request_counts: {
-                SQLTAG: appConfigStore.REQUEST_SAVE_TAGS?.count_category,
+                SQLTAG: appConfigStore.REQUEST_TAGS?.count_category,
                 category_code: 'staffs',
                 request_statuses: pendingStatuses(),
                 staff_id: null,

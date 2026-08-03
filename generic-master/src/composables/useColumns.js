@@ -33,8 +33,6 @@ const LIST_COLUMNS = [
     { category: 'contract', field: 'resignation_remark', headerName: '退職備考' },
     { category: 'contract', field: 'company_id', headerName: '会社ID' },
     { category: 'basic', field: 'country', headerName: '国' },
-    { category: null, field: 'current_address1', headerName: '現住所1' }, // 辞書に無い旧列（互換のため維持）
-    { category: null, field: 'current_address2', headerName: '現住所2' }, // 辞書に無い旧列（互換のため維持）
     { category: 'contract', field: 'department_id', headerName: '部署ID' },
     { category: 'contact', field: 'email', headerName: 'メールアドレス' },
     { category: 'contact', field: 'emergency_address1', headerName: '緊急連絡先住所1' },
