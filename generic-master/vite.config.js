@@ -1,20 +1,26 @@
+import { fileURLToPath, URL } from 'node:url'
+
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import path from 'path'
+import AutoImport from 'unplugin-auto-import/vite'
+import { createHash } from 'crypto';  // Ensure you import createHash from crypto
 
 export default defineConfig({
   base: './',
 
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    AutoImport({
+      imports: [
+        'vue',
+      ],
+    }),
+  ],
 
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-
-  define: {
-    global: 'globalThis',
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
   },
 
   server: {
@@ -31,16 +37,26 @@ export default defineConfig({
   },
 
   build: {
-    lib: {
-      entry: path.resolve(__dirname, 'src/main.js'),
-      name: 'GenericMasterSystem',
-      fileName: 'generic-master-system',
-      formats: ['iife'],
-    },
     rollupOptions: {
       output: {
-        inlineDynamicImports: true,
-      },
+        chunkFileNames: (chunkInfo) => {
+          const code = chunkInfo.code || '';
+          const hash = createHash('md5').update(code).digest('hex').slice(0, 8);
+          return `assets/[name]-${hash}.js`;
+        },
+        entryFileNames: (chunkInfo) => {
+          const code = chunkInfo.code || '';
+          const hash = createHash('md5').update(code).digest('hex').slice(0, 8);
+          return `assets/[name]-${hash}.js`;
+        },
+        assetFileNames: (assetInfo) => {
+          const source = assetInfo.source || '';
+          const ext = assetInfo.name.split('.').pop();
+          const hash = createHash('md5').update(source).digest('hex').slice(0, 8);
+          return `assets/[name]-${hash}.${ext}`;
+        }
+      }
     },
+    chunkSizeWarningLimit: 10000,
   },
 })

@@ -1,8 +1,7 @@
 // main.js
-import { createApp, h } from 'vue'
+import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import wrapper from 'vue3-webcomponent-wrapper'
-import WebComponent from '@/components/top-page.ce.vue'
+import App from '@/components/top-page.ce.vue'
 
 import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'
@@ -46,17 +45,9 @@ const vuetify = createVuetify({
   },
 })
 
-const WebComponentInner = (component) => {
-  const app = createApp(component)
+const app = createApp(App)
 
-  app.use(vuetify)
-  app.use(createPinia())
+app.use(vuetify)
+app.use(createPinia())
 
-  return app
-}
-
-const webComponent = wrapper(WebComponent, WebComponentInner, h)
-
-if (!customElements.get('generic-master-system')) {
-  customElements.define('generic-master-system', webComponent)
-}
+app.mount('#app')
