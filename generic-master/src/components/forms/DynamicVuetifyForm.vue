@@ -107,6 +107,11 @@ async function submit() {
   }
   emit('submit', formData.value)
 }
+
+defineExpose({
+  submit,
+  validate: () => formRef.value?.validate(),
+})
 </script>
 
 <template>

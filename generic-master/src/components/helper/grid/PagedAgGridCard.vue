@@ -9,6 +9,7 @@ const props = defineProps({
   gridHeight: { type: String, default: '600px' },
   page: { type: Number, default: 0 },
   pageSize: { type: Number, default: 100 },
+  total: { type: Number, default: null },
   loading: { type: Boolean, default: false },
 })
 
@@ -23,7 +24,11 @@ const agGridHandler = ref(null)
 
 const displayPage = computed(() => props.page + 1)
 
-const totalRows = computed(() => props.rowData?.length || 0)
+const totalRows = computed(() => props.total ?? (props.rowData?.length || 0))
+
+const isLastPage = computed(() =>
+  props.total != null && (props.page + 1) * props.pageSize >= props.total
+)
 
 const filteredCount = computed(() => {
   return agGridHandler.value?.filteredCount || 0
@@ -48,6 +53,11 @@ const handleNext = () => {
 const handlePageSizeChange = (val) => {
   emit('page-size-change', val)
 }
+
+defineExpose({
+  clearSelection: () => agGridHandler.value?.clearSelection?.(),
+  getSelectedRows: () => agGridHandler.value?.getSelectedRows?.() || [],
+})
 </script>
 
 <template>
@@ -101,7 +111,7 @@ const handlePageSizeChange = (val) => {
 
           <v-btn
             variant="outlined"
-            :disabled="loading"
+            :disabled="loading || isLastPage"
             @click="handleNext"
           >
             次へ

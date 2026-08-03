@@ -28,7 +28,7 @@ export const useDbStore = defineStore('dbStore', () => {
   const DEFAULT_RETURN = 1
   const DEFAULT_RESULT_TYPE = 1
   const DEFAULT_QUERY_TYPE = 2
-  const DEFAULT_TID = 'showcase'
+  const DEFAULT_TID = import.meta.env.VITE_DEV_TENANT_ID || 'showcase'
   const DEFAULT_SQL_PATH = '/entrance.sql'
 
   // const tenantId = computed(() => detectTid() || DEFAULT_TID)
@@ -84,6 +84,19 @@ export const useDbStore = defineStore('dbStore', () => {
   const clearToken = () => {
     localStorage.removeItem('token')
     sessionStorage.removeItem('token')
+  }
+
+  // JWT トークンの payload からログインユーザー情報を取得する
+  const getLoginUser = () => {
+    const token = getToken()
+    if (!token) return null
+    try {
+      const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+      const bin = atob(b64.padEnd(b64.length + ((4 - (b64.length % 4)) % 4), '='))
+      return JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))))
+    } catch (_) {
+      return null
+    }
   }
 
   // const joinPath = (a = '', b = '') => `${String(a).replace(/\/+$/, '')}/${String(b).replace(/^\/+/, '')}`
@@ -412,6 +425,7 @@ export const useDbStore = defineStore('dbStore', () => {
     getToken,
     saveToken,
     clearToken,
+    getLoginUser,
 
     // config
     // setTenantId,

@@ -7,13 +7,11 @@ import RepeatableFormWrapper from '@/components/forms/RepeatableFormWrapper.vue'
 import { parseJsonbFields, parseAndFlattenJsonbFields, parseRepeatableJsonbFields } from '@/composables/utilFactory'
 import { useFileStore } from '@/stores/useFileStore'
 import { buildSaveParams } from '@/composables/formParamBuilder'
-
+import { showSnackbar } from '@/utils/SnackBar.vue'
 
 const dataStore = useDataStore()
 const configStore = useAppConfigStore()
 const fileStore = useFileStore()
-
-const formRef = ref()
 
 configStore.loadFromWindow()
 
@@ -26,6 +24,13 @@ const loadedTabs = ref({})
 const loadingTabs = ref({})
 
 const tabSqlTags = computed(() => configStore.MAIN_CONFIG?.tab2sqltag_list || {})
+
+// ログインユーザーID
+function loginUserId() {
+  return dataStore.getLoginUser()?.user_id
+    || dataStore.params?.attributes?.user_id
+    || 'admin'
+}
 
 //categoryとdictionaryの取得
 onMounted(async () => {
@@ -59,36 +64,41 @@ const tabItems = computed(() => {
   return Array.isArray(category.value) ? category.value : []
 })
 
-const editMode = computed(() => {
-  return !!dataStore.states.currentRow
-})
+function getTabLabel(tabCode) {
+  return getCategoryByTab(tabCode)?.remarks
+    ?? tabSqlTags.value[tabCode]?.label
+    ?? tabCode
+}
 
 async function handleFormSubmit(tabCode, submittedData) {
   const row = dataStore.states.currentRow
   if (!row?.staff_code) return
 
-  // const valid = await formRef.value.validate()
-
-  // if (!valid) {
-  //   return
-  // }
-
   const tabConfig = tabSqlTags.value[tabCode]
-
-  const commonParams = {
-    updated_by: 'admin',
-    category_code: tabCode,
-    staff_id:row.staff_id,
-    staff_code:row.staff_code
-  }
-
-  const saveSqlTag = tabConfig?.sqltags?.save
   if (!tabConfig) {
     console.error('tabConfig not found:', tabCode)
     return
   }
 
-  const data = formData.value[tabCode]
+  const data = submittedData ?? formData.value[tabCode]
+
+  // 既存レコードは update、新規は insert（旧形式の save タグも許容）
+  const sqltags = tabConfig.sqltags || {}
+  const saveSqlTag = data?.id
+    ? (sqltags.update || sqltags.save)
+    : (sqltags.insert || sqltags.save)
+
+  if (!saveSqlTag) {
+    showSnackbar(`${getTabLabel(tabCode)}の保存用SQLタグが設定されていません。`, 'warning')
+    return
+  }
+
+  const commonParams = {
+    updated_by: loginUserId(),
+    category_code: tabCode,
+    staff_id: row.staff_id,
+    staff_code: row.staff_code,
+  }
 
   const params = buildSaveParams(
     data,
@@ -96,26 +106,15 @@ async function handleFormSubmit(tabCode, submittedData) {
     commonParams
   )
 
-  
-  console.log("data==============",data)
-  console.log("commonParams==============",commonParams)
-  console.log("params==============",params)
-  const ok = await dataStore.saveData(saveSqlTag, params)
+  const ok = await dataStore.saveData(saveSqlTag, params, { showSuccessMessage: false })
 
   if (ok) {
-    const cat = getCategoryByTab(tabCode)
-    alert(`${cat?.category_name ?? tabCode}を保存しました`)
+    showSnackbar(`${getTabLabel(tabCode)}を保存しました`, 'success')
 
     if (!tabConfig.skip_reload) {
       await loadActiveTabData(tabCode, { force: true })
     }
   }
-}
-
-async function save() {
-  const tabCode = activeName.value
-  if (!tabCode) return
-  await handleFormSubmit(tabCode, formData.value[tabCode])
 }
 
 function normalizeCategoryRows(rows = []) {
@@ -218,29 +217,25 @@ function getStaffKey(row) {
 // }
 
 function parseTabRows(tabCode, rows = []) {
-    const jsonbFields = tabSqlTags.value[tabCode]?.jsonb_fields || []
+  const jsonbFields = tabSqlTags.value[tabCode]?.jsonb_fields || []
 
-    if (isRepeatableCategory(tabCode)) {
-        return parseRepeatableJsonbFields(rows, jsonbFields)
-    }
+  if (isRepeatableCategory(tabCode)) {
+    return parseRepeatableJsonbFields(rows, jsonbFields)
+  }
 
-    const parsed = parseAndFlattenJsonbFields(rows, jsonbFields)
+  const parsed = parseAndFlattenJsonbFields(rows, jsonbFields)
 
-    const row = parsed[0]
-
-    return row
+  return parsed[0]
 }
-
 
 // activeになったタブだけスタッフデータをロードする
 const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
-  //データの読み込みが必要かどうかのチェック（バリデーション）
   const row = dataStore.states.currentRow
   const staffKey = getStaffKey(row)
 
   if (!staffKey || !tabCode || !category.value?.length) return
 
-  //保存先（器）の初期化とキャッシュチェック
+  // 保存先（器）の初期化とキャッシュチェック
   ensureTabFormData(tabCode)
 
   const cacheKey = `${staffKey}:${tabCode}`
@@ -249,20 +244,22 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
     return
   }
 
-  //送信用データ（リクエスト payload）の作成
-  const sqltag = tabSqlTags.value[tabCode]?.sqltags?.select || 'staffs.get_staff_profile'
-  console.log(`Using SQLTAG: ${sqltag} for tab: ${tabCode}`)
+  // select タグが未設定のタブはロードしない
+  const selectTag = tabSqlTags.value[tabCode]?.sqltags?.select
+  if (!selectTag) {
+    loadedTabs.value[tabCode] = cacheKey
+    return
+  }
 
   const condition = {
     [tabCode]: {
-      SQLTAG: tabSqlTags.value[tabCode]?.sqltags?.select || 'staffs.get_staff_profile',
+      SQLTAG: selectTag,
       category_code: tabCode,
       staff_code: row?.staff_code || null,
       staff_id: row?.staff_id || null,
     }
   }
 
-  //ローディング）の表示と、データ通信の実行
   loadingTabs.value[tabCode] = true
 
   const multiQueryResult = await dataStore.dbAccessWithMultiTags(condition)
@@ -271,19 +268,15 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
 
   if (multiQueryResult.code !== 0) {
     console.error('Failed to load tab data:', multiQueryResult.message)
+    showSnackbar(`${getTabLabel(tabCode)}の取得に失敗しました。`, 'error')
     return
   }
 
   //取得したデータの加工と格納
   const rows = multiQueryResult.data?.[tabCode] || []
-  console.log("rows=========",rows)
-
-  //データベースから返ってきた生のデータ（JSONB形式など）を、
-  // プログラムで扱いやすいように綺麗なオブジェクトに変換。
   const parsedData = parseTabRows(tabCode, rows)
-  console.log("parsedata==============",parsedData)
 
-  //繰り返し型のタブ（職歴など）の場合: データを配列としてそのまま格納。
+  // 繰り返し型のタブ（職歴など）の場合はデータを配列としてそのまま格納
   if (isRepeatableCategory(tabCode)) {
     formData.value[tabCode] = Array.isArray(parsedData) ? parsedData : []
   } else {
@@ -293,11 +286,8 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
     }
   }
 
-  //キャッシュの記録
-  //このスタッフのこのタブのデータが無事に読み込み終わった証拠（cacheKey）を記録
+  // このスタッフのこのタブが読み込み済みであることを記録する
   loadedTabs.value[tabCode] = cacheKey
-
-  console.log(`Loaded tab data: ${tabCode}`, formData.value[tabCode])
 }
 
 watch(
@@ -358,28 +348,6 @@ watch(
     await loadActiveTabData(activeName.value)
   }
 )
-
-/*
-async function save() {
-  console.log('save data:', formData.value)
-
-  // 例:
-  // await dataStore.save_staff({
-  //   staff_code: dataStore.states.currentRow.staff_code,
-  //   data: formData.value,
-  // })
-}
-*/
-
-async function csvDownload() {
-  // CSV出力
-}
-
-async function confirmDelete() {
-  if (confirm('データを削除してもよろしいですか？')) {
-    // 削除処理
-  }
-}
 </script>
 
 <template>
@@ -388,32 +356,8 @@ async function confirmDelete() {
       <div class="header-left truncated">
         <span v-if="dataStore.states?.currentRow" class="staff-title">
           {{ dataStore.states.currentRow.staff_code }} -
-          {{ dataStore.states.currentRow.staff_name }}様
+          {{ dataStore.states.currentRow.basic?.staff_name || dataStore.states.currentRow.staff_name }}様
         </span>
-        <div v-html="JSON.stringify(formData)"></div>
-      </div>
-
-      <div class="header-actions">
-        <template v-if="editMode">
-          <v-btn color="primary" @click="save">
-            保存
-          </v-btn>
-
-          <v-btn
-            color="error"
-            prepend-icon="mdi-close-circle"
-            @click="confirmDelete"
-          >
-            データ削除
-          </v-btn>
-        </template>
-
-        <v-btn
-          color="success"
-          size="small"
-          icon="mdi-download"
-          @click="csvDownload"
-        />
       </div>
     </v-card-title>
 
@@ -465,14 +409,11 @@ async function confirmDelete() {
               <DynamicVuetifyForm
                 v-else
                 v-model="formData[tab.sub_category_code]"
-                ref="formRef"
                 :fields="getItemsByTab(tab.sub_category_code)"
                 :staff-code="dataStore.states.currentRow?.staff_code"
                 :is-repeatable="false"
                 @submit="data => handleFormSubmit(tab.sub_category_code, data)"
               />
-                
-
             </v-card-text>
           </v-card>
         </v-window-item>
@@ -504,10 +445,5 @@ async function confirmDelete() {
 .staff-title {
   font-size: 1.25em;
   font-weight: bold;
-}
-
-.header-actions {
-  display: flex;
-  gap: 8px;
 }
 </style>

@@ -26,7 +26,6 @@ const props = defineProps({
 const dataStore = useDataStore()
 
 const loginReady = ref(false)
-const loginChecked = ref(false)
 
 const isLocalDev = () => {
   return window.location.hostname === 'localhost' ||
@@ -102,14 +101,8 @@ watch(
       <MainLayout />
     </div>
 
-    <div v-else-if="props.j && !loginChecked" class="d-flex justify-center align-center pa-8">
+    <div v-else-if="props.j && !loginReady" class="d-flex justify-center align-center pa-8">
       <v-progress-circular indeterminate color="primary" />
-    </div>
-
-    <div v-else-if="props.j && !loginReady">
-      <h4 style="color: brown;">
-        認証されていません。ポータルからログインし直してください。
-      </h4>
     </div>
 
     <div v-else>
