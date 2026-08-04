@@ -149,7 +149,7 @@ function handleMenuSelect(menu) {
 
 <style scoped>
 .dashboard {
-  height: calc(100vh - 100px);
+  height: calc(100vh - 80px);
   background: #f5f7fa;
   padding: 8px;
 }

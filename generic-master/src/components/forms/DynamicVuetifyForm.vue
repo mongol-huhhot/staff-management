@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { buildRules } from '@/composables/useRuleFactory'
+import FieldHistoryLabel from '@/components/forms/fields/FieldHistoryLabel.vue'
 
 const props = defineProps({
   modelValue: { type: Object, required: true },
@@ -14,11 +15,17 @@ const props = defineProps({
   commonParams: { type: Object, default: () => ({}) },
   staffCode: { type: String, default: '' },
   isRepeatable: { type: Boolean, default: false },
+  approvedData: { type: Object, default: null }, // 変更前データ。key は formData と同じ
 })
 
 const staffCode = computed(() =>props.staffCode)
 
 const recordId = computed(() => props.modelValue?.record_id)
+
+// 変更前ラベルを表示するかどうか
+const showHistory = computed(() => {
+  return !!props.approvedData && Object.keys(props.approvedData).length > 0
+})
 
 console.log("DynamicVuetifyForm.vue.props===========",props)
 
@@ -61,17 +68,6 @@ function toDisplayValue(field, value) {
   }
   return null
 }
-
-// function getComponent(field) {
-//   if (field.component) return field.component
-
-//   if (field.type === 'select') return 'v-select'
-//   if (field.type === 'combobox') return 'v-combobox'
-//   if (field.type === 'textarea') return 'v-textarea'
-//   if (field.type === 'date' || field.type === 'month') return DatePicker
-
-//   return 'v-text-field'
-// }
 
 // 保存用：YYYY-MM-DD 文字列に変換
 function normalizeDateValue(value) {
@@ -124,6 +120,12 @@ defineExpose({
         sm="6"
         md="4"
       >
+        <FieldHistoryLabel
+          v-if="showHistory"
+          :field="field"
+          :approved-value="approvedData?.[field.key]"
+          :current-value="formData[field.key]"
+        />
         <component
           :is="field.component || 'v-text-field'"
           :model-value="

@@ -4,6 +4,8 @@ import { useDataStore } from '@/stores/DataStore'
 import { useAppConfigStore } from '@/stores/AppConfigStore'
 import DynamicVuetifyForm from '@/components/forms/DynamicVuetifyForm.vue'
 import RepeatableFormWrapper from '@/components/forms/RepeatableFormWrapper.vue'
+import StaffProfileOverview from '@/components/forms/StaffProfileOverview.vue'
+import ConfirmDialog from '@/components/forms/ConfirmDialog.vue'
 import { parseJsonbFields, parseAndFlattenJsonbFields, parseRepeatableJsonbFields } from '@/composables/utilFactory'
 import { useFileStore } from '@/stores/useFileStore'
 import { buildSaveParams } from '@/composables/formParamBuilder'
@@ -22,6 +24,8 @@ const dictionary = ref([])
 
 const loadedTabs = ref({})
 const loadingTabs = ref({})
+
+const originalData = ref({})
 
 const tabSqlTags = computed(() => configStore.MAIN_CONFIG?.tab2sqltag_list || {})
 
@@ -110,10 +114,55 @@ async function handleFormSubmit(tabCode, submittedData) {
 
   if (ok) {
     showSnackbar(`${getTabLabel(tabCode)}を保存しました`, 'success')
+    originalData.value[tabCode] = cloneData(formData.value[tabCode])
 
     if (!tabConfig.skip_reload) {
       await loadActiveTabData(tabCode, { force: true })
     }
+  }
+}
+
+// ---- 保存前の確認 ----
+function cloneData(value) {
+  try {
+    return JSON.parse(JSON.stringify(value ?? null))
+  } catch (e) {
+    return null
+  }
+}
+
+const isConfirmDialog = ref(false)
+const confirmTab = ref('')
+const confirmData = ref(null)
+const confirmSaving = ref(false)
+
+// repeatable タブは id で読込時の行を探す（新規行は変更前なし）
+function findOriginalRow(tabCode, data) {
+  const original = originalData.value[tabCode]
+
+  if (!isRepeatableCategory(tabCode)) {
+    return original || {}
+  }
+
+  if (!Array.isArray(original)) return {}
+  return original.find(row => row?.id != null && row.id === data?.id) || {}
+}
+
+// フォームの submit（バリデーション通過後）で確認ダイアログを開く
+function openConfirmDialog(tabCode, submittedData) {
+  confirmTab.value = tabCode
+  confirmData.value = submittedData ?? formData.value[tabCode]
+  isConfirmDialog.value = true
+}
+
+async function confirmSave() {
+  confirmSaving.value = true
+
+  try {
+    await handleFormSubmit(confirmTab.value, confirmData.value)
+    isConfirmDialog.value = false
+  } finally {
+    confirmSaving.value = false
   }
 }
 
@@ -159,6 +208,27 @@ function getItemsByTab(tabCode) {
     .map(normalizeDictionaryItem)
 }
 
+
+// カテゴリコードと衝突しない予約タブコード
+const PREVIEW_TAB = 'preview'
+
+// staff.get_information_preview の結果（{basic:{...}, work_history:[...], ...}）
+const previewProfile = computed(() => formData.value[PREVIEW_TAB] || {})
+
+// 添付（画像アップロード）はプレビュー対象外
+function getPreviewFields(tabCode) {
+  return getItemsByTab(tabCode).filter(field => field.group !== 'attachment')
+}
+
+// タブコード → 項目定義リスト（StaffProfileOverview に渡す）
+const previewFieldsMap = computed(() => {
+  const map = {}
+  tabItems.value.forEach(tab => {
+    map[tab.sub_category_code] = getPreviewFields(tab.sub_category_code)
+  })
+  return map
+})
+
 function ensureTabFormData(tabCode) {
   if (!tabCode) return
 
@@ -183,38 +253,6 @@ function initializeAllTabContainers() {
 function getStaffKey(row) {
   return row?.staff_id || row?.staff_code || null
 }
-
-//DBテーブルの設計を変更したためそれにともない修正し、もとのコードをコメントアウト
-// function parseTabRows(tabCode, rows = []) {
-//   const jsonbFields = tabSqlTags.value[tabCode]?.jsonb_fields || []
-//   const parsed = parseAndFlattenJsonbFields(rows, jsonbFields)
-
-//   if (isRepeatableCategory(tabCode)) {
-//     if (Array.isArray(parsed)) return parsed
-//     return parsed ? [parsed] : []
-//   }
-
-//   return Array.isArray(parsed) ? (parsed[0] || {}) : {}
-// }
-
-// function parseTabRows(tabCode, rows = []) {
-//     const jsonbFields = tabSqlTags.value[tabCode]?.jsonb_fields || []
-//     const parsed = parseAndFlattenJsonbFields(rows, jsonbFields)
-
-//     if (parsed.length === 0) {
-//         return isRepeatableCategory(tabCode)
-//             ? []
-//             : {}
-//     }
-
-//     const row = parsed[0]
-
-//     if (isRepeatableCategory(tabCode)) {
-//         return Array.isArray(row) ? row : []
-//     }
-
-//     return row
-// }
 
 function parseTabRows(tabCode, rows = []) {
   const jsonbFields = tabSqlTags.value[tabCode]?.jsonb_fields || []
@@ -285,6 +323,7 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
       ...(parsedData || {}),
     }
   }
+  originalData.value[tabCode] = cloneData(formData.value[tabCode])
 
   // このスタッフのこのタブが読み込み済みであることを記録する
   loadedTabs.value[tabCode] = cacheKey
@@ -293,29 +332,16 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
 watch(
   () => dataStore.states.currentRow,
   async (newVal) => {
-     // 1. データを空にする
+    // 1. データを空にする
     formData.value = {}
+    originalData.value = {}
     loadedTabs.value = {}
     loadingTabs.value = {}
 
     initializeAllTabContainers()
     fileStore.clearFiles()
 
-    // --- ここから追加 ---
-     // 2. 新しいスタッフの基本情報を全タブの土台としてコピーする
-    /*if (newVal) {
-      // newVal に入っている currentRow の値を、タブごとの formData にコピーする
-      // ※ 'basic' はタブのコードに合わせて適宜読み替えてください
-      // 全タブに反映させたい共通データなら、このループ処理で全タブにコピーされます
-      category.value.forEach(cat => {
-        const tabCode = cat.sub_category_code;
-        // currentRow のプロパティを formData の各タブに展開
-        formData.value[tabCode] = { ...newVal }; 
-      });
-    }*/
-    // --- ここまで追加 ---
-
-    // 3. 現在開いているタブのデータをDBから取り直す
+    // 2. 現在開いているタブのデータをDBから取り直す
     if (newVal && activeName.value) {
       await loadActiveTabData(activeName.value, { force: true })
     }
@@ -341,7 +367,7 @@ watch(
     initializeAllTabContainers()
 
     if (!activeName.value) {
-      activeName.value = newCategory[0]?.sub_category_code || ''
+      activeName.value = PREVIEW_TAB
       return
     }
 
@@ -369,6 +395,10 @@ watch(
         density="compact"
         color="primary"
       >
+        <v-tab :value="PREVIEW_TAB">
+          プレビュー
+        </v-tab>
+
         <v-tab
           v-for="tab in tabItems"
           :key="tab.sub_category_code"
@@ -379,6 +409,17 @@ watch(
       </v-tabs>
 
       <v-window v-model="activeName" class="mt-2">
+        <!-- 全項目プレビュー（参照のみ） -->
+        <v-window-item :value="PREVIEW_TAB">
+          <StaffProfileOverview
+            :categories="tabItems"
+            :profile="previewProfile"
+            :fields-map="previewFieldsMap"
+            :staff-code="dataStore.states.currentRow?.staff_code"
+            :loading="!!loadingTabs[PREVIEW_TAB]"
+          />
+        </v-window-item>
+
         <v-window-item
           v-for="tab in tabItems"
           :key="tab.sub_category_code"
@@ -403,7 +444,7 @@ watch(
                 :children="getItemsByTab(tab.sub_category_code)"
                 :add-button-text="`${tab.category_name}追加`"
                 :staff-code="dataStore.states.currentRow?.staff_code"
-                @submit="data => handleFormSubmit(tab.sub_category_code, data)"
+                @submit="data => openConfirmDialog(tab.sub_category_code, data)"
               />
 
               <DynamicVuetifyForm
@@ -412,7 +453,7 @@ watch(
                 :fields="getItemsByTab(tab.sub_category_code)"
                 :staff-code="dataStore.states.currentRow?.staff_code"
                 :is-repeatable="false"
-                @submit="data => handleFormSubmit(tab.sub_category_code, data)"
+                @submit="data => openConfirmDialog(tab.sub_category_code, data)"
               />
             </v-card-text>
           </v-card>
@@ -420,11 +461,22 @@ watch(
       </v-window>
     </v-card-text>
   </v-card>
+
+  <!-- 保存内容の確認ダイアログ -->
+  <ConfirmDialog
+    v-model="isConfirmDialog"
+    :tab-label="getTabLabel(confirmTab)"
+    :fields="getPreviewFields(confirmTab)"
+    :form-data="confirmData"
+    :approved-data="findOriginalRow(confirmTab, confirmData)"
+    :staff-code="dataStore.states.currentRow?.staff_code"
+    :saving="confirmSaving"
+    @confirm="confirmSave"
+  />
 </template>
 
 <style scoped>
 .container-card {
-  height: 100%;
   margin: 12px;
   background-color: #fff;
   border-radius: 8px;

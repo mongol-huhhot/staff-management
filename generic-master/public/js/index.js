@@ -18,6 +18,13 @@ window.appConfig.MAIN_CONFIG = {
 
   // 各タブのSQLタグを定義
   tab2sqltag_list: {
+    preview: {
+      label: 'プレビュー',
+      jsonb_fields: ['profile_jsonb'],
+      sqltags: {
+        select: 'staff.get_information_preview',
+      },
+    },
     basic: {
       label: '基本情報',
       data_key: 'staff_profile',
