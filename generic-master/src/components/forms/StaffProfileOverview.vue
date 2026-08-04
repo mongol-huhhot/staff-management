@@ -37,6 +37,17 @@ function getPreviewModel(cat) {
 
   return (data && typeof data === 'object' && !Array.isArray(data)) ? data : {}
 }
+
+// データがあるフォームを表示する
+function hasData(cat) {
+  const model = getPreviewModel(cat)
+
+  if (isRepeatableCategory(cat)) {
+    return model.length > 0
+  }
+
+  return Object.keys(model).length > 0
+}
 </script>
 
 <template>
@@ -57,20 +68,18 @@ function getPreviewModel(cat) {
       </v-expansion-panel-title>
 
       <v-expansion-panel-text>
-        <template v-if="isRepeatableCategory(cat)">
-          <RepeatableFormWrapper
-            v-if="getPreviewModel(cat).length"
-            :model-value="getPreviewModel(cat)"
-            :label="cat.remarks"
-            :children="fieldsMap[cat.sub_category_code] || []"
-            :staff-code="staffCode"
-            :disabled="true"
-          />
+        <div v-if="!hasData(cat)" class="text-medium-emphasis text-body-2">
+          データがありません。
+        </div>
 
-          <div v-else class="text-medium-emphasis text-body-2">
-            データがありません。
-          </div>
-        </template>
+        <RepeatableFormWrapper
+          v-else-if="isRepeatableCategory(cat)"
+          :model-value="getPreviewModel(cat)"
+          :label="cat.remarks"
+          :children="fieldsMap[cat.sub_category_code] || []"
+          :staff-code="staffCode"
+          :disabled="true"
+        />
 
         <DynamicVuetifyForm
           v-else

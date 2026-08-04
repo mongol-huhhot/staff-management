@@ -109,10 +109,6 @@ const tabItems = computed(() => {
   return Array.isArray(category.value) ? category.value : []
 })
 
-const editMode = computed(() => {
-  return !!dataStore.states.currentRow
-})
-
 async function handleFormSubmit(tabCode, submittedData) {
   const row = dataStore.params.attributes
   if (!row?.staff_code) return
@@ -120,7 +116,7 @@ async function handleFormSubmit(tabCode, submittedData) {
   const tabConfig = tabSqlTags.value[tabCode]
 
   const commonParams = {
-    updated_by: 'admin',
+    updated_by: dataStore.getLoginUser()?.user_id,
     staff_id:row.staff_id,
     staff_code:row.staff_code,
     user_id:row.user_id,
