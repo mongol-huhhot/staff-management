@@ -9,8 +9,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css'
 import { ref, watch } from 'vue'
 import MainLayout from '@/components/MainLayout.vue'
 import { useDataStore } from '@/stores/DataStore'
-import { useDbStore } from '@/stores/useDbStore'
-
+import Snackbar from "@/utils/SnackBar.vue";
 
 const props = defineProps({
   j: {
@@ -98,6 +97,7 @@ watch(
 <template>
   <v-locale-provider locale="ja">
     <div v-if="props.j && loginReady">
+      <Snackbar/>
       <MainLayout />
     </div>
 

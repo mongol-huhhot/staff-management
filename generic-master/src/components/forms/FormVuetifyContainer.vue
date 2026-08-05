@@ -17,6 +17,8 @@ const fileStore = useFileStore()
 
 configStore.loadFromWindow()
 
+const appKey = computed(() => configStore.MAIN_CONFIG?.app_key || 'staffs')
+
 const formData = ref({})
 const activeName = ref('')
 const category = ref([])
@@ -28,25 +30,19 @@ const loadingTabs = ref({})
 const originalData = ref({})
 
 const tabSqlTags = computed(() => configStore.MAIN_CONFIG?.tab2sqltag_list || {})
-
-// ログインユーザーID
-function loginUserId() {
-  return dataStore.getLoginUser()?.user_id
-    || dataStore.params?.attributes?.user_id
-    || 'admin'
-}
+console.log("appKey", configStore.MAIN_CONFIG?.app_key)
 
 //categoryとdictionaryの取得
 onMounted(async () => {
   const multiQueryResult = await dataStore.dbAccessWithMultiTags({
     category: {
       SQLTAG: 'masters.get_item_category',
-      category_code: 'staffs',
+      category_code: appKey.value,
       enabled: 'active',
     },
     dictionary: {
       SQLTAG: 'masters.get_item_dictionary',
-      category_code: 'staffs',
+      category_code: appKey.value,
       enabled: 'active',
     },
   })
@@ -98,7 +94,7 @@ async function handleFormSubmit(tabCode, submittedData) {
   }
 
   const commonParams = {
-    updated_by: loginUserId(),
+    updated_by: dataStore.getLoginUser()?.user_id,
     category_code: tabCode,
     staff_id: row.staff_id,
     staff_code: row.staff_code,

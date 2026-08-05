@@ -15,6 +15,8 @@ const REQUEST_SEPARATE_ITEMS = [
 
 window.appConfig.MAIN_CONFIG = {
   debug_mode: true,
+  app_key: 'staffs',            // mtb_item_categoryテーブルのcategory_code。m_app_role_permissionsのapp_codeにも対応
+  app_name: 'スタッフ情報管理',
 
   // 各タブのSQLタグを定義
   tab2sqltag_list: {
