@@ -127,6 +127,7 @@ const handlePageSizeChange = (val) => {
         :rowData="rowData"
         :height="gridHeight"
         :show_op="true"
+        @row-click="emit('row-click', $event)"
       />
     </v-card-text>
   </v-card>

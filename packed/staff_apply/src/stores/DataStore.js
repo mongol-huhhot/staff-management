@@ -14,6 +14,7 @@ export const useDataStore = defineStore("dataStore", () => {
         get_item_dictionary: 'masters.get_item_dictionary',
         get_staff_profile: 'get_staff_personal_allrequest',
         get_user_staff: 'users.get_user_staff',
+        getStaffRequestDetail: 'get-staff-request-detail',
     }
 
     const states = reactive({
@@ -73,6 +74,10 @@ export const useDataStore = defineStore("dataStore", () => {
 
     const get_user_staff = async (p = {}) => {
         return await runLoad(CONST_DEF.get_user_staff, p )
+    }
+
+    const getStaffRequestDetail = async (p = {}) => {
+        return await runLoad(CONST_DEF.getStaffRequestDetail, p )
     }
 
     async function rowCliked(v) {
@@ -137,6 +142,7 @@ export const useDataStore = defineStore("dataStore", () => {
         get_user_register,
         get_staff_profile,
         get_user_staff,
+        getStaffRequestDetail,
         login,
         logout,
         verify, 

@@ -107,7 +107,9 @@ watch(
 
 const loadData = async () => {
   let val = await dataStore.get_staff_profile({
-    category_code: application_type.value
+    category_code: application_type.value,
+    staff_id: dataStore.params?.attributes?.staff_id,
+    staff_code: dataStore.params?.attributes?.staff_code
   })
   console.log("category_code",application_type.value)
   //val = val?.[0]?.result || []
@@ -170,9 +172,27 @@ watch(
   }
 )
 
+const emit = defineEmits([
+  'preview-request',
+])
+
 const handleRowClick = (event) => {
-  dataStore.states.currentRow = event.data
+  console.log("llllllllllllllllllllllllllllllllllllllllllllllll")
+  const row = event?.data
+  console.log("handlerowclick",row.id)
+  if (!row?.id) return
+  console.log("handlerowclick",row.id)
+
+  emit('preview-request', {
+    requestId: row.id,
+    row,
+  })
 }
+
+
+// const handleRowClick = (event) => {
+//   dataStore.states.currentRow = event.data
+// }
 
 const gridColumns = computed(() => {
   return dataStore.buildColumnsDefine(
@@ -337,7 +357,7 @@ async function handleDownload() {
     <v-card-title>
       <div class="d-flex align-center flex-wrap ga-3">
         <h4>
-          個人情報管理
+          申請履歴一覧
         </h4>
 
         <!-- <a

@@ -1,61 +1,165 @@
-<!-- RepeatableFormWrapper.vue -->
+<script setup>
+import { ref } from 'vue'
+import DynamicVuetifyForm from './DynamicVuetifyForm.vue'
+
+const props = defineProps({
+  modelValue: { type: Array, default: () => [], },
+  label: {type: String,default: '',},
+  children: {    type: Array,default: () => [],},
+  addButtonText: {type: String,default: '',},
+  sqltags: {    type: Object,default: null,},
+  tabConfig: {    type: Object,    default: () => ({}),},
+  commonParams: {    type: Object,    default: () => ({}),},
+  controls: {    type: Object,    default: null,},
+  chipcontrols: {    type: Object,    default: null,},
+  staffCode: {    type: String,    default: '',},
+})
+
+const emit = defineEmits([
+  'update:modelValue',
+  'request-action',
+])
+
+const formRefs = ref([])
+
+function setFormRef(element, index) {
+  if (element) {
+    formRefs.value[index] = element
+  }
+}
+
+function updateItem(index, value) {
+  const copied = [...props.modelValue]
+
+  copied[index] = value
+
+  emit('update:modelValue', copied)
+}
+
+function add() {
+  const recordId = crypto.randomUUID()
+
+  emit('update:modelValue', [
+    ...props.modelValue,
+    {
+      __uuid: crypto.randomUUID(),
+      id: null,
+      record_id: recordId,
+      request_status: 'tmp',
+      new_request_status: null,
+      request_type: 'create',
+      valid_from: null,
+      request_comment: '',
+      approval_comment: '',
+      enabled: 'active',
+    },
+  ])
+}
+
+function isUnsavedItem(item) {
+  return (
+    !item?.id && item?.__uuid
+    // (
+    //   !item?.request_status ||
+    //   item.request_status === 'tmp'
+    // )
+  )
+}
+
+function removeUnsavedItem(index, item) {
+  if (!isUnsavedItem(item)) {
+    return
+  }
+
+  if (!window.confirm('追加した行を削除しますか？')) {
+    return
+  }
+
+  const copied = [...props.modelValue]
+
+  copied.splice(index, 1)
+
+  emit('update:modelValue', copied)
+}
+
+function handleRequestAction(payload, index) {
+  emit('request-action', {
+    ...payload,
+    index,
+    isRepeatable: true,
+  })
+}
+
+async function validate() {
+  for (const form of formRefs.value) {
+    if (!form?.validate) {
+      continue
+    }
+
+    const isValid = await form.validate()
+
+    if (!isValid) {
+      return false
+    }
+  }
+
+  return true
+}
+
+defineExpose({
+  validate,
+})
+</script>
+
 <template>
   <div>
-    <!-- <div class="d-flex justify-end mb-3">
-      <v-btn
-        color="primary"
-        class="me-2"
-        :loading="saving"
-        :disabled="!modelValue?.length || !props.sqltags?.save || controls?.draftSave?.disabled"
-        v-show="controls?.draftSave?.show"
-        @click="submit('draft')"
-      >
-        下書き保存
-      </v-btn>
-      <v-btn
-        color="primary"
-        :loading="saving"
-        :disabled="!modelValue?.length || !props.sqltags?.save || controls?.submit?.disabled"
-        v-show="controls?.submit?.show"
-        @click="submit('submitted')"
-      >
-        登録・変更申請
-      </v-btn>
-    </div> -->
-
     <v-card
       v-for="(item, index) in modelValue"
-      :key="item.__uuid || item.staff_bank_account_id || item.id || index"
+      :key="
+        item.__uuid ||
+        item.record_id ||
+        item.id ||
+        index
+      "
       class="mb-4"
       variant="outlined"
     >
-      <v-card-title>
-        {{ label }} {{ index + 1 }}
+      <v-card-title class="d-flex align-center">
+        <span>
+          {{ label }} {{ index + 1 }}
+        </span>
 
         <v-spacer />
 
-        <!-- <v-btn
+        <v-btn
+          v-if="isUnsavedItem(item)"
           icon="mdi-delete"
           variant="text"
           color="error"
-          :loading="deletingIndex === index"
-          @click="remove(index, item)"
-        /> -->
+          title="追加した行を削除"
+          @click="removeUnsavedItem(index, item)"
+        />
       </v-card-title>
 
       <v-card-text>
         <DynamicVuetifyForm
-          v-model="modelValue[index]"
-          :ref="el => formRefs[index] = el"
+          :ref="element => setFormRef(element, index)"
+          :model-value="item"
           :fields="children"
           :is-repeatable="true"
           :show-submit="true"
           :controls="controls"
           :chipcontrols="chipcontrols"
-          @submit="data => emit('submit', data)"
-          :sqltags="props.sqltags"
-          :tab-config="props.tabConfig"
-          :common-params="props.commonParams"
+          :sqltags="sqltags"
+          :tab-config="tabConfig"
+          :common-params="commonParams"
+          :staff-code="staffCode"
+          @update:model-value="
+            value => updateItem(index, value)
+          "
+          @request-action="
+            payload => handleRequestAction(payload, index)
+          "
         />
       </v-card-text>
     </v-card>
@@ -63,156 +167,10 @@
     <v-btn
       color="primary"
       variant="outlined"
+      prepend-icon="mdi-plus"
       @click="add"
     >
       {{ addButtonText || '追加' }}
     </v-btn>
   </div>
 </template>
-
-<script setup>
-import { ref,watch,computed } from 'vue'
-import DynamicVuetifyForm from './DynamicVuetifyForm.vue'
-import { useDataStore } from '@/stores/DataStore'
-import { buildLoopParams } from '@/composables/formParamBuilder'
-
-const props = defineProps({
-  modelValue: {
-    type: Array,
-    default: () => []
-  },
-  label: String,
-  children: {
-    type: Array,
-    default: () => []
-  },
-  addButtonText: String,
-  sqltags: {
-    type: Object,
-    default: null,
-  },
-  tabConfig: {
-    type: Object,
-    default: () => ({}),
-  },
-  commonParams: {
-    type: Object,
-    default: () => ({}),
-  },
-  controls: {
-    type: Object, 
-    default: null 
-  },
-  chipcontrols: {
-    type: Object, 
-    default: null 
-  },
-})
-
-const emit = defineEmits(['update:modelValue', 'saved', 'deleted'])
-
-const dataStore = useDataStore()
-const saving = ref(false)
-const deletingIndex = ref(null)
-const formRefs = ref([])
-const controls = computed(() =>props.controls)
-const chipcontrols = computed(() =>props.chipcontrols)
-
-console.log("repeatable.props",props)
-
-function add() {
-  emit('update:modelValue', [
-    ...props.modelValue,
-    {
-      __uuid: crypto.randomUUID(),
-      enabled: 'active',
-    }
-  ])
-}
-
-// 送信処理
-async function submit(request_status) {
-
-  for (const form of formRefs.value) {
-    //console.log("repetable validate start",form)
-    const result = await form.validate()
-      if (!result) {
-        console.log("repetable validate is false")
-          return 
-      }
-      console.log("repetable validate is true")
-  }
-  
-    emit('submit',request_status)
-}
-
-// async function saveAll() {
-//   if (!props.sqltags?.save) return
-
-//   saving.value = true
-
-//   try {
-//     const params = buildLoopParams(
-//       props.modelValue,
-//       props.tabConfig,
-//       props.commonParams,
-//     )
-
-//     const result = await dataStore.saveData(
-//       props.sqltags.save,
-//       params,
-//     )
-
-//     emit('saved', result)
-//   } catch (error) {
-//     console.error('RepeatableFormWrapper saveAll error:', error)
-//   } finally {
-//     saving.value = false
-//   }
-// }
-
-async function remove(index, item) {
-  if (!confirm('このデータを削除しますか？')) return
-
-  const isNew = item?.__uuid && !item?.id && !item?.staff_bank_account_id
-
-  if (!isNew && props.sqltags?.delete) {
-    deletingIndex.value = index
-
-    try {
-      const result = await dataStore.saveData(
-        props.sqltags.delete,
-        {
-          ...props.commonParams,
-          ...item,
-          enabled: 'inactive',
-        },
-      )
-
-      emit('deleted', result)
-    } catch (error) {
-      console.error('RepeatableFormWrapper delete error:', error)
-      deletingIndex.value = null
-      return
-    }
-
-    deletingIndex.value = null
-  }
-
-  const copied = [...props.modelValue]
-  copied.splice(index, 1)
-  emit('update:modelValue', copied)
-}
-
-// watch(
-//   formRefs,
-//   (newformRefs) => {
-//     console.log("formdata watch",newformRefs)
-//     console.log("formdata watch",newformRefs[0])
-//     console.log("formdata watch",newformRefs[0].validate)
-//   },
-//   {
-//     deep: true
-//   }
-// )
-</script>

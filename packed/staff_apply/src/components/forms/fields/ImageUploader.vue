@@ -33,6 +33,7 @@ const props = defineProps({
   isRepeatable: { type: Boolean, default: false },
   requestStatus: { type: String, default: 'tmp' },
 })
+console.log("props")
 
 const staffCode = computed(() => props.staffCode)
 const categoryCode = computed(() => props.categoryCode)
@@ -85,15 +86,15 @@ console.log("imageuploader.props=====",meta)
        :meta="meta"
     /> -->
 
-    <div
+    <!-- <div
     v-if="props.isRepeatable && !canLoad"
     class="text-medium-emphasis pa-4 text-center"
   >
     この銀行口座情報を保存すると画像を登録できます
-  </div>
+  </div> -->
 
   <UploadImageWrapper
-    v-else
+    
     :meta="meta"
     :requestStatus="requestStatus"
   />

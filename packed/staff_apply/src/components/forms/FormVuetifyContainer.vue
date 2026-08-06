@@ -1,19 +1,23 @@
 <script setup>
-import { ref, computed, watch, onMounted,watchEffect } from 'vue'
+import { ref, unref, computed, watch, onMounted,watchEffect } from 'vue'
 import { useDataStore } from '@/stores/DataStore'
 import { useAppConfigStore } from '@/stores/AppConfigStore'
 import DynamicVuetifyForm from '@/components/forms/DynamicVuetifyForm.vue'
 import RepeatableFormWrapper from '@/components/forms/RepeatableFormWrapper.vue'
+import ApprovalActions from '@/components/helper/dialog/ApprovalActions.vue'
+import RequestHistoryPreviewDialog from '@/components/helper/dialog/RequestHistoryPreviewDialog.vue'
 import { parseJsonbFields, parseAndFlattenJsonbFields, parseRepeatableJsonbFields } from '@/composables/utilFactory'
 import { useFileStore } from '@/stores/useFileStore'
 import { buildSaveParams } from '@/composables/formParamBuilder'
-
+import MainList from '../MainList.vue'
 
 const dataStore = useDataStore()
 const configStore = useAppConfigStore()
 const fileStore = useFileStore()
 
 const formRef = ref()
+
+const HISTORY_TAB = 'request-history'
 
 configStore.loadFromWindow()
 
@@ -28,20 +32,7 @@ const loadingTabs = ref({})
 const tabSqlTags = computed(() => configStore.MAIN_CONFIG?.tab2sqltag_list || {})
 const controls = computed(() => configStore.buttonRules || {})
 const chipcontrols = computed(() => configStore.requestStatusConfig || {})
-// const controls = computed(() => {
-//   return (
-//     configStore.buttonRules?.[
-//       currentStaffRequest.value.request_status
-//     ] ?? {}
-//   )
-// })
-// const chipcontrols = computed(() => {
-//   return (
-//     configStore.requestStatusConfig?.[
-//       currentStaffRequest.value.request_status
-//     ] ?? {}
-//   )
-// })
+
 
 const currentStaffRow = computed(() => ({
   ...dataStore.params.attributes
@@ -74,6 +65,55 @@ const props = defineProps({
     default: ()=>'staffs',
   }
 })
+
+const emit = defineEmits(['approval-done'])
+const approvalActionsRef = ref(null)
+
+function handleRequestAction(tabCode, payload) {
+  const allTabConfigs = unref(tabSqlTags) || {}
+  const resolvedCommonParams = unref(commonParams) || {}
+
+  const tabConfig = allTabConfigs[tabCode]
+
+  if (!tabConfig) {
+    console.error(
+      `tabConfigが見つかりません: ${tabCode}`
+    )
+
+    return
+  }
+
+  approvalActionsRef.value?.openRequestAction({
+    ...payload,
+    tabCode,
+    tabConfig,
+    commonParams: resolvedCommonParams,
+  })
+}
+
+async function handleRequestActionDone(payload) {
+  const tabCode = payload?.tabCode
+
+  if (!tabCode) {
+    return
+  }
+
+  /*
+   * 既存のタブ再読込関数名がloadTabDataの場合。
+   * 実際の関数名が異なる場合はここだけ既存関数名へ合わせる。
+   */
+  await loadActiveTabData(tabCode)
+}
+
+const historyPreviewOpen = ref(false)
+const selectedRequestId = ref(null)
+const selectedHistoryRow = ref(null)
+
+function openHistoryPreview(payload) {
+  selectedRequestId.value = payload.requestId
+  selectedHistoryRow.value = payload.row
+  historyPreviewOpen.value = true
+}
 
 const application_type = computed(() => props.ApplicationType || '')
 
@@ -297,12 +337,13 @@ const loadActiveTabData = async (tabCode = activeName.value, options = {}) => {
 console.log("after staffkey_check loadActiveTabData")
 
   ensureTabFormData(tabCode)
+  console.log("after ensureTabFormData")
 
   const cacheKey = `${staffKey}:${tabCode}`
 
-  if (!options.force && loadedTabs.value[tabCode] === cacheKey) {
-    return
-  }
+  // if (!options.force && loadedTabs.value[tabCode] === cacheKey) {
+  //   return
+  // }
 
   console.log("row.staff_code==========",row?.staff_code)
   const condition = {
@@ -310,7 +351,7 @@ console.log("after staffkey_check loadActiveTabData")
       SQLTAG:
         tabSqlTags.value[tabCode]?.sqltags?.select ||
         tabSqlTags.value[tabCode]?.sqltag ||
-        'staffs.get_staff_data',
+        'get_staff_personal_request',
       category_code: tabCode,
       staff_code: row.staff_code || null,
       staff_id: row.staff_id || null,
@@ -372,12 +413,23 @@ console.log("after staffkey_check loadActiveTabData")
 
 watch(
   activeName,
-  async (newTab) => {
-    if (newTab) {
-      ensureTabFormData(newTab)
-      await loadActiveTabData(newTab)
-      console.log("watch activeName",newTab)
+  async newTab => {
+    if (!newTab) return
+
+    // 申請履歴はMainList側でデータを取得するため、
+    // 個人情報フォームのロード処理を実行しない
+    if (newTab === HISTORY_TAB) {
+      return
     }
+
+    // マスタに存在しないタブコードも除外
+    if (!getCategoryByTab(newTab)) {
+      console.warn('Unknown tab:', newTab)
+      return
+    }
+
+    ensureTabFormData(newTab)
+    await loadActiveTabData(newTab)
   }
 )
 
@@ -425,6 +477,13 @@ watch(
           {{ getStaffName(currentStaffRow) }}様
         </span>
       </div>
+
+      <div class="header-actions">
+        <ApprovalActions
+           ref="approvalActionsRef"
+           @done="handleRequestActionDone"
+         />
+      </div>
       <!-- <v-chip
           :color="chipcontrols?.color"
           variant="flat"
@@ -438,7 +497,7 @@ watch(
     <v-divider />
 
     <v-card-text class="pa-2">
-      <!-- <v-tabs
+      <v-tabs
         v-model="activeName"
         density="compact"
         color="primary"
@@ -450,14 +509,34 @@ watch(
         >
           {{ tab.remarks }}
         </v-tab>
+
+        <v-tab :value="HISTORY_TAB">
+          申請履歴
+        </v-tab>
       </v-tabs>
 
       <v-window v-model="activeName" class="mt-2">
+
+        <!-- 履歴一覧表示(ag-grid) -->
+        <v-window-item :value="HISTORY_TAB">
+          <MainList
+            :ApplicationType="application_type"
+            @preview-request="openHistoryPreview"
+          />
+
+          <RequestHistoryPreviewDialog
+            v-model="historyPreviewOpen"
+            :request-id="selectedRequestId"
+            :summary-row="selectedHistoryRow"
+            :fields="getItemsByTab(application_type)"
+          />
+        </v-window-item>
+
         <v-window-item
           v-for="tab in tabItems"
           :key="tab.sub_category_code"
           :value="tab.sub_category_code"
-        > -->
+        >
           <v-progress-linear
         v-if="loadingTabs[tab?.sub_category_code]"
             indeterminate
@@ -482,7 +561,13 @@ watch(
                 :tab-config="tabSqlTags[tab?.sub_category_code] || {}"
                 :common-params="commonParams"
                 :staff-code="dataStore.params.attributes?.staff_code"
-                @submit="data => handleFormSubmit(tab.sub_category_code, data)"
+                @request-action="
+                  payload =>
+                    handleRequestAction(
+                      tab.sub_category_code,
+                      payload
+                    )
+                "
               />
 
               <DynamicVuetifyForm
@@ -497,12 +582,18 @@ watch(
                 :common-params="commonParams"
                 :staff-code="dataStore.params.attributes?.staff_code"
                 :is-repeatable="false"
-                @submit="data => handleFormSubmit(tab.sub_category_code, data)"
+                @request-action="
+                  payload =>
+                    handleRequestAction(
+                      tab.sub_category_code,
+                      payload
+                    )
+                "
               />
             </v-card-text>
           </v-card>
-        <!-- </v-window-item>
-      </v-window> -->
+        </v-window-item>
+      </v-window> 
     </v-card-text>
   </v-card>
 </template>

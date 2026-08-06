@@ -1,38 +1,32 @@
 // src/composables/formParamBuilder.js
 
-// export function removeSystemFields(row = {}) {
-//   const copied = { ...row }
-
-//   delete copied.__uuid
-
-//   return copied
-// }
-
 export function removeSystemFields(data) {
   if (Array.isArray(data)) {
     return data.map(item => removeSystemFields(item))
   }
 
-  const copied = { ...data }
-  delete copied.__uuid
+  if (data == null || typeof data !== 'object') {
+    return data
+  }
+
+  const copied = {}
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (key === '__uuid') return
+
+    copied[key] = removeSystemFields(value)
+  })
 
   return copied
 }
 
-// export function omitKeys(obj = {}, keys = []) {
-//   const copied = { ...obj }
-
-//   keys.forEach(key => {
-//     delete copied[key]
-//   })
-
-//   return copied
-// }
-
 export function omitKeys(data, keys = []) {
-
   if (Array.isArray(data)) {
     return data.map(item => omitKeys(item, keys))
+  }
+
+  if (data == null || typeof data !== 'object') {
+    return data
   }
 
   const copied = { ...data }
@@ -45,11 +39,23 @@ export function omitKeys(data, keys = []) {
 }
 
 /**
- * tabConfig example
+ * 通常保存用パラメータ生成
+ *
+ * tabConfig example:
  *
  * {
- *   jsonb_fields: ['profile_jsonb'],
- *   separate_items: ['staff_code', 'profile_version']
+ *   jsonb_fields: ['data_jsonb'],
+ *   separate_items: [
+ *     'id',
+ *     'staff_id',
+ *     'data_type',
+ *     'valid_from',
+ *     'request_type',
+ *     'request_status',
+ *     'request_comment',
+ *     'new_request_status',
+ *     'record_id'
+ *   ]
  * }
  */
 export function buildSaveParams(
@@ -57,19 +63,21 @@ export function buildSaveParams(
   tabConfig = {},
   commonParams = {}
 ) {
-  const cleanRow = removeSystemFields(row)
+  const cleanRow = removeSystemFields(row) || {}
 
-  const jsonbFields = tabConfig?.jsonb_fields || []
-  const separateItems = tabConfig?.separate_items || []
+  const jsonbFields = Array.isArray(tabConfig?.jsonb_fields)
+    ? tabConfig.jsonb_fields
+    : []
+
+  const separateItems = Array.isArray(tabConfig?.separate_items)
+    ? tabConfig.separate_items
+    : []
 
   const params = {
     ...commonParams,
   }
 
-  // JSONB利用時
   if (jsonbFields.length > 0) {
-
-    // separate_items を通常カラムとして保存
     separateItems.forEach(key => {
       params[key] =
         cleanRow[key] ??
@@ -77,22 +85,30 @@ export function buildSaveParams(
         null
     })
 
-    // JSONB対象データ
+    /*
+     * 通常カラムと既存のdata_jsonb自身をJSON内部から除外する。
+     * data_jsonbを除外しない場合、再保存時に次のような入れ子になる可能性がある。
+     *
+     * {
+     *   "data_jsonb": "{...}",
+     *   "field1": "..."
+     * }
+     */
     const jsonData = omitKeys(
       cleanRow,
-      separateItems
+      [
+        ...separateItems,
+        ...jsonbFields,
+      ]
     )
 
-    // 1タブ1JSONB
     const jsonbColumn = jsonbFields[0]
 
-    params[jsonbColumn] =
-      JSON.stringify(jsonData || {})
+    params[jsonbColumn] = JSON.stringify(jsonData || {})
 
     return params
   }
 
-  // JSONBなし
   return {
     ...params,
     ...cleanRow,
