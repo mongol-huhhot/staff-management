@@ -1,17 +1,30 @@
-<!-- MainLayout.vue 退職申請管理は一覧単独レイアウト（詳細はダイアログ表示） -->
 <script setup>
-import MainList from '@/components/MainList.vue'
+import { computed } from 'vue'
+import { useDataStore } from '@/stores/DataStore'
+import RetirementRequest from '@/components/request/RetirementRequest.vue'
+import RetirementManagement from '@/components/retirement/RetirementManagement.vue'
+
+const dataStore = useDataStore()
+
+const appType = computed(() =>
+    dataStore.params?.attributes?.app_type ||
+    new URLSearchParams(window.location.search).get('type') ||
+    '')
+
+const screen = computed(() =>
+    appType.value === 'request' ? 'request' : 'retirement')
 </script>
 
 <template>
   <div class="main-layout-container">
-    <MainList />
+    <RetirementManagement v-if="screen !== 'request'" />
+    <RetirementRequest v-else />
   </div>
 </template>
 
 <style scoped>
 .main-layout-container {
-  height: calc(100vh - 80px);
+  height: calc(100vh - 180px);
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden;

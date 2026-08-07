@@ -12,6 +12,20 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { VDateInput } from 'vuetify/labs/VDateInput'
 
+// staff_apply と同じテーマ (デザイン統一 2026-08-07)
+const myCustomTheme = {
+  dark: false,
+  colors: {
+    primary: '#00A0E9',
+    secondary: '#0068B7',
+    accent: '#8c9eff',
+    success: '#00B9EF',
+    warning: '#6E60A8',
+    error: '#E6003E',
+    info: '#003894',
+  },
+}
+
 const customJa = {
   ...ja,
 
@@ -33,6 +47,13 @@ const customJa = {
 const vuetify = createVuetify({
   components: { ...components, VDateInput, },
   directives,
+
+  theme: {
+    defaultTheme: 'myCustomTheme',
+    themes: {
+      myCustomTheme,
+    },
+  },
 
   locale: {
     locale: 'ja',
