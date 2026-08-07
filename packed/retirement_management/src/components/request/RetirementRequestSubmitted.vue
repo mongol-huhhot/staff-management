@@ -90,11 +90,23 @@ const handleCheckDocuments = () => {}
           </v-card>
         </v-col>
       </v-row>
-
-      <!-- 提出内容の参照 (readonly) -->
-      <v-dialog v-model="viewOpen" max-width="1100">
+      <v-dialog
+        v-model="viewOpen"
+        max-width="900"
+        scrollable
+      >
         <v-card>
-          <v-card-title>退職願（提出内容）</v-card-title>
+          <v-card-title class="d-flex justify-space-between">
+            <span>退職願（提出内容）</span>
+
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              @click="viewOpen = false"
+            />
+          </v-card-title>
+
+          <v-divider />
 
           <v-card-text>
             <RetirementRequestForm
@@ -103,11 +115,6 @@ const handleCheckDocuments = () => {}
               embedded
             />
           </v-card-text>
-
-          <v-card-actions>
-            <v-spacer />
-            <v-btn variant="text" @click="viewOpen = false">閉じる</v-btn>
-          </v-card-actions>
         </v-card>
       </v-dialog>
     </v-card-text>
