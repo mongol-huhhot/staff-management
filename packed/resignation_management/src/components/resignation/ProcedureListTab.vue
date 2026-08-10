@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import AgGridPro from '@/components/helper/grid/AgGridPro.vue'
-import TaskChecklistDialog from '@/components/retirement/TaskChecklistDialog.vue'
+import TaskChecklistDialog from '@/components/resignation/TaskChecklistDialog.vue'
 import { buildProcedureColumns } from '@/composables/useColumns'
-import { getMockProcedureList } from '@/stores/mock/retirementProcedureMock'
+import { getMockProcedureList } from '@/stores/mock/resignationProcedureMock'
 
 const props = defineProps({
     scope: { type: String, required: true },        // 'branch' | 'hr'
@@ -46,9 +46,9 @@ const gridColumns = computed(() =>
     <AgGridPro
       :rowData="rows"
       :columns="gridColumns"
-      height="calc(100vh - 340px)"
-      :columnPrefKey="`retirement:${scope}:columnVisibility`"
-      :quickFilterKey="`retirement:${scope}:quick-filter`"
+      height="calc(100vh)"
+      :columnPrefKey="`resignation:${scope}:columnVisibility`"
+      :quickFilterKey="`resignation:${scope}:quick-filter`"
     />
 
     <TaskChecklistDialog

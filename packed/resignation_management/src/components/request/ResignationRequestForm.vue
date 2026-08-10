@@ -104,7 +104,7 @@ const handleSubmit = async () => {
         return
     }
 
-    const ok = await dataStore.save_retirement_request({
+    const ok = await dataStore.save_resignation_request({
         ...form,
         ...props.extraParams,
     })

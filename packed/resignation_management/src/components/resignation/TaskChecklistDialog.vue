@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { getMockTaskProgress, saveMockTaskProgress } from '@/stores/mock/retirementProcedureMock'
+import { getMockTaskProgress, saveMockTaskProgress } from '@/stores/mock/resignationProcedureMock'
 
 const props = defineProps({
     modelValue: { type: Boolean, default: false },
@@ -18,6 +18,9 @@ const statusItems = [
     { title: '完了', value: 'done' },
     { title: '対象外', value: 'na' },
 ]
+
+// 現場手続き はステータス選択なし、チェックのみ（checked = done / unchecked = pending）
+const isCheckMode = computed(() => props.scope === 'branch')
 
 const title = computed(() =>
     props.scope === 'branch' ? '現場手続き' : '人事手続き')
@@ -67,7 +70,9 @@ const save = async () => {
           <thead>
             <tr>
               <th style="width: 14em;">手続き</th>
-              <th style="width: 12em;">状態</th>
+              <th :style="isCheckMode ? 'width: 6em;' : 'width: 12em;'">
+                {{ isCheckMode ? '完了' : '状態' }}
+              </th>
               <th>備考</th>
               <th style="width: 12em;">実施</th>
             </tr>
@@ -76,7 +81,15 @@ const save = async () => {
             <tr v-for="t in tasks" :key="t.task_code">
               <td>{{ t.task_name }}</td>
               <td>
+                <v-checkbox
+                  v-if="isCheckMode"
+                  :model-value="t.task_status === 'done'"
+                  density="compact"
+                  hide-details
+                  @update:model-value="v => t.task_status = v ? 'done' : 'pending'"
+                />
                 <v-select
+                  v-else
                   v-model="t.task_status"
                   :items="statusItems"
                   density="compact"

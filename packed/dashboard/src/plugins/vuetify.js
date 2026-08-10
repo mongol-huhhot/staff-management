@@ -5,7 +5,6 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { aliases, mdi } from 'vuetify/iconsets/mdi';
-import { VDateInput } from 'vuetify/labs/VDateInput';
 import ImageUploader from '@/components/forms/fields/ImageUploader.vue';
 
 const myCustomTheme = {
@@ -22,7 +21,7 @@ const myCustomTheme = {
 };
 
 const vuetify = createVuetify({
-  components: { ...components, VDateInput, ImageUploader },
+  components: { ...components, ImageUploader },
   directives,
   theme: {
     defaultTheme: 'myCustomTheme',

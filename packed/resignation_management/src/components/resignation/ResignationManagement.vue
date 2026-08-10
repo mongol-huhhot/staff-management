@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import ProcedureListTab from '@/components/retirement/ProcedureListTab.vue'
+import ProcedureListTab from '@/components/resignation/ProcedureListTab.vue'
 import MainList from '@/components/MainList.vue'
 
 const activeTab = ref('branch')

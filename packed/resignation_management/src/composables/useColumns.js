@@ -1,4 +1,4 @@
-export const RETIREMENT_STATUS_LABELS = {
+export const RESIGNATION_STATUS_LABELS = {
     self_applied: '本人申請',
     proxy_applied: '代理申請',
     approving: '承認中',
@@ -23,7 +23,7 @@ export const ATTACH_STATUS_LABELS = {
 }
 
 const statusLabel = (code) =>
-    RETIREMENT_STATUS_LABELS[code] || code || ''
+    RESIGNATION_STATUS_LABELS[code] || code || ''
 
 const attachLabel = (code) =>
     ATTACH_STATUS_LABELS[code] || code || ''
@@ -55,7 +55,6 @@ export function buildProcedureColumns({ onProcedureClicked } = {}) {
         {
             field: '__procedure__',
             headerName: '手続き',
-            pinned: 'left',
             width: 110,
             sortable: false,
             filter: false,
@@ -165,15 +164,12 @@ export function buildProcedureColumns({ onProcedureClicked } = {}) {
     ]
 }
 
-export function buildRetirementColumns({ onProcessClicked, onConfirmClicked, onAttachClicked } = {}) {
+export function buildResignationColumns({ onProcessClicked, onConfirmClicked, onAttachClicked } = {}) {
     return [
         {
             field: '__request__',
             headerName: '退職届',
-            pinned: 'left',
-            width: 130,
-            sortable: false,
-            filter: false,
+            width: 160,
             valueGetter: () => '',
             cellRenderer: (p) => p.data?.status
                 ? '<span class="rm-btn rm-btn--primary">退職届確認</span>'
@@ -187,7 +183,7 @@ export function buildRetirementColumns({ onProcessClicked, onConfirmClicked, onA
         {
             field: 'attach_status',
             headerName: '資料添付',
-            width: 140,
+            width: 110,
             valueGetter: (p) => attachLabel(p.data?.attach_status),
             cellRenderer: (p) => {
                 if (!p.data?.status) return ''

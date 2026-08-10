@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useDataStore } from '@/stores/DataStore'
-import RetirementRequestForm from '@/components/request/RetirementRequestForm.vue'
+import ResignationRequestForm from '@/components/request/ResignationRequestForm.vue'
 
 const emit = defineEmits(['edit'])
 
@@ -109,7 +109,7 @@ const handleCheckDocuments = () => {}
           <v-divider />
 
           <v-card-text>
-            <RetirementRequestForm
+            <ResignationRequestForm
               :initial="myRequest"
               readonly
               embedded

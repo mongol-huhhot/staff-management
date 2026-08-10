@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useDataStore } from '@/stores/DataStore'
 import { showSnackbar } from '@/utils/SnackBar.vue'
-import RetirementRequestForm from '@/components/request/RetirementRequestForm.vue'
+import ResignationRequestForm from '@/components/request/ResignationRequestForm.vue'
 
 const props = defineProps({
     modelValue: {
@@ -59,7 +59,7 @@ const handleJudge = async (action) => {
     judging.value = true
 
     try {
-        const ok = await dataStore.save_retirement_approval({
+        const ok = await dataStore.save_resignation_approval({
             staff_id: props.row?.staff_id,
             staff_code: props.row?.staff_code,
             action,               // 'approve' | 'remand'
@@ -97,7 +97,7 @@ const handleJudge = async (action) => {
       </v-card-title>
 
       <v-card-text class="pt-0">
-        <RetirementRequestForm
+        <ResignationRequestForm
           :key="`${mode}:${row?.staff_code}`"
           :initial="row"
           :readonly="isConfirm"

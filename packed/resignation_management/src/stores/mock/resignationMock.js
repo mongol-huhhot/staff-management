@@ -1,6 +1,6 @@
 export const mockMyRequestStore = { current: null }
 
-export const MOCK_RETIREMENT_ROWS = [
+export const MOCK_RESIGNATION_ROWS = [
     {
         staff_code: '405513',
         staff_name: '岡本　久美子',

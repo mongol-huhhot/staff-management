@@ -1,16 +1,31 @@
 export const mockTaskMaster = [
     // tab1 現場手続き (scope: branch)
-    { task_code: 'handover_confirm', task_name: '業務引継確認',             task_scope: 'branch', required: true,  show_order: 10 },
-    { task_code: 'uniform_return',   task_name: '制服・貸与品返却',         task_scope: 'branch', required: true,  show_order: 20 },
-    { task_code: 'key_return',       task_name: '鍵・社員証返却',           task_scope: 'branch', required: true,  show_order: 30 },
+    { task_code: 'handover_confirm', task_name: '業務引継確認',             task_scope: 'branch', required: true,  show_order: 10, enabled: '1' },
+    { task_code: 'uniform_return',   task_name: '制服・貸与品返却',         task_scope: 'branch', required: true,  show_order: 20, enabled: '1' },
+    { task_code: 'key_return',       task_name: '鍵・社員証返却',           task_scope: 'branch', required: true,  show_order: 30, enabled: '1' },
     // tab2 人事手続き (scope: hr)
-    { task_code: 'final_approval',   task_name: '最終承認',                 task_scope: 'hr', required: true,  show_order: 10 },
-    { task_code: 'final_payroll',    task_name: '最終給与計算確認',         task_scope: 'hr', required: true,  show_order: 20 },
-    { task_code: 'social_ins_loss',  task_name: '社会保険資格喪失手続',     task_scope: 'hr', required: true,  show_order: 30 },
-    { task_code: 'doc_gensen',       task_name: '源泉徴収票発行・PDF添付',  task_scope: 'hr', required: false, show_order: 40 },
-    { task_code: 'doc_rishoku',      task_name: '離職票発行・PDF添付',      task_scope: 'hr', required: false, show_order: 50 },
-    { task_code: 'doc_shikaku',      task_name: '資格喪失証明書発行・PDF添付', task_scope: 'hr', required: false, show_order: 60 },
+    { task_code: 'final_approval',   task_name: '最終承認',                 task_scope: 'hr', required: true,  show_order: 10, enabled: '1' },
+    { task_code: 'final_payroll',    task_name: '最終給与計算確認',         task_scope: 'hr', required: true,  show_order: 20, enabled: '1' },
+    { task_code: 'social_ins_loss',  task_name: '社会保険資格喪失手続',     task_scope: 'hr', required: true,  show_order: 30, enabled: '1' },
+    { task_code: 'doc_gensen',       task_name: '源泉徴収票発行・PDF添付',  task_scope: 'hr', required: false, show_order: 40, enabled: '1' },
+    { task_code: 'doc_rishoku',      task_name: '離職票発行・PDF添付',      task_scope: 'hr', required: false, show_order: 50, enabled: '1' },
+    { task_code: 'doc_shikaku',      task_name: '資格喪失証明書発行・PDF添付', task_scope: 'hr', required: false, show_order: 60, enabled: '1' },
 ]
+
+// get_task_master 相当 — チェックリスト管理画面用（無効行も含めて返す）
+export const getMockTaskMaster = () =>
+    [...mockTaskMaster]
+        .sort((a, b) => a.task_scope.localeCompare(b.task_scope) || a.show_order - b.show_order)
+        .map(t => ({ ...t }))
+
+// save_task_master 相当 — 全行 UPSERT（削除は enabled='0'）
+export const saveMockTaskMaster = (tasks) => {
+    for (const t of tasks) {
+        const existing = mockTaskMaster.find(m => m.task_code === t.task_code)
+        if (existing) Object.assign(existing, t)
+        else mockTaskMaster.push({ ...t })
+    }
+}
 
 export const mockProcedureRows = [
     {
@@ -93,7 +108,7 @@ export const getMockTaskProgress = (requestId, scope) => {
     const progress = mockProgress[requestId] || {}
 
     return mockTaskMaster
-        .filter(t => t.task_scope === scope)
+        .filter(t => t.task_scope === scope && t.enabled !== '0')
         .sort((a, b) => a.show_order - b.show_order)
         .map(t => ({
             ...t,
@@ -118,7 +133,7 @@ export const saveMockTaskProgress = (requestId, taskCode, taskStatus, note, logi
 
     const row = mockProcedureRows.find(r => r.request_id === requestId)
     const allDone = mockTaskMaster
-        .filter(t => isTaskRequired(t, row))
+        .filter(t => t.enabled !== '0' && isTaskRequired(t, row))
         .every(t => ['done', 'na'].includes(mockProgress[requestId][t.task_code]?.task_status))
 
     if (row && allDone && row.request_status === 'submitted') {

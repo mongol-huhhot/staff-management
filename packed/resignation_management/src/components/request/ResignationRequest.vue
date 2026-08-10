@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useDataStore } from '@/stores/DataStore'
-import RetirementRequestForm from '@/components/request/RetirementRequestForm.vue'
-import RetirementRequestSubmitted from '@/components/request/RetirementRequestSubmitted.vue'
+import ResignationRequestForm from '@/components/request/ResignationRequestForm.vue'
+import ResignationRequestSubmitted from '@/components/request/ResignationRequestSubmitted.vue'
 
 const dataStore = useDataStore()
 
@@ -16,7 +16,7 @@ const staffId = ref('df67582c-f6ff-4fcf-be87-e5dacde15105')
 onMounted(async () => {
     try {
         // 提出済みの退職願があるか必ず先に確認する
-        await dataStore.get_my_retirement_request({
+        await dataStore.get_my_resignation_request({
             staff_id: staffId.value,
         })
 
@@ -43,12 +43,12 @@ const handleSubmitted = () => {
       <v-progress-circular indeterminate color="primary" />
     </div>
 
-    <RetirementRequestSubmitted
+    <ResignationRequestSubmitted
       v-else-if="dataStore.states.myRequest && !editing"
       @edit="editing = true"
     />
 
-    <RetirementRequestForm
+    <ResignationRequestForm
       v-else
       :initial="dataStore.states.myRequest || profileDefaults"
       :extra-params="{ staff_id: staffId }"

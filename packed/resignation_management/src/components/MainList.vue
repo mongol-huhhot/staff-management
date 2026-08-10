@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 
 import { useDataStore } from '@/stores/DataStore'
 import AgGridPro from '@/components/helper/grid/AgGridPro.vue'
-import RetirementRequestDialog from '@/components/request/RetirementRequestDialog.vue'
+import ResignationRequestDialog from '@/components/request/ResignationRequestDialog.vue'
 import { parseAndFlattenJsonbFields } from '@/composables/utilFactory'
 import { ATTACH_STATUS_LABELS } from '@/composables/useColumns'
 
@@ -98,14 +98,14 @@ const loadData = async () => {
     loading.value = true
 
     try {
-        const val = await dataStore.get_retirement_application_list({
+        const val = await dataStore.get_resignation_application_list({
             ...filters.value,
         })
 
         rows.value = parseAndFlattenJsonbFields(val || [], ['data_jsonb'])
     }
     catch (error) {
-        console.error('Failed to load retirement application list:', error)
+        console.error('Failed to load resignation application list:', error)
     }
     finally {
         loading.value = false
@@ -285,13 +285,13 @@ const gridColumns = computed(() => {
       <AgGridPro
         :rowData="filteredRows"
         :columns="gridColumns"
-        height="calc(100vh - 280px)"
-        columnPrefKey="retirement:columnVisibility"
-        quickFilterKey="retirement:quick-filter"
+        height="calc(100vh)"
+        columnPrefKey="resignation:columnVisibility"
+        quickFilterKey="resignation:quick-filter"
         @row-click="handleRowClick"
       />
 
-      <RetirementRequestDialog
+      <ResignationRequestDialog
         v-model="requestDialogOpen"
         :row="selectedRow"
         :mode="requestDialogMode"
