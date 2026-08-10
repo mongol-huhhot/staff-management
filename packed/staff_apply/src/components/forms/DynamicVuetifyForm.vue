@@ -517,57 +517,62 @@ defineExpose({
     </v-row>
 
     <template v-if="attachmentFields.length">
-      <v-divider class="my-6" />
+  <v-divider class="my-6" />
 
-      <v-card
-        v-for="field in attachmentFields"
-        :key="field.key"
-        variant="flat"
-      >
-        <v-card-title>
-          {{ field.label }}
-        </v-card-title>
+  <v-expansion-panels
+    multiple
+    variant="accordion"
+  >
+    <v-expansion-panel
+      v-for="field in attachmentFields"
+      :key="field.key"
+      :value="field.key"
+    >
+      <v-expansion-panel-title>
+        {{ field.label }}
+      </v-expansion-panel-title>
 
-        <v-card-text>
-          <component
-            :is="field.component || 'v-text-field'"
-            :model-value="
-              field.component === 'v-date-input' || field.type === 'date'
-                ? toDisplayValue(field, formData[field.key])
-                : formData[field.key]
-            "
-            v-bind="field.props || {}"
-            :label="field.label"
-            :type="
-              field.component === 'v-date-input'
-                ? undefined
-                : field.type
-            "
-            :readonly="field.readonly"
-            :disabled="disabled || field.disabled"
-            :items="field.items || field.props?.items || []"
-            :item-title="
-              field.props?.itemTitle ||
-              field.props?.['item-title'] ||
-              'label'
-            "
-            :item-value="
-              field.props?.itemValue ||
-              field.props?.['item-value'] ||
-              'value'
-            "
-            :rules="buildRules(field)"
-            :request-status="formData?.request_status"
-            :staff-code="staffCode"
-            :record-id="recordId"
-            :is-repeatable="isRepeatable"
-            @update:model-value="
-              value => updateField(field, value)
-            "
-          />
-        </v-card-text>
-      </v-card>
-    </template>
+      <v-expansion-panel-text eager>
+        <component
+          :is="field.component || 'v-text-field'"
+          :model-value="
+            field.component === 'v-date-input' || field.type === 'date'
+              ? toDisplayValue(field, formData[field.key])
+              : formData[field.key]
+          "
+          v-bind="field.props || {}"
+          :label="field.label"
+          :type="
+            field.component === 'v-date-input'
+              ? undefined
+              : field.type
+          "
+          :readonly="field.readonly"
+          :disabled="disabled || field.disabled"
+          :items="field.items || field.props?.items || []"
+          :item-title="
+            field.props?.itemTitle ||
+            field.props?.['item-title'] ||
+            'label'
+          "
+          :item-value="
+            field.props?.itemValue ||
+            field.props?.['item-value'] ||
+            'value'
+          "
+          :rules="buildRules(field)"
+          :request-status="formData?.request_status"
+          :staff-code="staffCode"
+          :record-id="recordId"
+          :is-repeatable="isRepeatable"
+          @update:model-value="
+            value => updateField(field, value)
+          "
+        />
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+  </v-expansion-panels>
+</template>
   </v-form>
 </template>
 
