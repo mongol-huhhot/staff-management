@@ -53,6 +53,7 @@ window.appConfig.MAIN_CONFIG = {
       label: 'ユーザーのロール編集',
       data_key: 'userdata',
       jsonb_fields: [],// jsonb カラムの一覧
+      needStaff:false,
       skip_reload: true,
       sqltags:{ select:'user_roles.get_user_roles', save:'user_roles.save_user_roles', delete:'user_roles.delete_user_role', }, // jsonb以外の普通カラム
       separate_items: [ 'role_code','role_name','remarks','enabled','show_order' ],// jsonb以外の普通カラム
