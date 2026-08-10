@@ -86,17 +86,19 @@ console.log("imageuploader.props=====",meta)
        :meta="meta"
     /> -->
 
-    <!-- <div
+    <div
     v-if="props.isRepeatable && !canLoad"
     class="text-medium-emphasis pa-4 text-center"
   >
     この銀行口座情報を保存すると画像を登録できます
-  </div> -->
+  </div>
 
+  <div v-else>
   <UploadImageWrapper
     
     :meta="meta"
     :requestStatus="requestStatus"
   />
+  </div>
 
 </template>

@@ -253,6 +253,7 @@ export const useFileStore = defineStore('fileStore', () => {
         if (params.filters.owner_type) searchParams.owner_type = params.filters.owner_type
         if (params.filters.owner_id) searchParams.owner_id = params.filters.owner_id
         if (params.filters.file_kind) searchParams.file_kind = params.filters.file_kind
+        if (params.filters.record_id) searchParams.record_id = params.filters.record_id
       }
   
       // 共通のAPI通信処理（action: 'list' を指定してGETリクエスト）

@@ -128,6 +128,7 @@ onMounted(async () => {
     dictionary: {
       SQLTAG: 'masters.get_item_dictionary',
       category_code: 'staffs',
+      sub_category_code: application_type.value,
       enabled: 'active',
     },
     roles: {

@@ -39,7 +39,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_profile',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: false,
-      sqltags:{ select:'get_staff_personal_request',insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
+      sqltags:{ select:'get_staff_personal_request',insert:'test_insert_staff_request_info',update:'test_update_staff_request_info', delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
                        'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
@@ -49,7 +49,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_address',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: false,
-      sqltags:{ select:'get_staff_personal_request',insert:'insert_staff_request_info',update:'update_staff_request_info',  delete:'' },
+      sqltags:{ select:'get_staff_personal_request',insert:'test_insert_staff_request_info',update:'test_update_staff_request_info',  delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
                        'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
@@ -59,7 +59,7 @@ window.appConfig.MAIN_CONFIG = {
       data_key: 'staff_contact',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: false,
-      sqltags:{ select:'get_staff_personal_request', insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
+      sqltags:{ select:'get_staff_personal_request', insert:'test_insert_staff_request_info',update:'test_update_staff_request_info', delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
                        'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
@@ -86,26 +86,28 @@ window.appConfig.MAIN_CONFIG = {
       jsonb_fields: ['data_jsonb'],
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+                       'request_status', 'request_comment', 'approval_comment','new_request_status','record_id'],// jsonb以外の普通カラム
     },
     bank: {
       label: '銀行情報',
       data_key: 'staff_bank',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
-      sqltags:{ select:'masters.get_staff_bank_request',insert:'insert_staff_request_info',update:'update_staff_request_info', delete:''}, // jsonb以外の普通カラム
+      allow_terminate: true,
+      sqltags:{ select:'get_staff_personal_repeatable_request',insert:'test_insert_staff_request_info',update:'test_update_staff_request_info', delete:''}, // jsonb以外の普通カラム
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+                       'request_status', 'request_comment', 'approval_comment','new_request_status','record_id'],// jsonb以外の普通カラム
     },
     education: {
       label: '教育情報',
       data_key: 'staff_education',
       jsonb_fields: ['data_jsonb'],// jsonb カラムの一覧
       skip_reload: false,
-      sqltags:{ select:'masters.get_staff_education_request',insert:'insert_staff_request_info',update:'update_staff_request_info', delete:'' },
+      allow_terminate: true,
+      sqltags:{ select:'get_staff_personal_repeatable_request',insert:'test_insert_staff_request_info',update:'test_update_staff_request_info', delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+                       'request_status', 'request_comment', 'approval_comment','new_request_status','record_id'],// jsonb以外の普通カラム
       },
     dependents: {
       label: '扶養情報',
@@ -115,7 +117,7 @@ window.appConfig.MAIN_CONFIG = {
       sqltags:{ select:'', save:'', delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+                       'request_status', 'request_comment', 'approval_comment','new_request_status','record_id'],// jsonb以外の普通カラム
     },
     contract: {
       label: '雇用契約情報',//未実装
@@ -133,7 +135,7 @@ window.appConfig.MAIN_CONFIG = {
       sqltags:{ select:'', save:'', delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+                       'request_status', 'request_comment', 'approval_comment','new_request_status','record_id'],// jsonb以外の普通カラム
     },
     work_history: {
       label: '職歴情報',
@@ -143,7 +145,7 @@ window.appConfig.MAIN_CONFIG = {
       sqltags:{ select:'', save:'', delete:'' },
       separate_items: ['id','approved_at','approved_by','rejected_at','rejected_by', 'staff_id', 'data_type', 'valid_from', 
                        'created_at', 'created_by', 'updated_at', 'updated_by','request_type', 'requested_at', 'requested_by', 
-                       'request_status', 'request_comment', 'approval_comment','new_request_status'],// jsonb以外の普通カラム
+                       'request_status', 'request_comment', 'approval_comment','new_request_status','record_id'],// jsonb以外の普通カラム
     },
     certification: {
       label: '資格情報',//未実装
@@ -224,6 +226,381 @@ window.appConfig.UploadFiles = {
             { field: 'front', headerName: '銀行カード'},
         ]
     },
+    drivers_license: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'front', headerName: '運転免許証（表面）' },
+        { field: 'back', headerName: '運転免許証（裏面）' },
+    ]
+},
+
+qualification_2: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'certificate', headerName: '資格証明書②' },
+    ]
+},
+
+basic_deduction_report: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'report', headerName: '基礎控除申告書' },
+    ]
+},
+
+commuting_permit: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'application', headerName: '自動車等通勤許可申請書' },
+    ]
+},
+
+passport_main: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'main', headerName: 'パスポート（通常）' },
+    ]
+},
+
+hazard_map: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'map', headerName: 'ハザードマップ' },
+    ]
+},
+
+dependency_deduction_report: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'report', headerName: '扶養控除等申告書' },
+    ]
+},
+
+voluntary_insurance: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'certificate', headerName: '任意保険書（※対人・対物保証金額記載）' },
+    ]
+},
+
+approval_doc: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'document', headerName: '決裁書' },
+    ]
+},
+
+health_checkup: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'result', headerName: '健康診断結果' },
+    ]
+},
+
+id_photo: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'photo', headerName: '身分証明書撮影' },
+    ]
+},
+
+passport_designation: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'designation', headerName: 'パスポート（指定書）' },
+    ]
+},
+
+employment_insurance_cert: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'certificate', headerName: '雇用保険被保険者証' },
+    ]
+},
+
+residence_card: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'front', headerName: '在留カード（表面）' },
+        { field: 'back', headerName: '在留カード（裏面）' },
+    ]
+},
+
+passport_permission: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'permission', headerName: 'パスポート（資格外活動許可証）' },
+    ]
+},
+
+resume: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'document', headerName: '履歴書' },
+    ]
+},
+
+student_id: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'front', headerName: '学生証' },
+    ]
+},
+
+pension_book: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'document', headerName: '年金手帳' },
+    ]
+},
+
+disability_cert: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'certificate', headerName: '障がい者手帳' },
+    ]
+},
+
+passport_other: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'front', headerName: 'パスポート（その他）' },
+    ]
+},
+
+qualification_1: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'certificate', headerName: '資格証明書①（栄養士・調理師・管理栄養士）' },
+    ]
+},
+
+vehicle_inspection: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'certificate', headerName: '車検証' },
+    ]
+},
 };
 window.appConfig.buttonRules = {
   draft: {
@@ -249,7 +626,7 @@ window.appConfig.buttonRules = {
 
   approved: {
     draftSave:      { show: false, disabled: true },
-    delete:         { show: false, disabled: true },
+    delete:         { show: true, disabled: false },
     newRequest:     { show: true,  disabled: false },
     submit:         { show: false, disabled: true },
   },
@@ -260,6 +637,7 @@ window.appConfig.buttonRules = {
     newRequest:     { show: true,  disabled: false },
     submit:         { show: false, disabled: true },
   },
+
   tmp: {
     draftSave:      { show: true, disabled: false },
     delete:         { show: false, disabled: true },
@@ -383,6 +761,20 @@ window.appConfig.uploadImageRules = {
   },
 
   rejected: {
+    save: {
+      show: false,
+      disabled: true,
+    },
+    upload: {
+      show: false,
+      disabled: true,
+    },
+    delete: {
+      show: false,
+      disabled: true,
+    },
+  },
+  tmp: {
     save: {
       show: false,
       disabled: true,
