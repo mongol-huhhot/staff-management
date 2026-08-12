@@ -61,7 +61,11 @@ const props = defineProps({
   ApplicationType: {
     type:String,
     default: ()=>'staffs',
-  }
+  },
+  readonly: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const emit = defineEmits(['approval-done'])
@@ -80,6 +84,7 @@ onMounted(async () => {
     dictionary: {
       SQLTAG: 'masters.get_item_dictionary',
       category_code: 'staffs',
+      sub_category_code: application_type.value,
       enabled: 'active',
     },
     roles: {
@@ -506,6 +511,7 @@ const hasTabData = computed(() => {
                 v-model="formData[tab?.sub_category_code]"
                 :label="tab?.remarks"
                 :children="getItemsByTab(tab?.sub_category_code)"
+                :readonly="readonly"
                 :controls="controls"
                 :chipControls="chipControls"
                 :add-button-text="`${tab?.category_name}追加`"
@@ -522,6 +528,7 @@ const hasTabData = computed(() => {
                 v-model="formData[tab?.sub_category_code]"
                 ref="formRef"
                 :approved-data="approvedData[tab?.sub_category_code]"
+                :readonly="readonly"
                 :controls="controls"
                 :chipControls="chipControls"
                 :fields="getItemsByTab(tab?.sub_category_code)"

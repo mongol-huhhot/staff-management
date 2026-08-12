@@ -78,7 +78,7 @@ function hasData(cat) {
           :label="cat.remarks"
           :children="fieldsMap[cat.sub_category_code] || []"
           :staff-code="staffCode"
-          :disabled="true"
+          :readonly="true"
         />
 
         <DynamicVuetifyForm
@@ -87,7 +87,7 @@ function hasData(cat) {
           :fields="fieldsMap[cat.sub_category_code] || []"
           :staff-code="staffCode"
           :is-repeatable="false"
-          :disabled="true"
+          :readonly="true"
           :show-submit="false"
         />
       </v-expansion-panel-text>

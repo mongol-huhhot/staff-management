@@ -9,6 +9,7 @@ const props = defineProps({
   fields: { type: Array, required: true },
   mode: { type: String, default: 'self' },
   disabled: { type: Boolean, default: false },
+  readonly: { type: Boolean, default: false },
   items: { type: Array, default: () => [] },
   showSubmit: { type: Boolean, default: true },
   controls: { type: Object, default: null },
@@ -137,6 +138,35 @@ function normalizeDateValue(value) {
   return ''
 }
 
+// readonly 時はクリア×ボタンとカレンダーアイコンを出さない
+function mergedProps(field) {
+  const base = field.props || {}
+  if (!props.readonly) return base
+
+  const overrides = { clearable: false }
+  if (field.component === 'v-date-input') {
+    overrides['prepend-icon'] = ''
+  }
+  return { ...base, ...overrides }
+}
+
+// readonly のネイティブ date input はカレンダーピッカーが残るため text で表示する
+function fieldType(field) {
+  if (field.component === 'v-date-input') return undefined
+  if (props.readonly && field.type === 'date') return 'text'
+  return field.type
+}
+
+function displayValue(field) {
+  const value = formData.value?.[field.key]
+  const isDate = field.component === 'v-date-input' || field.type === 'date'
+  if (!isDate) return value
+  if (props.readonly && field.component !== 'v-date-input') {
+    return normalizeDateValue(value)
+  }
+  return toDisplayValue(field, value)
+}
+
 // フィールド更新（field オブジェクトと新しい値を受け取る）
 function updateField(field, value) {
   let newValue = value
@@ -185,20 +215,16 @@ function updateField(field, value) {
         <component
           density="compact"
           :is="field.component || 'v-text-field'"
-          :model-value="
-            field.component === 'v-date-input' || field.type === 'date'
-              ? toDisplayValue(field, formData[field.key])
-              : formData[field.key]
-          "
-          v-bind="field.props || {}"
+          :model-value="displayValue(field)"
+          v-bind="mergedProps(field)"
           :label="field.label"
-          :type="field.component === 'v-date-input' ? undefined : field.type"
-          :readonly="field.readonly"
+          :type="fieldType(field)"
+          :readonly="readonly || field.readonly"
           :disabled="disabled || field.disabled"
           :items="field.items || field.props?.items || []"
           :item-title="field.props?.itemTitle || field.props?.['item-title'] || 'label'"
           :item-value="field.props?.itemValue || field.props?.['item-value'] || 'value'"
-          :rules="buildRules(field)"
+          :rules="readonly ? [] : buildRules(field)"
           @update:model-value="value => updateField(field, value)"
           validate-on="input"
           :staffCode="staffCode"
@@ -223,52 +249,57 @@ function updateField(field, value) {
       </v-col>
     </v-row>
 
-    <v-card
-      v-if="attachmentFields.length"
-      variant="flat"
-      v-for="field in attachmentFields"
-        :key="field.key"
-    >
+    <template v-if="attachmentFields.length">
+      <v-divider class="my-6" />
 
-    <v-divider class="my-6" />
+      <v-expansion-panels
+        multiple
+        variant="accordion"
+      >
+        <v-expansion-panel
+          v-for="field in attachmentFields"
+          :key="field.key"
+          :value="field.key"
+        >
+          <v-expansion-panel-title>
+            {{ field.label }}
+            <v-spacer />
+            <div
+              v-if="showHistory && approvedRecordId && field.props?.documentType"
+              @click.stop
+            >
+              <ApprovedImageDialog
+                :document-type="field.props.documentType"
+                :category-code="field.props.categoryCode"
+                :owner-type="field.props.ownerType || 'staff'"
+                :staff-code="staffCode"
+                :record-id="approvedRecordId"
+              />
+            </div>
+          </v-expansion-panel-title>
 
-      <v-card-title class="d-flex align-center">
-        {{ field.label }}
-        <v-spacer />
-        <ApprovedImageDialog
-          v-if="showHistory && approvedRecordId && field.props?.documentType"
-          :document-type="field.props.documentType"
-          :category-code="field.props.categoryCode"
-          :owner-type="field.props.ownerType || 'staff'"
-          :staff-code="staffCode"
-          :record-id="approvedRecordId"
-        />
-      </v-card-title>
-    
-      <v-card-text>
-        <component
-          :is="field.component || 'v-text-field'"
-          :model-value="
-            field.component === 'v-date-input' || field.type === 'date'
-              ? toDisplayValue(field, formData[field.key])
-              : formData[field.key]
-          "
-          v-bind="field.props || {}"
-          :label="field.label"
-          :type="field.component === 'v-date-input' ? undefined : field.type"
-          :readonly="field.readonly"
-          :disabled="disabled || field.disabled"
-          :items="field.items || field.props?.items || []"
-          :item-title="field.props?.itemTitle || field.props?.['item-title'] || 'label'"
-          :item-value="field.props?.itemValue || field.props?.['item-value'] || 'value'"
-          :rules="buildRules(field)"
-          @update:model-value="value => updateField(field, value)"
-          :staffCode="staffCode"
-          :recordId="recordId"
-           :is-repeatable="isRepeatable"
-        />
-      </v-card-text>
-    </v-card>
+          <v-expansion-panel-text eager>
+            <component
+              :is="field.component || 'v-text-field'"
+              :model-value="displayValue(field)"
+              v-bind="mergedProps(field)"
+              :label="field.label"
+              :type="fieldType(field)"
+              :readonly="readonly || field.readonly"
+              :disabled="disabled || field.disabled"
+              :items="field.items || field.props?.items || []"
+              :item-title="field.props?.itemTitle || field.props?.['item-title'] || 'label'"
+              :item-value="field.props?.itemValue || field.props?.['item-value'] || 'value'"
+              :rules="readonly ? [] : buildRules(field)"
+              @update:model-value="value => updateField(field, value)"
+              :staffCode="staffCode"
+              :recordId="recordId"
+              :is-repeatable="isRepeatable"
+            />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </template>
 
   </v-form>
 </template>

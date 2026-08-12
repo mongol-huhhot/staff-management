@@ -50,6 +50,7 @@
           :approved-data="item.__approved"
           :fields="children"
           :is-repeatable="true"
+          :readonly="readonly"
           :show-submit="true"
           :controls="controls"
           :chipControls="chipControls"
@@ -63,7 +64,7 @@
     </v-card>
 
     <v-btn
-      v-if="controls?.add?.show"
+      v-if="controls?.add?.show && !readonly"
       color="primary"
       variant="outlined"
       :disabled="controls?.add?.disabled"
@@ -106,9 +107,10 @@ const props = defineProps({
     default: null 
   },
   chipControls: {
-    type: Object, 
-    default: null 
+    type: Object,
+    default: null
   },
+  readonly: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update:modelValue', 'saved', 'deleted', 'submit', 'approval'])

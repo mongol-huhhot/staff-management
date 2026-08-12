@@ -13,7 +13,7 @@
         <v-spacer />
 
         <v-btn
-          v-if="!disabled"
+          v-if="!disabled && !readonly"
           icon="mdi-delete"
           variant="text"
           color="error"
@@ -28,14 +28,15 @@
           :staffCode="staffCode"
           :is-repeatable="true"
           :disabled="disabled"
-          :show-submit="!disabled"
+          :readonly="readonly"
+          :show-submit="!disabled && !readonly"
           @submit="data => emit('submit', data)"
         />
       </v-card-text>
     </v-card>
 
     <v-btn
-      v-if="!disabled"
+      v-if="!disabled && !readonly"
       color="primary"
       variant="outlined"
       @click="add"
@@ -62,6 +63,7 @@ const props = defineProps({
   addButtonText: String,
   staffCode: { type: String, default: '' },
   disabled: { type: Boolean, default: false },
+  readonly: { type: Boolean, default: false },
 })
 
 const staffCode = computed(() =>props.staffCode)

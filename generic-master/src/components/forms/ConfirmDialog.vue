@@ -40,7 +40,7 @@ const isOpen = computed({
           :fields="fields"
           :staff-code="staffCode"
           :is-repeatable="false"
-          :disabled="true"
+          :readonly="true"
           :show-submit="false"
           :approved-data="approvedData"
         />
