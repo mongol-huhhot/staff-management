@@ -1,22 +1,12 @@
 <script setup>
-import { ref, onBeforeMount,  } from "vue";
+import { ref, onBeforeMount } from "vue";
 import Dashboard from "./Dashboard.vue";
 // import Dashboard from "./AttendanceDashboard.vue";
 // import Dashboard from "./AttendanceDashboard2.vue";
 import { useDataStore } from "@/stores/DataStore";
-import LanguageSwitcher from "@/components/LanguageSwitcher.vue";
-import QrcodeVue, { QrcodeCanvas, QrcodeSvg } from 'qrcode.vue'
-import i18n from '@/i18n'
+// import LanguageSwitcher from "@/components/LanguageSwitcher.vue";
+// import i18n from '@/i18n'
 
-// import UserAuth from "@/components/UserAuth.vue";
-
-//UserFormで@changeが動くとここに書いてある項目が全てリセットされるのでコメントアウト
-const selectedRowData = ref({
-  // 'userid': '',
-  // 'password': '',
-  'is_active': true,
-  content: {}
-})
 
 const dataStore = useDataStore()
 
@@ -78,7 +68,6 @@ const logo = {
 
 <template>
   <v-container fluid class="pa-0 ma-0 fill-height" style="width: 100vw;">
-    <!-- <UserAuth /> -->
     <Dashboard v-if="loginReady" />
   </v-container>
 </template>

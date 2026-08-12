@@ -34,7 +34,7 @@ const screen = computed(() => {
 
 <style scoped>
 .main-layout-container {
-  height: calc(100vh - 120px);
+  height: calc(100vh);
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden;

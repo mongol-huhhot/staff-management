@@ -165,9 +165,23 @@ export function roundToNearestMinutes(date, RoundMinutes) {
 }
 
 /**
+ * format datetime value to 'YYYY-MM-DD HH:mm' (or given format)
+ *
+ * @param {*} value date string / Date / dayjs
+ * @param {*} format default 'YYYY-MM-DD HH:mm'
+ * @returns formatted string, empty string if no value, original value if not a valid date
+ */
+export function formatDateTime(value, format = 'YYYY-MM-DD HH:mm') {
+    if (!value) return ''
+
+    const d = dayjs(value)
+    return d.isValid() ? d.format(format) : value
+}
+
+/**
  * Check the value is Negative or a string start with '-'
- * 
- * @param {*} value 
+ *
+ * @param {*} value
  * @returns if Negastive number or string start with '-' returns true  else returns false
  */
 export function isNegativeTime(value) {

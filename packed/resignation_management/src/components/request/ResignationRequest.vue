@@ -59,6 +59,6 @@ const handleSubmitted = () => {
 
 <style scoped>
 .request-page {
-  padding: 8px;
+  height: 100%;
 }
 </style>

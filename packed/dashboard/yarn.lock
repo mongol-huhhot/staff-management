@@ -1180,11 +1180,6 @@ proxy-from-env@^2.1.0:
   resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-2.1.0.tgz#a7487568adad577cfaaa7e88c49cab3ab3081aba"
   integrity sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==
 
-qrcode.vue@^3.6.0:
-  version "3.10.0"
-  resolved "https://registry.yarnpkg.com/qrcode.vue/-/qrcode.vue-3.10.0.tgz#0300e75e5f09a536e50e6883a14828f75c208efa"
-  integrity sha512-1bjeBds9hRKMszZuBuYQZor9HdJYWtb0S44HG1JofZ9uicpJpdF+TtDvqo3+2ZlH0k80WVIkmiKB4hq0/N6/rA==
-
 quansync@^0.2.11:
   version "0.2.11"
   resolved "https://registry.yarnpkg.com/quansync/-/quansync-0.2.11.tgz#f9c3adda2e1272e4f8cf3f1457b04cbdb4ee692a"
