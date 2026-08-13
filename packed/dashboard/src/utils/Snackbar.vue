@@ -1,10 +1,10 @@
-<!-- components/Snackbar.vue -->
+<!-- utils/Snackbar.vue -->
 <template>
     <v-snackbar
       v-model="snackbar.visible"
       :color="snackbar.color"
       :timeout="snackbar.timeout"
-      location="bottom-right"
+      location="bottom right"
     >
       {{ snackbar.message }}
     </v-snackbar>
