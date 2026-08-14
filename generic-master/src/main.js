@@ -35,6 +35,10 @@ const vuetify = createVuetify({
   components: { ...components, ImageUploader, },
   directives,
 
+  theme: {
+    defaultTheme: 'light',
+  },
+
   locale: {
     locale: 'ja',
     fallback: 'en',
