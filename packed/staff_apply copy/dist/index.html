@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="./favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="./js/index.js"></script>
+    <title>Surupas-雇用契約管理</title>
+    <script type="module" crossorigin src="./assets/index-z74FN9Cj.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CfIAFpdH.css">
+  </head>
+  <!-- <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body> -->
+
+<body>
+  <generic-master-system id="app-root"></generic-master-system>
+
+  <script>
+    const params = new URLSearchParams(window.location.search)
+
+    const appType = params.get('data_type') ?? 'basic'
+
+    const element = document.getElementById('app-root')
+
+    element.setAttribute(
+      'j',
+      JSON.stringify({
+        user_id: 'its',
+        staff_id: '40398b6a-8bc6-493f-8794-da1dad68a235',
+        staff_code: '33333',
+        user_name: '千葉 太郎',
+        tid: 'janga_vue_base_system',
+        app_type: appType
+      })
+    )
+  </script>
+
+</body>
+</html>
+
