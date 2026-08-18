@@ -67,7 +67,7 @@ watch(
     <template #item="{ item, props }">
       <v-list-item v-bind="props">
         <template #prepend>
-          <span class="fi" :class="`fi-${item.raw.flag}`" style="margin-right: 8px;"></span>
+          <span class="fi" :class="`fi-${item.flag}`" style="margin-right: 8px;"></span>
         </template>
       </v-list-item>
     </template>

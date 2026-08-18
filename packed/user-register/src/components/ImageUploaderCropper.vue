@@ -78,6 +78,8 @@ defineExpose({
       accept="image/*"
       :label="label"
       capture="environment"
+      prepend-icon=""
+      prepend-inner-icon="mdi-paperclip"
       @change="onFileChange"
     />
 

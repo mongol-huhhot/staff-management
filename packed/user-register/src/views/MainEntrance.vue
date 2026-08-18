@@ -17,24 +17,68 @@ const selectedRowData = ref({
   content: {}
 })
 
+
+// ログイン完了までDashboardを描画しない
+const loginReady = ref(false)
+const initReady = ref(false)
+
+const isLocalDev = () => {
+  return window.location.hostname === 'localhost' ||
+         window.location.hostname === '127.0.0.1'
+}
+
+// ユーザー登録のためのログイン処理
+async function devLogin() {
+  return await dataStore.login(
+    {
+      user: import.meta.env.VITE_DEV_LOGIN_USER || 'its@janga.co.jp',
+      password: import.meta.env.VITE_DEV_LOGIN_PASSWORD || 'janga1',
+    },
+    {
+      persist: true,
+      loading: true,
+    }
+  )
+}
+
+async function checkLogin() {
+  console.log("checkLogin=====", isLocalDev() )
+  // ログインチェック
+  if ( isLocalDev() ) {
+    const result = await devLogin()
+    console.log('Dev login result:', result)
+    loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
+
+  } else {
+     console.log("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
+    // 通常環境：全体ログインに頼る
+    const verified = await dataStore.verify({
+      loading: false,
+    })
+    loginReady.value = !!verified
+  }
+
+  return loginReady.value
+}
+
 // ユーザー登録のためのログイン処理
 // ローカルホストでのみ実行されるようにしている
 // 本番環境では、ユーザー登録は別の方法で行うことを想定している
 // ここでは、デモ用のユーザー登録を行う
 // <%user%>と<%password%>は、実際のユーザー名とパスワードに置き換える必要がある
-async function login() {
-  const result = await dataStore.login({
-    user: 'its@janga.co.jp',
-    password: 'janga1',
-  },{remember: false})
+// async function login() {
+//   const result = await dataStore.login({
+//     user: 'sysadmin',
+//     password: 'janga1',
+//   },{remember: false})
 
-  console.log('Login result:', result)
-  return result
-}
+//   console.log('Login result:', result)
+//   return result
+// }
 
-onBeforeMount(async () => {
-  if(! await login() ) return
-})
+// onBeforeMount(async () => {
+//   if(! await login() ) return
+// })
 
 async function handleDataSaved(result) {
   console.log('保存しました。有難うございました。')

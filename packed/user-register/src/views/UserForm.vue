@@ -193,7 +193,7 @@ const genders = computed(() => [
               v-model="slotData.content.fullName"
               :rules="[rules.required]"
               required
-              dense
+              density="compact"
               hide-details
             />
           </v-col>
@@ -207,7 +207,7 @@ const genders = computed(() => [
               :error-messages="userIdError"
               required
               @change="checkUserId"
-              dense
+              density="compact"
               hide-details
             />
           </v-col>
@@ -221,7 +221,7 @@ const genders = computed(() => [
               :error="!!mailError"
               :error-messages="mailError"
               @change="checkEmail"
-              dense
+              density="compact"
               hide-details
             />
           </v-col>
@@ -233,9 +233,10 @@ const genders = computed(() => [
               :type="showPassword ? 'text' : 'password'"
               :rules="[rules.required, rules.minLength(6)]"
               required
-              append-icon="mdi-eye"
+              append-icon=""
+              append-inner-icon="mdi-eye"
               @click:append="togglePassword"
-              dense
+              density="compact"
               hide-details
             />
           </v-col>
@@ -250,7 +251,7 @@ const genders = computed(() => [
               item-title="label"
               item-value="value"
               :rules="[rules.required]"
-              dense
+              density="compact"
               hide-details
             />
           </v-col>
@@ -259,7 +260,17 @@ const genders = computed(() => [
             <!-- select-text="確定"
             cancel-text="キャンセル"
             placeholder="生年月日" -->
-            <VueDatePicker v-model="slotData.content.bithday" 
+            <v-date-input 
+            density="compact"
+            v-model="slotData.content.bithday" 
+            :placeholder="t('common.placeholder')"
+            :format-locale="ja"
+            prepend-icon=""
+            prepend-inner-icon="$calendar"
+            hide-details
+            style="margin: 0; padding: 0; width: 100%;">
+            </v-date-input>
+            <!-- <VueDatePicker v-model="slotData.content.bithday" 
               class="mt-2"
               :format-locale="ja"
               format="yyyy-MM-dd"
@@ -267,7 +278,7 @@ const genders = computed(() => [
               :cancel-text="t('common.cancel-text')"
               :placeholder="t('common.placeholder')"
               style="margin: 0; padding: 0; width: 100%;"
-            />
+            /> -->
           </v-col>
 
           <v-col cols="12" md="6">
@@ -277,7 +288,7 @@ const genders = computed(() => [
               :label="t('common.address')"
               v-model="slotData.content.address"
               :rules="[rules.required]"
-              dense
+              density="compact"
               hide-details
               :rows="2"
               auto-grow
@@ -291,6 +302,8 @@ const genders = computed(() => [
               :label="t('common.faceImage')"
               returnType="base64"
               style="margin: 0; padding: 0;"
+              density="compact"
+              hide-details
             />
           </v-col>
         </v-row>

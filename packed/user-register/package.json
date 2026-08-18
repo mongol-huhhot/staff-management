@@ -39,7 +39,7 @@
     "vue-router": "^4.3.0",
     "vue3-datepicker": "^0.4.0",
     "vue3-ts-jsoneditor": "^2.11.2",
-    "vuetify": "^3.6.0-beta.0.0",
+    "vuetify": "^4.1.8",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
