@@ -25,12 +25,12 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '^/[^/]+/dataEngine/.*': {
-        target: 'https://surupas-run.native365.net',
+        target: 'https://surupas-dev.native365.net',
         changeOrigin: true,
         secure: false
       },
       '^/[^/]+/common/.*': {
-        target: 'https://surupas-run.native365.net',
+        target: 'https://surupas-dev.native365.net',
         changeOrigin: true,
         secure: false
       }      

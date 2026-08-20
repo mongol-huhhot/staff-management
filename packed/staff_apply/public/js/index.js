@@ -606,6 +606,22 @@ vehicle_inspection: {
         { field: 'certificate', headerName: '車検証' },
     ]
 },
+thumbnail: {
+    editable: true,
+    height: 360,
+    width: 360,
+    returnType: 'blob',
+    direction: 'row',
+    swapSizeInLandscape: true,
+    compressRatio: 1,
+    jpegQuality: 0.9,
+    outputFormat: 'image/jpeg',
+    maxWidth: 0,
+    maxHeight: 0,
+    files: [
+        { field: 'front', headerName: '顔写真' },
+    ]
+},
 };
 window.appConfig.buttonRules = {
   draft: {

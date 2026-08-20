@@ -12,9 +12,13 @@ import { useI18n } from 'vue-i18n';
 import axios from "axios";
 import { useAppConfigStore } from '@/stores/AppConfigStore';
 import VerificationCodeSection from "@/components/VerificationCodeSection.vue";
+import { useFileStore } from "@/stores/useFileStore";
 
 const configStore = useAppConfigStore()
 configStore.loadFromWindow()
+
+const filestore = useFileStore()
+
 
 const loading = ref(false);
 // configStore?.depend
@@ -52,7 +56,7 @@ const tenant_id = computed(() => {
     const paths = path.split("/");
     return paths[1];
   } 
-  return 'premier';
+  return 'showcase';
 });
 
 const sendCodeURI = computed(() =>
@@ -86,25 +90,40 @@ async function sendCode(data) {
 
 async function verifyCode(data) {
   errorMessage.value = "";
+
   if (!verificationCode.value) {
     errorMessage.value = "Please enter the verification code.";
     return;
   }
+
   try {
-    const response = await axios.post(verifyCodeURI.value, {
-      j: JSON.stringify({
-        mailaddress: data.email,
-        check_code: verificationCode.value,
-      }),
-    });
+    const response = await axios.post(
+      verifyCodeURI.value,
+      {
+        j: JSON.stringify({
+          mailaddress: data.email,
+          check_code: verificationCode.value,
+        }),
+      },
+      {
+        headers: {
+          "X-Tenant-ID": tenant_id.value,
+        },
+      }
+    );
+
     if (response.data.result === "ok") {
       codeVerified.value = true;
       errorMessage.value = "";
     } else {
-      errorMessage.value = response.data.message || "Invalid verification code.";
+      errorMessage.value =
+        response.data.message || "Invalid verification code.";
     }
   } catch (error) {
-    errorMessage.value = error.message || "An unexpected error occurred.";
+    errorMessage.value =
+      error.response?.data?.message ||
+      error.message ||
+      "An unexpected error occurred.";
   }
 }
 
@@ -123,6 +142,7 @@ const resetForm = (data) => {
 
 const imageMeta = ref(null);
 const handleCropped = (data) => {
+  console.log("handlecropped",data)
   imageMeta.value = data;
 };
 
@@ -148,22 +168,78 @@ async function checkEmail(e) {
 }
 
 async function saveAll(data) {
-  console.log("Saving data...", data);
-  data.content.password = data.password;
+  console.log('Saving data...', data);
 
-  data.content.signin = configStore.mail_confirm
-  if(imageMeta.value) {
-    data.content.thumbnail = { name: imageMeta.value.name, mime: imageMeta.value.mime, size: imageMeta.value.size, encode: 'base64' };
-    data.draft_thumbnail_data = imageMeta.value.base64;
-  } else {
-    data.content.thumbnail = { name: '', mime: '', size: 0, encode: 'base64' };
-    data.draft_thumbnail_data = null;
+  // 引数を直接変更しないよう、保存用データを作成
+  const saveData = {
+    ...data,
+    content: {
+      ...(data.content ?? {}),
+      password: data.password,
+      signin: Boolean(configStore.mail_confirm),
+    },
+    draft_status: 'pending',
+  };
+
+  try {
+    if (imageMeta.value?.blob) {
+      const { name = '', mime = '', size = 0, blob } = imageMeta.value;
+
+      saveData.content.thumbnail = {
+        name,
+        mime,
+        size,
+      };
+
+      const uploadResult = await filestore.uploadFile(blob, {
+        category: 'user/user-register',
+        owner_type: 'user',
+        owner_id: `user_${saveData.userid}`,
+        file_kind: 'thumbnail_front',
+      });
+
+      if (!uploadResult?.file_kind || !uploadResult?.file_uuid) {
+        throw new Error('画像アップロード結果が不正です。');
+      }
+
+      console.log(
+        'user-register.uploadfile.result:',
+        uploadResult
+      );
+
+      saveData.draft_thumbnail_data = {
+        "thumbnail": [
+          {
+            "file_kind": uploadResult.file_kind,
+            "file_uuid": uploadResult.file_uuid,
+          },
+        ],
+      };
+    } else {
+      saveData.content.thumbnail = {
+        name: '',
+        mime: '',
+        size: 0,
+      };
+
+      saveData.draft_thumbnail_data = null;
+    }
+
+    // 画像のアップロード完了後にユーザーを登録
+    const registerResult = await dataStore.register_user(saveData);
+
+    // メール確認が有効な場合のみ確認コードを送信
+    if (configStore.mail_confirm) {
+      await sendCode(saveData);
+    }
+
+    return registerResult;
+  } catch (error) {
+    console.error('フォーム内容の保存に失敗しました:', error);
+
+    // 呼び出し元でもエラーを処理できるようにする
+    throw error;
   }
-  data.draft_status = 'pending';
-  await dataStore.register_user(data);
-
-  if( configStore.mail_confirm)
-    await sendCode(data);
 }
 
 function checkInput() {
@@ -216,6 +292,7 @@ const genders = computed(() => [
             <v-text-field
               :label="t('common.email')"
               v-model="slotData.email"
+              autocomplete="email"
               :rules="[rules.required, rules.email]"
               required
               :error="!!mailError"
@@ -230,12 +307,12 @@ const genders = computed(() => [
             <v-text-field
               :label="t('common.password')"
               v-model="slotData.password"
+              autocomplete="new-password"
               :type="showPassword ? 'text' : 'password'"
+              :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
               :rules="[rules.required, rules.minLength(6)]"
               required
-              append-icon=""
-              append-inner-icon="mdi-eye"
-              @click:append="togglePassword"
+              @click:append-inner="togglePassword"
               density="compact"
               hide-details
             />
@@ -300,7 +377,6 @@ const genders = computed(() => [
             <ImageUploaderCropper
               ref="cropRef" @cropped="handleCropped" 
               :label="t('common.faceImage')"
-              returnType="base64"
               style="margin: 0; padding: 0;"
               density="compact"
               hide-details
