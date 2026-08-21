@@ -225,8 +225,12 @@ async function saveAll(data) {
       saveData.draft_thumbnail_data = null;
     }
 
+    const options = {
+            requireAuth: false,
+        }
+
     // 画像のアップロード完了後にユーザーを登録
-    const registerResult = await dataStore.register_user(saveData);
+    const registerResult = await dataStore.register_user(saveData,options);
 
     // メール確認が有効な場合のみ確認コードを送信
     if (configStore.mail_confirm) {

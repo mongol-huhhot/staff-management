@@ -71,7 +71,11 @@ export const useDataStore = defineStore("dataStore", () => {
             check_userid_email: {SQL_TAG: sqlTags.check_userid_email, ...p },
         }
 
-        const result = await BaseStore.excecuteMultiQuery(params);
+        const options = {
+            requireAuth: false,
+        }
+
+        const result = await BaseStore.excecuteMultiQuery(params,options);
 
         console.log("result=",result)
 

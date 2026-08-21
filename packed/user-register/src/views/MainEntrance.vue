@@ -18,7 +18,7 @@ const selectedRowData = ref({
 })
 
 
-// ログイン完了までDashboardを描画しない
+
 const loginReady = ref(false)
 const initReady = ref(false)
 
@@ -31,7 +31,7 @@ const isLocalDev = () => {
 async function devLogin() {
   return await dataStore.login(
     {
-      user: import.meta.env.VITE_DEV_LOGIN_USER || 'its@janga.co.jp',
+      user: import.meta.env.VITE_DEV_LOGIN_USER || 'sysadmin',
       password: import.meta.env.VITE_DEV_LOGIN_PASSWORD || 'janga1',
     },
     {
@@ -49,15 +49,7 @@ async function checkLogin() {
     console.log('Dev login result:', result)
     loginReady.value = result?.code === 0 && !!(localStorage.getItem('token') || sessionStorage.getItem('token'))
 
-  } else {
-     console.log("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
-    // 通常環境：全体ログインに頼る
-    const verified = await dataStore.verify({
-      loading: false,
-    })
-    loginReady.value = !!verified
-  }
-
+  } 
   return loginReady.value
 }
 
@@ -76,9 +68,9 @@ async function checkLogin() {
 //   return result
 // }
 
-// onBeforeMount(async () => {
-//   if(! await login() ) return
-// })
+onBeforeMount(async () => {
+  if(! await checkLogin() ) return
+})
 
 async function handleDataSaved(result) {
   console.log('保存しました。有難うございました。')
@@ -224,12 +216,35 @@ const logo = {
         </div>
       </v-col>
 
-      <v-col cols="12" md="6" class="fill-height" style="background-color: #f5f5f5;">
+      <v-col cols="12" md="6" class="fill-height blue-gradient ad-panel" style="background-color: #f5f5f5;">
         <iframe
           :src="jangaAdvertisementUri"
           style="width: 100%; height: 100%; border: none;"
+          class="ad-frame"
         ></iframe>
       </v-col>
     </v-row>
   </v-container>
 </template>
+
+<style>
+.blue-gradient {
+  background: linear-gradient(
+    #00b9ef,      
+    #e6f7ff      
+  );
+}
+.ad-panel {
+    flex: 0 0 50%;
+    width: 50%;
+    max-width: 50%;
+    height: 100%;
+    min-height: 0;
+  }
+.ad-frame {
+  display: block;
+  width: 100%;
+  min-height: 670px;
+  border: 0;
+}
+</style>
